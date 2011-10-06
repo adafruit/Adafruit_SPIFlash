@@ -54,7 +54,7 @@
 #define W25Q16BV_CMD_JEDECID        0x9F   // JEDEC ID
 #define W25Q16BV_CMD_READUNIQUEID   0x4B   // Read Unique ID
  
-class SPIFlash{
+class SPIFlash  : public Print {
  public:
   SPIFlash(uint8_t cs, uint8_t clk, uint8_t mosi, uint8_t miso);
   void begin(void);
@@ -70,10 +70,19 @@ class SPIFlash{
   uint32_t EraseSector (uint32_t sectorNumber);
   uint32_t EraseChip (void);
   uint32_t WritePage (uint32_t address, uint8_t *buffer, uint32_t len);
-  uint32_t Write (uint32_t address, uint8_t *buffer, uint32_t len);
+  uint32_t writeBuffer (uint32_t address, uint8_t *buffer, uint32_t len);
+  uint32_t findFirstEmptyAddr(void);
+  void seek(uint32_t);
+  void write(uint8_t b);
+  boolean appendData(void);
+  uint32_t getAddr();
 
  private:
   uint8_t _ss, _clk, _mosi, _miso;
+  volatile uint8_t *clkportreg, *misoportreg;
+  uint8_t clkpin, misopin;
+
+  uint32_t currentAddr;
 
   uint8_t readstatus();
   void readspidata(uint8_t* buff, uint8_t n);

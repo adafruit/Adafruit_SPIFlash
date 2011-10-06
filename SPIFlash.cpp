@@ -1,5 +1,7 @@
 #include <WProgram.h>
 #include "SPIFlash.h"
+#include "pins_arduino.h"
+#include "wiring_private.h"
 
 #define SPIFLASH_BUFFERSIZE   (W25Q16BV_PAGESIZE)
 byte spiflash_buffer[SPIFLASH_BUFFERSIZE];
@@ -21,9 +23,17 @@ SPIFlash::SPIFlash(uint8_t clk, uint8_t miso, uint8_t mosi, uint8_t ss)
   pinMode(_clk, OUTPUT);
   pinMode(_mosi, OUTPUT);
   pinMode(_miso, INPUT);
+
 }
 
 void SPIFlash::begin() {
+
+  clkportreg =  portOutputRegister(digitalPinToPort(_clk));
+  clkpin = digitalPinToBitMask(_clk);
+  misoportreg =  portInputRegister(digitalPinToPort(_miso));
+  misopin = digitalPinToBitMask(_miso);
+
+  currentAddr = 0;
 }
 
 /* *************** */
@@ -70,41 +80,58 @@ void SPIFlash::spiwrite(uint8_t c)
   int8_t i;
   // MSB first, clock low when inactive (CPOL 0), data valid on leading edge (CPHA 0) 
   // Make sure clock starts low
-  digitalWrite(_clk, LOW);
-  for (i=7; i>=0; i--) 
-  {
-    digitalWrite(_clk, LOW);    
-    if (c & (1<<i)) 
-	{
-      digitalWrite(_mosi, HIGH);
-    } else 
-	{
-      digitalWrite(_mosi, LOW);
+
+  // slow version - built in shiftOut function
+  //shiftOut(_mosi, _clk, MSBFIRST, c); return;
+
+  volatile uint8_t *clkportreg, *mosiportreg;
+  uint8_t clkpin, mosipin;
+
+  clkportreg =  portOutputRegister(digitalPinToPort(_clk));
+  clkpin = digitalPinToBitMask(_clk);
+  mosiportreg =  portOutputRegister(digitalPinToPort(_mosi));
+  mosipin = digitalPinToBitMask(_mosi);
+
+  for (i=7; i>=0; i--) {
+    *clkportreg &= ~clkpin;
+    if (c & (1<<i)) {
+      *mosiportreg |= mosipin;
+    } else {
+      *mosiportreg &= ~mosipin;
     }    
-    digitalWrite(_clk, HIGH);
+    *clkportreg |= clkpin;
   }
+
+  *clkportreg &= ~clkpin;
   // Make sure clock ends low
-  digitalWrite(_clk, LOW);
 }
 
 uint8_t SPIFlash::spiread(void) 
 {
+  return shiftIn(_miso, _clk, MSBFIRST);
+
   int8_t i, x;
   x = 0;
+
+
+
+
   // MSB first, clock low when inactive (CPOL 0), data valid on leading edge (CPHA 0) 
   // Make sure clock starts low
-  digitalWrite(_clk, LOW);
-  for (i=7; i>=0; i--) 
-  {
-    digitalWrite(_clk, LOW);
-    if (digitalRead(_miso)) 
-	{
-      x |= (1<<i);
+
+  for (i=7; i>=0; i--)  {
+    *clkportreg &= ~clkpin;
+
+    asm("nop; nop");
+    if ((*misoportreg) & misopin) {
+      x <<= 1;
+      x |= 1;
     }
-    digitalWrite(_clk, HIGH);
+    *clkportreg |= clkpin;
   }
   // Make sure clock ends low
-  digitalWrite(_clk, LOW);
+  *clkportreg &= ~clkpin;
+
   return x;
 }
 
@@ -525,7 +552,7 @@ uint32_t SPIFlash::WritePage (uint32_t address, uint8_t *buffer, uint32_t len)
                 address and size of the flash device.
 */
 /**************************************************************************/
-uint32_t SPIFlash::Write (uint32_t address, uint8_t *buffer, uint32_t len)
+uint32_t SPIFlash::writeBuffer(uint32_t address, uint8_t *buffer, uint32_t len)
 {
   uint32_t bytestowrite;
   uint32_t bufferoffset;
@@ -576,4 +603,80 @@ uint32_t SPIFlash::Write (uint32_t address, uint8_t *buffer, uint32_t len)
 
   // Return the number of bytes written
   return byteswritten;
+}
+
+
+
+
+/**************************************************************************/
+/*! 
+    @brief Finds append address
+
+*/
+/**************************************************************************/
+uint32_t SPIFlash::findFirstEmptyAddr(void)
+{
+  uint32_t address, latestUsedAddr;
+  uint8_t b;
+
+  // Wait until the device is ready or a timeout occurs
+  if (WaitForReady())
+    return 0;
+
+
+  for (int16_t page=0; page < W25Q16BV_PAGES; page++) {
+    
+    address = page * W25Q16BV_PAGESIZE;
+
+    // read every byte of the page, compare to 0xFF
+    // Send the read data command
+    digitalWrite(_ss, LOW);
+    spiwrite(W25Q16BV_CMD_READDATA);      // 0x03
+    spiwrite((address >> 16) & 0xFF);     // address upper 8
+    spiwrite((address >> 8) & 0xFF);      // address mid 8
+    spiwrite(address & 0xFF);             // address lower 8
+
+    //Serial.print("0x");
+    //Serial.print(address, HEX);
+
+    for (int16_t i=0; i<W25Q16BV_PAGESIZE; i++) {
+      b = spiread();
+      // Serial.print(", 0x");
+      //Serial.print(b, HEX); 
+      if (b == 0xFF) {
+	// found a byte that is 'empty'
+	Serial.print("Found an empty byte at ");
+	Serial.println(latestUsedAddr, HEX);
+	return address + i;
+      }
+    }
+    digitalWrite(_ss, HIGH);
+  }
+
+  // Return bytes written
+  return -1;
+}
+
+
+void SPIFlash::seek(uint32_t addr) {
+  currentAddr = addr;
+}
+
+uint32_t SPIFlash::getAddr(void) {
+  return currentAddr;
+}
+
+boolean SPIFlash::appendData(void) {
+  uint32_t addr = findFirstEmptyAddr();
+  if (addr == -1) return false;
+  seek(addr);
+}
+
+void SPIFlash::write(uint8_t b) {
+  // start out with the 'silliest' way
+  uint8_t x[1];
+  x[0] = b;
+  
+  writeBuffer(currentAddr++, x, 1);
+
 }
