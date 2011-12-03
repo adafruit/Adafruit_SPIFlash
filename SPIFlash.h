@@ -1,7 +1,11 @@
 // SPIFlash library by adafruit
 // MIT license
 
-#include <WProgram.h>
+#if ARDUINO >= 100
+ #include "Arduino.h"
+#else
+ #include "WProgram.h"
+#endif
 
 #define  SPIFLASH_SPI_STATREAD      0x02
 #define  SPIFLASH_SPI_DATAWRITE     0x01

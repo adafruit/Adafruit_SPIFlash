@@ -1,4 +1,3 @@
-#include <WProgram.h>
 #include "SPIFlash.h"
 #include "pins_arduino.h"
 #include "wiring_private.h"
