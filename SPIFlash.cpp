@@ -671,11 +671,10 @@ boolean SPIFlash::appendData(void) {
   seek(addr);
 }
 
-void SPIFlash::write(uint8_t b) {
+size_t SPIFlash::write(uint8_t b) {
   // start out with the 'silliest' way
   uint8_t x[1];
   x[0] = b;
   
-  writeBuffer(currentAddr++, x, 1);
-
+  return writeBuffer(currentAddr++, x, 1);
 }

@@ -77,7 +77,7 @@ class SPIFlash  : public Print {
   uint32_t writeBuffer (uint32_t address, uint8_t *buffer, uint32_t len);
   uint32_t findFirstEmptyAddr(void);
   void seek(uint32_t);
-  void write(uint8_t b);
+  size_t write(uint8_t b);
   boolean appendData(void);
   uint32_t getAddr();
 
