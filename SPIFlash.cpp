@@ -25,7 +25,8 @@ SPIFlash::SPIFlash(uint8_t clk, uint8_t miso, uint8_t mosi, uint8_t ss)
 
 }
 
-void SPIFlash::begin() {
+boolean SPIFlash::begin(spiflash_type_t t) {
+  type = t;
 
   clkportreg =  portOutputRegister(digitalPinToPort(_clk));
   clkpin = digitalPinToBitMask(_clk);
@@ -33,6 +34,18 @@ void SPIFlash::begin() {
   misopin = digitalPinToBitMask(_miso);
 
   currentAddr = 0;
+
+  if (type == SPIFLASHTYPE_W25Q16BV) {
+    pagesize = 256;
+  } 
+  else if (type == SPIFLASHTYPE_25C02) {
+    pagesize = 32;
+  } 
+  else {
+    pagesize = 0;
+    return false;
+  }
+  return true;
 }
 
 /* *************** */
@@ -340,10 +353,18 @@ uint32_t SPIFlash::ReadBuffer (uint32_t address, uint8_t *buffer, uint32_t len)
 
   // Send the read data command
   digitalWrite(_ss, LOW);
-  spiwrite(W25Q16BV_CMD_READDATA);      // 0x03
-  spiwrite((address >> 16) & 0xFF);     // address upper 8
-  spiwrite((address >> 8) & 0xFF);      // address mid 8
-  spiwrite(address & 0xFF);             // address lower 8
+  if (type == SPIFLASHTYPE_W25Q16BV) { // 24 bit addr
+    spiwrite(W25Q16BV_CMD_READDATA);      // 0x03
+    spiwrite((address >> 16) & 0xFF);     // address upper 8
+    spiwrite((address >> 8) & 0xFF);      // address mid 8
+    spiwrite(address & 0xFF);             // address lower 8
+  }
+  else if (type == SPIFLASHTYPE_25C02) { // 16 bit addr
+    spiwrite(SPIFLASH_SPI_DATAREAD);      // 0x03
+    spiwrite((address >> 8) & 0xFF);      // address high 8
+    spiwrite(address & 0xFF);             // address lower 8
+  }
+
   // Fill response buffer
   for (a = address; a < address + len; a++, i++)
   {
@@ -473,13 +494,13 @@ uint32_t SPIFlash::WritePage (uint32_t address, uint8_t *buffer, uint32_t len)
   }
 
   // Make sure that the supplied data is no larger than the page size
-  if (len > W25Q16BV_PAGESIZE)
+  if (len > pagesize)
   {
     return 0;
   }
 
   // Make sure that the data won't wrap around to the beginning of the sector
-  if ((address % W25Q16BV_PAGESIZE) + len > W25Q16BV_PAGESIZE)
+  if ((address % pagesize) + len > pagesize)
   {
     // If you try to write to a page beyond the last byte, it will
     // wrap around to the start of the page, almost certainly
@@ -502,20 +523,31 @@ uint32_t SPIFlash::WritePage (uint32_t address, uint8_t *buffer, uint32_t len)
     return 0;
   }
 
-  // Send page write command (0x02) plus 24-bit address
   digitalWrite(_ss, LOW);
-  spiwrite(W25Q16BV_CMD_PAGEPROG);      // 0x02
-  spiwrite((address >> 16) & 0xFF);     // address upper 8
-  spiwrite((address >> 8) & 0xFF);      // address mid 8
-  if (len == 256)
-  {
-    // If len = 256 bytes, lower 8 bits must be 0 (see datasheet 11.2.17)
-    spiwrite(0);
+
+  if (type == SPIFLASHTYPE_W25Q16BV) {
+    // Send page write command (0x02) plus 24-bit address
+    spiwrite(W25Q16BV_CMD_PAGEPROG);      // 0x02
+    spiwrite((address >> 16) & 0xFF);     // address upper 8
+    spiwrite((address >> 8) & 0xFF);      // address mid 8
+    if (len == pagesize)
+      {
+	// If len = 256 bytes, lower 8 bits must be 0 (see datasheet 11.2.17)
+	spiwrite(0);
+      }
+    else
+      {
+	spiwrite(address & 0xFF);           // address lower 8
+      }
+  } else if (type == SPIFLASHTYPE_25C02) {
+    // Send page write command (0x02) plus 16-bit address
+    spiwrite(W25Q16BV_CMD_PAGEPROG);      // 0x02
+    spiwrite((address >> 8) & 0xFF);     // address upper 8
+    spiwrite((address) & 0xFF);      // address lower 8
+  } else {
+    return 0;
   }
-  else
-  {
-    spiwrite(address & 0xFF);           // address lower 8
-  }
+
   // Transfer data
   for (i = 0; i < len; i++)
   {
@@ -562,7 +594,7 @@ uint32_t SPIFlash::writeBuffer(uint32_t address, uint8_t *buffer, uint32_t len)
   // done in the underlying call to spiflashWritePage
 
   // If the data is only on one page we can take a shortcut
-  if ((address % W25Q16BV_PAGESIZE) + len <= W25Q16BV_PAGESIZE)
+  if ((address % pagesize) + len <= pagesize)
   {
     // Only one page ... write and be done with it
     return WritePage(address, buffer, len);
@@ -574,7 +606,7 @@ uint32_t SPIFlash::writeBuffer(uint32_t address, uint8_t *buffer, uint32_t len)
   while(len)
   {
     // Figure out how many bytes need to be written to this page
-    bytestowrite = W25Q16BV_PAGESIZE - (address % W25Q16BV_PAGESIZE);
+    bytestowrite = pagesize - (address % pagesize);
     // Write the current page
     results = WritePage(address, buffer+bufferoffset, bytestowrite);
 	byteswritten += results;
@@ -587,7 +619,7 @@ uint32_t SPIFlash::writeBuffer(uint32_t address, uint8_t *buffer, uint32_t len)
     bufferoffset+=bytestowrite;
     // If the next page is the last one, write it and exit
     // otherwise stay in the the loop and keep writing
-    if (len <= W25Q16BV_PAGESIZE)
+    if (len <= pagesize)
     {
       // Write the last frame and then quit
       results = WritePage(address, buffer+bufferoffset, len);

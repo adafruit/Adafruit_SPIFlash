@@ -58,10 +58,17 @@
 #define W25Q16BV_CMD_JEDECID        0x9F   // JEDEC ID
 #define W25Q16BV_CMD_READUNIQUEID   0x4B   // Read Unique ID
  
+
+typedef enum
+{
+  SPIFLASHTYPE_W25Q16BV,
+  SPIFLASHTYPE_25C02,
+} spiflash_type_t;
+
 class SPIFlash  : public Print {
  public:
   SPIFlash(uint8_t cs, uint8_t clk, uint8_t mosi, uint8_t miso);
-  void begin(void);
+  boolean begin(spiflash_type_t t);
 
   // Help functions to display formatted text
   void PrintHex(const byte * data, const uint32_t numBytes);
@@ -80,15 +87,18 @@ class SPIFlash  : public Print {
   size_t write(uint8_t b);
   boolean appendData(void);
   uint32_t getAddr();
+  uint8_t readstatus();
 
  private:
+  spiflash_type_t type;
+  uint16_t pagesize; 
+
   uint8_t _ss, _clk, _mosi, _miso;
   volatile uint8_t *clkportreg, *misoportreg;
   uint8_t clkpin, misopin;
 
   uint32_t currentAddr;
 
-  uint8_t readstatus();
   void readspidata(uint8_t* buff, uint8_t n);
   void spiwrite(uint8_t c);
   uint8_t spiread(void);
