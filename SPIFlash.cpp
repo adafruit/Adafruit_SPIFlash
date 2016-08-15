@@ -37,10 +37,22 @@ boolean SPIFlash::begin(spiflash_type_t t) {
 
   if (type == SPIFLASHTYPE_W25Q16BV) {
     pagesize = 256;
+    addrsize = 24;
+    pages = 8192;
+    totalsize = pages * pagesize; // 2 MBytes
   } 
   else if (type == SPIFLASHTYPE_25C02) {
     pagesize = 32;
+    addrsize = 16;
+    pages = 8;
+    totalsize = pages * pagesize; // 256 bytes
   } 
+  else if (type == SPIFLASHTYPE_W25X40CL) {
+    pagesize = 256;
+    addrsize = 24;
+    pages = 2048;
+    totalsize =  pages * pagesize; // 512 Kbytes
+  }
   else {
     pagesize = 0;
     return false;
@@ -336,13 +348,13 @@ void SPIFlash::WriteEnable (bool enable)
                 Length of the buffer.
 */
 /**************************************************************************/
-uint32_t SPIFlash::ReadBuffer (uint32_t address, uint8_t *buffer, uint32_t len)
+uint32_t SPIFlash::readBuffer (uint32_t address, uint8_t *buffer, uint32_t len)
 {
   uint32_t a, i;
   a = i = 0;
 
   // Make sure the address is valid
-  if (address >= W25Q16BV_MAXADDRESS)
+  if (address >= totalsize)
   {
     return 0;
   }
@@ -353,13 +365,14 @@ uint32_t SPIFlash::ReadBuffer (uint32_t address, uint8_t *buffer, uint32_t len)
 
   // Send the read data command
   digitalWrite(_ss, LOW);
-  if (type == SPIFLASHTYPE_W25Q16BV) { // 24 bit addr
-    spiwrite(W25Q16BV_CMD_READDATA);      // 0x03
+
+  if (addrsize == 24) { // 24 bit addr
+    spiwrite(SPIFLASH_SPI_DATAREAD);      // 0x03
     spiwrite((address >> 16) & 0xFF);     // address upper 8
     spiwrite((address >> 8) & 0xFF);      // address mid 8
     spiwrite(address & 0xFF);             // address lower 8
   }
-  else if (type == SPIFLASHTYPE_25C02) { // 16 bit addr
+  else { // (addrsize == 16) // 16 bit addr, assumed
     spiwrite(SPIFLASH_SPI_DATAREAD);      // 0x03
     spiwrite((address >> 8) & 0xFF);      // address high 8
     spiwrite(address & 0xFF);             // address lower 8
@@ -368,7 +381,7 @@ uint32_t SPIFlash::ReadBuffer (uint32_t address, uint8_t *buffer, uint32_t len)
   // Fill response buffer
   for (a = address; a < address + len; a++, i++)
   {
-    if (a > W25Q16BV_MAXADDRESS)
+    if (a > totalsize)
     {
       // Oops ... we're at the end of the flash memory
 	  // return bytes written up until now
@@ -437,30 +450,44 @@ uint32_t SPIFlash::EraseSector (uint32_t sectorNumber)
 /**************************************************************************/
 uint32_t SPIFlash::EraseChip (void)
 {
+  Serial.println("A");
   // Wait until the device is ready or a timeout occurs
   if (WaitForReady())
     return 0;
 
+  Serial.println("B");
+  Serial.print("Stat: "); Serial.println(readstatus(), HEX);
   // Make sure the chip is write enabled
   WriteEnable (1);
+
+  Serial.println("C");
 
   // Make sure the write enable latch is actually set
   uint8_t status;
   status = readstatus();
+  Serial.print("Stat: "); Serial.println(readstatus(), HEX);
   if (!(status & SPIFLASH_STAT_WRTEN))
   {
     // Throw a write protection error (write enable latch not set)
     return 0;
   }
 
+  Serial.println("D");
+
   // Send the erase chip command
   digitalWrite(_ss, LOW);
-  spiwrite(W25Q16BV_CMD_CHIPERASE); 
+  spiwrite(W25_CMD_CHIPERASE); 
   digitalWrite(_ss, HIGH);
+
+  Serial.print("Stat: "); Serial.println(readstatus(), HEX);
+
+  Serial.println("E");
 
   // Wait until the busy bit is cleared before exiting
   // This can take up to 10 seconds according to the datasheet!
-  while (readstatus() & SPIFLASH_STAT_BUSY);
+  while (readstatus() & SPIFLASH_STAT_BUSY) {
+    Serial.print("Stat: "); Serial.println(readstatus(), HEX);
+  }
 
   return 1;
 }
@@ -525,7 +552,7 @@ uint32_t SPIFlash::WritePage (uint32_t address, uint8_t *buffer, uint32_t len)
 
   digitalWrite(_ss, LOW);
 
-  if (type == SPIFLASHTYPE_W25Q16BV) {
+  if (addrsize == 24) {
     // Send page write command (0x02) plus 24-bit address
     spiwrite(W25Q16BV_CMD_PAGEPROG);      // 0x02
     spiwrite((address >> 16) & 0xFF);     // address upper 8
@@ -539,7 +566,7 @@ uint32_t SPIFlash::WritePage (uint32_t address, uint8_t *buffer, uint32_t len)
       {
 	spiwrite(address & 0xFF);           // address lower 8
       }
-  } else if (type == SPIFLASHTYPE_25C02) {
+  } else if (addrsize == 16) {
     // Send page write command (0x02) plus 16-bit address
     spiwrite(W25Q16BV_CMD_PAGEPROG);      // 0x02
     spiwrite((address >> 8) & 0xFF);     // address upper 8
@@ -662,7 +689,7 @@ uint32_t SPIFlash::findFirstEmptyAddr(void)
     // read every byte of the page, compare to 0xFF
     // Send the read data command
     digitalWrite(_ss, LOW);
-    spiwrite(W25Q16BV_CMD_READDATA);      // 0x03
+    spiwrite(SPIFLASH_SPI_DATAREAD);      // 0x03
     spiwrite((address >> 16) & 0xFF);     // address upper 8
     spiwrite((address >> 8) & 0xFF);      // address mid 8
     spiwrite(address & 0xFF);             // address lower 8

@@ -36,13 +36,12 @@
 #define W25Q16BV_CMD_SECTERASE4     0x20   // Sector Erase (4KB)
 #define W25Q16BV_CMD_BLOCKERASE32   0x52   // Block Erase (32KB)
 #define W25Q16BV_CMD_BLOCKERASE64   0xD8   // Block Erase (64KB)
-#define W25Q16BV_CMD_CHIPERASE      0x60   // Chip Erase
+#define W25_CMD_CHIPERASE      0x60   // Chip Erase
 #define W25Q16BV_CMD_ERASESUSPEND   0x75   // Erase Suspend
 #define W25Q16BV_CMD_ERASERESUME    0x7A   // Erase Resume
 #define W25Q16BV_CMD_POWERDOWN      0xB9   // Power Down
 #define W25Q16BV_CMD_CRMR           0xFF   // Continuous Read Mode Reset
 // Read Instructions
-#define W25Q16BV_CMD_READDATA       0x03   // Read Data
 #define W25Q16BV_CMD_FREAD          0x0B   // Fast Read
 #define W25Q16BV_CMD_FREADDUALOUT   0x3B   // Fast Read Dual Output
 #define W25Q16BV_CMD_FREADDUALIO    0xBB   // Fast Read Dual I/O
@@ -63,6 +62,7 @@ typedef enum
 {
   SPIFLASHTYPE_W25Q16BV,
   SPIFLASHTYPE_25C02,
+  SPIFLASHTYPE_W25X40CL,
 } spiflash_type_t;
 
 class SPIFlash  : public Print {
@@ -77,7 +77,7 @@ class SPIFlash  : public Print {
   void GetUniqueID(uint8_t *buffer);
   void GetManufacturerInfo (uint8_t *manufID, uint8_t *deviceID);
   void WriteEnable (bool enable);
-  uint32_t ReadBuffer (uint32_t address, uint8_t *buffer, uint32_t len);
+  uint32_t readBuffer (uint32_t address, uint8_t *buffer, uint32_t len);
   uint32_t EraseSector (uint32_t sectorNumber);
   uint32_t EraseChip (void);
   uint32_t WritePage (uint32_t address, uint8_t *buffer, uint32_t len);
@@ -89,9 +89,15 @@ class SPIFlash  : public Print {
   uint32_t getAddr();
   uint8_t readstatus();
 
+  uint16_t numPages() {return pages; }
+  uint16_t pageSize() {return pagesize;}
+
  private:
   spiflash_type_t type;
-  uint16_t pagesize; 
+  int32_t pagesize; 
+  int32_t pages;
+  int32_t totalsize;
+  uint8_t addrsize;
 
   uint8_t _ss, _clk, _mosi, _miso;
   volatile uint8_t *clkportreg, *misoportreg;
