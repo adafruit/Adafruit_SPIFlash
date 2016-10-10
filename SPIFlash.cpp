@@ -1,3 +1,4 @@
+#include <SPI.h>
 #include "SPIFlash.h"
 #include "pins_arduino.h"
 #include "wiring_private.h"
@@ -8,7 +9,7 @@ byte spiflash_buffer[SPIFLASH_BUFFERSIZE];
 /* ************* */
 /* CONSTRUCTORS  */
 /* ************* */
-SPIFlash::SPIFlash(uint8_t clk, uint8_t miso, uint8_t mosi, uint8_t ss) 
+SPIFlash::SPIFlash(int8_t clk, int8_t miso, int8_t mosi, int8_t ss) 
 {
   _clk = clk;
   _miso = miso;
@@ -22,16 +23,29 @@ SPIFlash::SPIFlash(uint8_t clk, uint8_t miso, uint8_t mosi, uint8_t ss)
   pinMode(_clk, OUTPUT);
   pinMode(_mosi, OUTPUT);
   pinMode(_miso, INPUT);
-
 }
+
+SPIFlash::SPIFlash(int8_t ss) 
+{
+  _clk = _miso = _mosi = -1;
+  _ss = ss;
+
+  digitalWrite(_ss, HIGH);  
+  pinMode(_ss, OUTPUT);
+}
+
 
 boolean SPIFlash::begin(spiflash_type_t t) {
   type = t;
 
-  clkportreg =  portOutputRegister(digitalPinToPort(_clk));
-  clkpin = digitalPinToBitMask(_clk);
-  misoportreg =  portInputRegister(digitalPinToPort(_miso));
-  misopin = digitalPinToBitMask(_miso);
+  if (_clk != -1) {
+    clkportreg =  portOutputRegister(digitalPinToPort(_clk));
+    clkpin = digitalPinToBitMask(_clk);
+    misoportreg =  portInputRegister(digitalPinToPort(_miso));
+    misopin = digitalPinToBitMask(_miso);
+  } else {
+    SPI.begin();
+  }
 
   currentAddr = 0;
 
@@ -101,62 +115,74 @@ void SPIFlash::readspidata(uint8_t* buff, uint8_t n)
 
 void SPIFlash::spiwrite(uint8_t c) 
 {
-  int8_t i;
-  // MSB first, clock low when inactive (CPOL 0), data valid on leading edge (CPHA 0) 
-  // Make sure clock starts low
+  if (_clk == -1) {
+    // hardware SPI
+    SPI.beginTransaction(SPISettings(8000000, MSBFIRST, SPI_MODE0));
+    SPI.transfer(c);
+    SPI.endTransaction();
+  } else {
+    // Software SPI
 
-  // slow version - built in shiftOut function
-  //shiftOut(_mosi, _clk, MSBFIRST, c); return;
-
-  volatile uint8_t *clkportreg, *mosiportreg;
-  uint8_t clkpin, mosipin;
-
-  clkportreg =  portOutputRegister(digitalPinToPort(_clk));
-  clkpin = digitalPinToBitMask(_clk);
-  mosiportreg =  portOutputRegister(digitalPinToPort(_mosi));
-  mosipin = digitalPinToBitMask(_mosi);
-
-  for (i=7; i>=0; i--) {
-    *clkportreg &= ~clkpin;
-    if (c & (1<<i)) {
-      *mosiportreg |= mosipin;
-    } else {
+    int8_t i;
+    // MSB first, clock low when inactive (CPOL 0), data valid on leading edge (CPHA 0) 
+    // Make sure clock starts low
+    // slow version - built in shiftOut function
+    //shiftOut(_mosi, _clk, MSBFIRST, c); return;
+    
+    clkportreg =  portOutputRegister(digitalPinToPort(_clk));
+    clkpin = digitalPinToBitMask(_clk);
+    mosiportreg =  portOutputRegister(digitalPinToPort(_mosi));
+    mosipin = digitalPinToBitMask(_mosi);
+    
+    for (i=7; i>=0; i--) {
+      *clkportreg &= ~clkpin;
+      if (c & (1<<i)) {
+	*mosiportreg |= mosipin;
+      } else {
       *mosiportreg &= ~mosipin;
-    }    
-    *clkportreg |= clkpin;
+      }    
+      *clkportreg |= clkpin;
+    }
+    
+    *clkportreg &= ~clkpin;
+    // Make sure clock ends low
   }
-
-  *clkportreg &= ~clkpin;
-  // Make sure clock ends low
 }
 
 uint8_t SPIFlash::spiread(void) 
 {
-  return shiftIn(_miso, _clk, MSBFIRST);
+  uint8_t x = 0;
+  if (_clk == -1) {
+    // hardware SPI
+    SPI.beginTransaction(SPISettings(8000000, MSBFIRST, SPI_MODE0));
+    x = SPI.transfer(0xFF);
+    SPI.endTransaction();
 
-  int8_t i, x;
-  x = 0;
+    return x;
+  } else {
+    // Software SPI
+    return shiftIn(_miso, _clk, MSBFIRST);
+    
+    int8_t i;
 
-
-
-
-  // MSB first, clock low when inactive (CPOL 0), data valid on leading edge (CPHA 0) 
-  // Make sure clock starts low
-
-  for (i=7; i>=0; i--)  {
-    *clkportreg &= ~clkpin;
-
-    asm("nop; nop");
-    if ((*misoportreg) & misopin) {
-      x <<= 1;
-      x |= 1;
+    // MSB first, clock low when inactive (CPOL 0), data valid on leading edge (CPHA 0) 
+    // Make sure clock starts low
+    
+    for (i=7; i>=0; i--)  {
+      *clkportreg &= ~clkpin;
+      
+      asm("nop; nop");
+      if ((*misoportreg) & misopin) {
+	x <<= 1;
+	x |= 1;
+      }
+      *clkportreg |= clkpin;
     }
-    *clkportreg |= clkpin;
+    // Make sure clock ends low
+    *clkportreg &= ~clkpin;
+    
+    return x;
   }
-  // Make sure clock ends low
-  *clkportreg &= ~clkpin;
-
-  return x;
 }
 
 /**************************************************************************/

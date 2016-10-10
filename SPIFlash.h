@@ -7,6 +7,12 @@
  #include "WProgram.h"
 #endif
 
+#if defined(__ARM__) || defined(ARDUINO_ARCH_SAMD)
+  #define REGTYPE uint32_t
+#else
+  #define REGTYPE uint8_t
+#endif
+
 #define  SPIFLASH_SPI_STATREAD      0x02
 #define  SPIFLASH_SPI_DATAWRITE     0x01
 #define  SPIFLASH_SPI_DATAREAD      0x03
@@ -67,7 +73,9 @@ typedef enum
 
 class SPIFlash  : public Print {
  public:
-  SPIFlash(uint8_t cs, uint8_t clk, uint8_t mosi, uint8_t miso);
+  SPIFlash(int8_t cs, int8_t clk, int8_t mosi, int8_t miso);
+  SPIFlash(int8_t cs);
+
   boolean begin(spiflash_type_t t);
 
   // Help functions to display formatted text
@@ -99,9 +107,9 @@ class SPIFlash  : public Print {
   int32_t totalsize;
   uint8_t addrsize;
 
-  uint8_t _ss, _clk, _mosi, _miso;
-  volatile uint8_t *clkportreg, *misoportreg;
-  uint8_t clkpin, misopin;
+  int8_t _ss, _clk, _mosi, _miso;
+  volatile REGTYPE *clkportreg, *misoportreg, *mosiportreg;
+  uint32_t clkpin, misopin, mosipin;
 
   uint32_t currentAddr;
 
