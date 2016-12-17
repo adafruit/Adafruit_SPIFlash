@@ -16,13 +16,6 @@ SPIFlash::SPIFlash(int8_t clk, int8_t miso, int8_t mosi, int8_t ss)
   _mosi = mosi;
   _ss = ss;
 
-  digitalWrite(_ss, HIGH);  
-  digitalWrite(_clk, LOW);  
-  digitalWrite(_mosi, HIGH);  
-  pinMode(_ss, OUTPUT);
-  pinMode(_clk, OUTPUT);
-  pinMode(_mosi, OUTPUT);
-  pinMode(_miso, INPUT);
 }
 
 SPIFlash::SPIFlash(int8_t ss) 
@@ -39,6 +32,13 @@ boolean SPIFlash::begin(spiflash_type_t t) {
   type = t;
 
   if (_clk != -1) {
+    pinMode(_clk, OUTPUT);
+    pinMode(_mosi, OUTPUT);
+    pinMode(_miso, INPUT);
+
+    digitalWrite(_clk, LOW);  
+    digitalWrite(_mosi, HIGH);  
+
     clkportreg =  portOutputRegister(digitalPinToPort(_clk));
     clkpin = digitalPinToBitMask(_clk);
     misoportreg =  portInputRegister(digitalPinToPort(_miso));
@@ -46,6 +46,10 @@ boolean SPIFlash::begin(spiflash_type_t t) {
   } else {
     SPI.begin();
   }
+
+  pinMode(_ss, OUTPUT);
+  digitalWrite(_ss, HIGH);  
+
 
   currentAddr = 0;
 

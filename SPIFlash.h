@@ -73,7 +73,7 @@ typedef enum
 
 class SPIFlash  : public Print {
  public:
-  SPIFlash(int8_t cs, int8_t clk, int8_t mosi, int8_t miso);
+  SPIFlash(int8_t clk, int8_t miso, int8_t mosi, int8_t ss);
   SPIFlash(int8_t cs);
 
   boolean begin(spiflash_type_t t);
