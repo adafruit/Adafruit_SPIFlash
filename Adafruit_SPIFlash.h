@@ -71,10 +71,10 @@ typedef enum
   SPIFLASHTYPE_W25X40CL,
 } spiflash_type_t;
 
-class SPIFlash  : public Print {
+class Adafruit_SPIFlash  : public Print {
  public:
-  SPIFlash(int8_t clk, int8_t miso, int8_t mosi, int8_t ss);
-  SPIFlash(int8_t cs);
+  Adafruit_SPIFlash(int8_t clk, int8_t miso, int8_t mosi, int8_t ss);
+  Adafruit_SPIFlash(int8_t cs);
 
   boolean begin(spiflash_type_t t);
 

@@ -1,5 +1,5 @@
 #include <SPI.h>
-#include "SPIFlash.h"
+#include "Adafruit_SPIFlash.h"
 #include "pins_arduino.h"
 #include "wiring_private.h"
 
@@ -9,7 +9,7 @@ byte spiflash_buffer[SPIFLASH_BUFFERSIZE];
 /* ************* */
 /* CONSTRUCTORS  */
 /* ************* */
-SPIFlash::SPIFlash(int8_t clk, int8_t miso, int8_t mosi, int8_t ss) 
+Adafruit_SPIFlash::Adafruit_SPIFlash(int8_t clk, int8_t miso, int8_t mosi, int8_t ss) 
 {
   _clk = clk;
   _miso = miso;
@@ -18,7 +18,7 @@ SPIFlash::SPIFlash(int8_t clk, int8_t miso, int8_t mosi, int8_t ss)
 
 }
 
-SPIFlash::SPIFlash(int8_t ss) 
+Adafruit_SPIFlash::Adafruit_SPIFlash(int8_t ss) 
 {
   _clk = _miso = _mosi = -1;
   _ss = ss;
@@ -28,7 +28,7 @@ SPIFlash::SPIFlash(int8_t ss)
 }
 
 
-boolean SPIFlash::begin(spiflash_type_t t) {
+boolean Adafruit_SPIFlash::begin(spiflash_type_t t) {
   type = t;
 
   if (_clk != -1) {
@@ -89,7 +89,7 @@ boolean SPIFlash::begin(spiflash_type_t t) {
     @return     The 8-bit value returned by the Read Status Register
 */
 /**************************************************************************/
-uint8_t SPIFlash::readstatus()
+uint8_t Adafruit_SPIFlash::readstatus()
 {
   uint8_t status;
 
@@ -103,7 +103,7 @@ uint8_t SPIFlash::readstatus()
 
 /************** low level SPI */
 
-void SPIFlash::readspidata(uint8_t* buff, uint8_t n) 
+void Adafruit_SPIFlash::readspidata(uint8_t* buff, uint8_t n) 
 {
   digitalWrite(_ss, LOW);
   delay(2); 
@@ -117,7 +117,7 @@ void SPIFlash::readspidata(uint8_t* buff, uint8_t n)
   digitalWrite(_ss, HIGH);
 }
 
-void SPIFlash::spiwrite(uint8_t c) 
+void Adafruit_SPIFlash::spiwrite(uint8_t c) 
 {
   if (_clk == -1) {
     // hardware SPI
@@ -153,7 +153,7 @@ void SPIFlash::spiwrite(uint8_t c)
   }
 }
 
-uint8_t SPIFlash::spiread(void) 
+uint8_t Adafruit_SPIFlash::spiread(void) 
 {
   uint8_t x = 0;
   if (_clk == -1) {
@@ -199,7 +199,7 @@ uint8_t SPIFlash::spiread(void)
             the SPI flash is ready (SPIFLASH_ERROR_OK)
 */
 /**************************************************************************/
-uint32_t SPIFlash::WaitForReady()
+uint32_t Adafruit_SPIFlash::WaitForReady()
 {
   uint32_t timeout = 0;
   uint8_t status;
@@ -234,7 +234,7 @@ uint32_t SPIFlash::WaitForReady()
     @param  numBytes  Data length in bytes
 */
 /**************************************************************************/
-void SPIFlash::PrintHex(const byte * data, const uint32_t numBytes)
+void Adafruit_SPIFlash::PrintHex(const byte * data, const uint32_t numBytes)
 {
   uint32_t szPos;
   for (szPos=0; szPos < numBytes; szPos++) 
@@ -263,7 +263,7 @@ void SPIFlash::PrintHex(const byte * data, const uint32_t numBytes)
     @param  numBytes  Data length in bytes
 */
 /**************************************************************************/
-void SPIFlash::PrintHexChar(const byte * data, const uint32_t numBytes)
+void Adafruit_SPIFlash::PrintHexChar(const byte * data, const uint32_t numBytes)
 {
   uint32_t szPos;
   for (szPos=0; szPos < numBytes; szPos++) 
@@ -300,7 +300,7 @@ void SPIFlash::PrintHexChar(const byte * data, const uint32_t numBytes)
     @note   The unique ID is return in bit order 63..0
 */
 /**************************************************************************/
-void SPIFlash::GetUniqueID(uint8_t *buffer)
+void Adafruit_SPIFlash::GetUniqueID(uint8_t *buffer)
 {
   uint8_t i;
 
@@ -328,7 +328,7 @@ void SPIFlash::GetUniqueID(uint8_t *buffer)
                 Pointer to the uint8_t that will store the device ID
 */
 /**************************************************************************/
-void SPIFlash::GetManufacturerInfo (uint8_t *manufID, uint8_t *deviceID)
+void Adafruit_SPIFlash::GetManufacturerInfo (uint8_t *manufID, uint8_t *deviceID)
 {
   // W25Q16BV_CMD_MANUFDEVID (0x90) provides both the JEDEC manufacturer
   // ID and the device ID
@@ -352,7 +352,7 @@ void SPIFlash::GetManufacturerInfo (uint8_t *manufID, uint8_t *deviceID)
                 True (1) to enable writing, false (0) to disable it
 */
 /**************************************************************************/
-void SPIFlash::WriteEnable (bool enable)
+void Adafruit_SPIFlash::WriteEnable (bool enable)
 {
   // ToDo: Put the WP pin in an appropriate state if required
 
@@ -378,7 +378,7 @@ void SPIFlash::WriteEnable (bool enable)
                 Length of the buffer.
 */
 /**************************************************************************/
-uint32_t SPIFlash::readBuffer (uint32_t address, uint8_t *buffer, uint32_t len)
+uint32_t Adafruit_SPIFlash::readBuffer (uint32_t address, uint8_t *buffer, uint32_t len)
 {
   uint32_t a, i;
   a = i = 0;
@@ -433,7 +433,7 @@ uint32_t SPIFlash::readBuffer (uint32_t address, uint8_t *buffer, uint32_t len)
                 The sector number to erase (zero-based).
 */
 /**************************************************************************/
-uint32_t SPIFlash::EraseSector (uint32_t sectorNumber)
+uint32_t Adafruit_SPIFlash::EraseSector (uint32_t sectorNumber)
 {
   // Make sure the address is valid
   if (sectorNumber >= W25Q16BV_SECTORS)
@@ -478,7 +478,7 @@ uint32_t SPIFlash::EraseSector (uint32_t sectorNumber)
     @brief Erases the entire flash chip
 */
 /**************************************************************************/
-uint32_t SPIFlash::EraseChip (void)
+uint32_t Adafruit_SPIFlash::EraseChip (void)
 {
   Serial.println("A");
   // Wait until the device is ready or a timeout occurs
@@ -539,7 +539,7 @@ uint32_t SPIFlash::EraseChip (void)
                 within the limits of the starting address and page length.
 */
 /**************************************************************************/
-uint32_t SPIFlash::WritePage (uint32_t address, uint8_t *buffer, uint32_t len)
+uint32_t Adafruit_SPIFlash::WritePage (uint32_t address, uint8_t *buffer, uint32_t len)
 {
   uint8_t status;
   uint32_t i;
@@ -640,7 +640,7 @@ uint32_t SPIFlash::WritePage (uint32_t address, uint8_t *buffer, uint32_t len)
                 address and size of the flash device.
 */
 /**************************************************************************/
-uint32_t SPIFlash::writeBuffer(uint32_t address, uint8_t *buffer, uint32_t len)
+uint32_t Adafruit_SPIFlash::writeBuffer(uint32_t address, uint8_t *buffer, uint32_t len)
 {
   uint32_t bytestowrite;
   uint32_t bufferoffset;
@@ -702,7 +702,7 @@ uint32_t SPIFlash::writeBuffer(uint32_t address, uint8_t *buffer, uint32_t len)
 
 */
 /**************************************************************************/
-uint32_t SPIFlash::findFirstEmptyAddr(void)
+uint32_t Adafruit_SPIFlash::findFirstEmptyAddr(void)
 {
   uint32_t address, latestUsedAddr;
   uint8_t b;
@@ -746,21 +746,21 @@ uint32_t SPIFlash::findFirstEmptyAddr(void)
 }
 
 
-void SPIFlash::seek(uint32_t addr) {
+void Adafruit_SPIFlash::seek(uint32_t addr) {
   currentAddr = addr;
 }
 
-uint32_t SPIFlash::getAddr(void) {
+uint32_t Adafruit_SPIFlash::getAddr(void) {
   return currentAddr;
 }
 
-boolean SPIFlash::appendData(void) {
+boolean Adafruit_SPIFlash::appendData(void) {
   uint32_t addr = findFirstEmptyAddr();
   if (addr == -1) return false;
   seek(addr);
 }
 
-size_t SPIFlash::write(uint8_t b) {
+size_t Adafruit_SPIFlash::write(uint8_t b) {
   // start out with the 'silliest' way
   uint8_t x[1];
   x[0] = b;
