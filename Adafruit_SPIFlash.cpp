@@ -15,13 +15,15 @@ Adafruit_SPIFlash::Adafruit_SPIFlash(int8_t clk, int8_t miso, int8_t mosi, int8_
   _miso = miso;
   _mosi = mosi;
   _ss = ss;
-
 }
 
-Adafruit_SPIFlash::Adafruit_SPIFlash(int8_t ss) 
+
+Adafruit_SPIFlash::Adafruit_SPIFlash(int8_t ss, SPIClass *spiinterface) 
 {
   _clk = _miso = _mosi = -1;
   _ss = ss;
+
+  _spi = spiinterface;  // default to built in SPI
 
   digitalWrite(_ss, HIGH);  
   pinMode(_ss, OUTPUT);
@@ -44,7 +46,7 @@ boolean Adafruit_SPIFlash::begin(spiflash_type_t t) {
     misoportreg =  portInputRegister(digitalPinToPort(_miso));
     misopin = digitalPinToBitMask(_miso);
   } else {
-    SPI.begin();
+    _spi->begin();
   }
 
   pinMode(_ss, OUTPUT);
@@ -121,9 +123,9 @@ void Adafruit_SPIFlash::spiwrite(uint8_t c)
 {
   if (_clk == -1) {
     // hardware SPI
-    SPI.beginTransaction(SPISettings(8000000, MSBFIRST, SPI_MODE0));
-    SPI.transfer(c);
-    SPI.endTransaction();
+    _spi->beginTransaction(SPISettings(8000000, MSBFIRST, SPI_MODE0));
+    _spi->transfer(c);
+    _spi->endTransaction();
   } else {
     // Software SPI
 
@@ -158,9 +160,9 @@ uint8_t Adafruit_SPIFlash::spiread(void)
   uint8_t x = 0;
   if (_clk == -1) {
     // hardware SPI
-    SPI.beginTransaction(SPISettings(8000000, MSBFIRST, SPI_MODE0));
-    x = SPI.transfer(0xFF);
-    SPI.endTransaction();
+    _spi->beginTransaction(SPISettings(8000000, MSBFIRST, SPI_MODE0));
+    x = _spi->transfer(0xFF);
+    _spi->endTransaction();
 
     return x;
   } else {

@@ -74,7 +74,7 @@ typedef enum
 class Adafruit_SPIFlash  : public Print {
  public:
   Adafruit_SPIFlash(int8_t clk, int8_t miso, int8_t mosi, int8_t ss);
-  Adafruit_SPIFlash(int8_t cs);
+  Adafruit_SPIFlash(int8_t ss, SPIClass *spiinterface=&SPI);
 
   boolean begin(spiflash_type_t t);
 
@@ -108,6 +108,8 @@ class Adafruit_SPIFlash  : public Print {
   int32_t pages;
   int32_t totalsize;
   uint8_t addrsize;
+
+  SPIClass *_spi;
 
   int8_t _ss, _clk, _mosi, _miso;
   volatile REGTYPE *clkportreg, *misoportreg, *mosiportreg;
