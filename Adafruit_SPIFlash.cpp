@@ -343,6 +343,29 @@ void Adafruit_SPIFlash::GetManufacturerInfo (uint8_t *manufID, uint8_t *deviceID
   digitalWrite(_ss, HIGH);
 }
 
+uint32_t Adafruit_SPIFlash::GetJEDECID (void)
+{
+  // W25Q16BV_CMD_MANUFDEVID (0x90) provides both the JEDEC manufacturer
+  // ID and the device ID
+
+  digitalWrite(_ss, LOW);
+  spiwrite(W25Q16BV_CMD_JEDECID ); 
+  spiwrite(0x00);            // Dummy write
+  spiwrite(0x00);            // Dummy write
+  spiwrite(0x00);            // Dummy write
+
+  uint32_t id;
+  id = spiread(); id <<= 8;
+  id |= spiread(); id <<= 8;
+  id |= spiread(); id <<= 8;
+  id |= spiread();
+
+  digitalWrite(_ss, HIGH);
+
+  return id;
+}
+
+
 /**************************************************************************/
 /*! 
     @brief Sets the write flag on the SPI flash, and if required puts the
