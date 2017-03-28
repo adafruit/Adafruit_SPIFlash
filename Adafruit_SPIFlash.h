@@ -1,5 +1,7 @@
 // SPIFlash library by adafruit
 // MIT license
+#ifndef ADAFRUIT_SPIFLASH_H
+#define ADAFRUIT_SPIFLASH_H
 
 #if ARDUINO >= 100
  #include "Arduino.h"
@@ -62,7 +64,7 @@
 #define W25Q16BV_CMD_MANUFDEVID4    0x94   // Manufacturer/Device ID by Quad I/O
 #define W25Q16BV_CMD_JEDECID        0x9F   // JEDEC ID
 #define W25Q16BV_CMD_READUNIQUEID   0x4B   // Read Unique ID
- 
+
 
 typedef enum
 {
@@ -104,7 +106,7 @@ class Adafruit_SPIFlash  : public Print {
 
  private:
   spiflash_type_t type;
-  int32_t pagesize; 
+  int32_t pagesize;
   int32_t pages;
   int32_t totalsize;
   uint8_t addrsize;
@@ -122,3 +124,5 @@ class Adafruit_SPIFlash  : public Print {
   uint8_t spiread(void);
   uint32_t WaitForReady();
 };
+
+#endif
