@@ -46,7 +46,7 @@ void setup() {
   while (!Serial) {
     delay(100);
   }
-  Serial.println("Adafruit SPI Flash FatFs Format Example");
+  Serial.println("Adafruit SPI Flash FatFs Full Usage Example");
   
   // Initialize flash library and check its chip ID.
   if (!flash.begin(FLASH_TYPE)) {
