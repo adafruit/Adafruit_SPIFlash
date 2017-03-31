@@ -14,8 +14,6 @@ class Adafruit_SPIFlash_FatFs;
 #include "utility/flashdisk.h"
 
 
-//TODO: Activate from within the file class.
-
 #define DEBUG 1
 #define DEBUG_PRINTER Serial
 
@@ -31,22 +29,11 @@ class Adafruit_SPIFlash_FatFs;
 #define MAX_PATH 256 // Maximum length of a file's full path.  Used to create
                      // a buffer for constructing file paths in openNextFile.
 
+// Simpler modes users can pass to file open functions.
+// These just map to FatFs file modes.
 #define FILE_READ FA_READ
 #define FILE_WRITE (FA_READ | FA_WRITE | FA_OPEN_APPEND)
 
-
-// const int _fatSectorSize;  // Number of bytes in a logical sector
-//                            // used by FatFs library.  This should
-//                            // be the same as _MIN_SS and _MAX_SS
-//                            // values in ffconf.h and needs to be
-//                            // a size that aligns to 4kb flash
-//                            // sector sizes for clean erases.  Stick
-//                            // with 512 unless you know what you're
-//                            // doing!
-//
-// const int _flashSectorSize;  // Number of bytes in a flash sector.
-//                              // This is the minimum area that can
-//                              // be erased.
 
 class File : public Stream {
 public:
@@ -182,7 +169,6 @@ protected:
 private:
   uint8_t* _flashSectorBuffer;
 };
-
 
 class Adafruit_W25Q16BV_FatFs: public Adafruit_SPIFlash_FatFs {
 public:
