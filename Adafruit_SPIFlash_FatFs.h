@@ -27,7 +27,7 @@ class Adafruit_SPIFlash_FatFs;
 
 
 #define MAX_PATH 256 // Maximum length of a file's full path.  Used to create
-                     // a buffer for constructing file paths in openNextFile.
+                     // a buffer for constructing file paths.
 
 // Simpler modes users can pass to file open functions.
 // These just map to FatFs file modes.
@@ -50,6 +50,7 @@ public:
     }
   }
 
+  // This interface exactly mirrors the SD library File class:
   virtual size_t write(uint8_t val) {
     return write(&val, 1);
   }
@@ -69,7 +70,6 @@ public:
   char* name() {
     return _fileInfo.fname;
   }
-
   bool isDirectory() {
     return (_fileInfo.fattrib & AM_DIR) > 0;
   }
@@ -79,14 +79,18 @@ public:
   using Print::write;
 
 private:
-  bool _opened;
-  FIL _file;
-  FILINFO _fileInfo;
-  DIR _directory;
-  char* _dirPath;
-  Adafruit_SPIFlash_FatFs* _fatfs;
+  bool _opened;                     // Is the file open?
+  FIL _file;                        // FatFs file handle.
+  FILINFO _fileInfo;                // FatFs file/dir info.
+  DIR _directory;                   // FatFs directory handle.
+  char* _dirPath;                   // Full path to directory.
+                                    // Only set for directories as they
+                                    // need to construct full paths to
+                                    // their children in openNextFile.
+  Adafruit_SPIFlash_FatFs* _fatfs;  // Reference to associated fatfs
+                                    // for this file.
 
-  // Help to activate the associate fatfs for this file.
+  // Helper to activate the associated fatfs for this file.
   void activate();
 };
 
@@ -148,10 +152,12 @@ public:
   virtual DRESULT diskIoctl(BYTE cmd, void* buff);
 
 protected:
-  Adafruit_SPIFlash& _flash;
-  FATFS _fatFs;
-  const int _fatSectorSize;
-  const int _flashSectorSize;
+  Adafruit_SPIFlash& _flash;   // Reference to low level flash library.
+  FATFS _fatFs;                // FatFs main mount handle.
+  const int _fatSectorSize;    // Size of a fat filesystem sector, should always be 512
+                               // as that's how the FatFs library is configured.
+  const int _flashSectorSize;  // Size of a flash erase sector, usually 4k but will be
+                               // set appropriately by subclasses.
 
   // Return the flash drive address of the specified fat sector.
   // Can be overridden if the default implementation below doesn't suffice.
@@ -167,7 +173,7 @@ protected:
   virtual uint32_t _flashSectorOffset(uint32_t address) = 0;
 
 private:
-  uint8_t* _flashSectorBuffer;
+  uint8_t* _flashSectorBuffer;  // Buffer to store flash sector data during writes.
 };
 
 class Adafruit_W25Q16BV_FatFs: public Adafruit_SPIFlash_FatFs {
