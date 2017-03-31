@@ -9,7 +9,9 @@
 // In general the API for this library closely follows the API
 // for the Arduino SD card library.  However instead of interacting
 // with a global SD object you create an instance of a fatfs class
-// and use its open, exists, etc. functions.
+// and use its open, exists, etc. functions.  See the SD library
+// reference for more inspiration and examples to adapt:
+//   https://www.arduino.cc/en/reference/SD
 //
 // Usage:
 // - Modify the pins and type of fatfs object in the config
