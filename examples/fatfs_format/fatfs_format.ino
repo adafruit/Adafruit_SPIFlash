@@ -43,11 +43,15 @@
                                               // If you change this be
                                               // sure to change the fatfs
                                               // object type below to match.
-#define FLASH_SCK      SCK1                   // Flash chip clock pin.
-#define FLASH_MISO     MISO1                  // Flash chip MISO pin.
-#define FLASH_MOSI     MOSI1                  // Flash chip MOSI pin.
+
 #define FLASH_SS       SS1                    // Flash chip SS pin.
-Adafruit_SPIFlash flash(FLASH_SCK, FLASH_MISO, FLASH_MOSI, FLASH_SS);
+#define FLASH_SPI_PORT SPI1                   // What SPI port is Flash on?
+
+Adafruit_SPIFlash flash(FLASH_SS, &FLASH_SPI_PORT);     // Use hardware SPI 
+
+// Alternatively you can define and use non-SPI pins!
+// Adafruit_SPIFlash flash(FLASH_SCK, FLASH_MISO, FLASH_MOSI, FLASH_SS);
+
 Adafruit_W25Q16BV_FatFs fatfs(flash);
 
 
@@ -59,20 +63,22 @@ void setup() {
   }
   Serial.println("Adafruit SPI Flash FatFs Format Example");
 
-  // Wait for user to send OK to continue.
-  Serial.setTimeout(30000);  // Increase timeout to print message less frequently.
-  do {
-    Serial.println("This sketch will ERASE ALL DATA on the flash chip and format it with a new filesystem!");
-    Serial.println("Type OK (all caps) and press enter to continue.");
-  }
-  while (!Serial.find("OK"));
-
   // Initialize flash library and check its chip ID.
   if (!flash.begin(FLASH_TYPE)) {
     Serial.println("Error, failed to initialize flash chip!");
     while(1);
   }
   Serial.print("Flash chip JEDEC ID: 0x"); Serial.println(flash.GetJEDECID(), HEX);
+
+  // Wait for user to send OK to continue.
+  Serial.setTimeout(30000);  // Increase timeout to print message less frequently.
+  do {
+    Serial.println("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+    Serial.println("This sketch will ERASE ALL DATA on the flash chip and format it with a new filesystem!");
+    Serial.println("Type OK (all caps) and press enter to continue.");
+    Serial.println("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+  }
+  while (!Serial.find("OK"));
 
   // Call fatfs activate to make it the active chip that receives low level fatfs
   // callbacks.  This is necessary before making any manual fatfs function calls
