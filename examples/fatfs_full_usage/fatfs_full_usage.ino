@@ -34,11 +34,14 @@
                                               // If you change this be
                                               // sure to change the fatfs
                                               // object type below to match.
-#define FLASH_SCK      SCK1                   // Flash chip clock pin.
-#define FLASH_MISO     MISO1                  // Flash chip MISO pin.
-#define FLASH_MOSI     MOSI1                  // Flash chip MOSI pin.
 #define FLASH_SS       SS1                    // Flash chip SS pin.
-Adafruit_SPIFlash flash(FLASH_SCK, FLASH_MISO, FLASH_MOSI, FLASH_SS);
+#define FLASH_SPI_PORT SPI1                   // What SPI port is Flash on?
+
+Adafruit_SPIFlash flash(FLASH_SS, &FLASH_SPI_PORT);     // Use hardware SPI 
+
+// Alternatively you can define and use non-SPI pins!
+// Adafruit_SPIFlash flash(FLASH_SCK, FLASH_MISO, FLASH_MOSI, FLASH_SS);
+
 Adafruit_W25Q16BV_FatFs fatfs(flash);
 
 

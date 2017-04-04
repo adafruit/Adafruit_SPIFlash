@@ -19,7 +19,6 @@
 #include <Adafruit_SPIFlash.h>
 #include <Adafruit_SPIFlash_FatFs.h>
 
-
 // Configuration of the flash chip pins and flash fatfs object.
 // You don't normally need to change these if using a Feather/Metro
 // M0 express board.
@@ -27,11 +26,15 @@
                                               // If you change this be
                                               // sure to change the fatfs
                                               // object type below to match.
-#define FLASH_SCK      SCK1                   // Flash chip clock pin.
-#define FLASH_MISO     MISO1                  // Flash chip MISO pin.
-#define FLASH_MOSI     MOSI1                  // Flash chip MOSI pin.
+
 #define FLASH_SS       SS1                    // Flash chip SS pin.
-Adafruit_SPIFlash flash(FLASH_SCK, FLASH_MISO, FLASH_MOSI, FLASH_SS);
+#define FLASH_SPI_PORT SPI1                   // What SPI port is Flash on?
+
+Adafruit_SPIFlash flash(FLASH_SS, &FLASH_SPI_PORT);     // Use hardware SPI 
+
+// Alternatively you can define and use non-SPI pins!
+// Adafruit_SPIFlash flash(FLASH_SCK, FLASH_MISO, FLASH_MOSI, FLASH_SS);
+
 Adafruit_W25Q16BV_FatFs fatfs(flash);
 
 // Configuration for the datalogging file:
@@ -41,6 +44,9 @@ Adafruit_W25Q16BV_FatFs fatfs(flash);
 void setup() {
   // Initialize serial port and wait for it to open before continuing.
   Serial.begin(115200);
+
+  while (!Serial)   delay(100);      // remove this line when not using with a computer
+ 
   Serial.println("Adafruit SPI Flash FatFs Simple Datalogging Example");
   
   // Initialize flash library and check its chip ID.
@@ -59,13 +65,10 @@ void setup() {
   }
   Serial.println("Mounted filesystem!");
   
-  Serial.println("Logging data every minute...");
+  Serial.println("Logging data 10 seconds...");
 }
 
 void loop() {
-  // Wait 60 seconds.
-  delay(60000L);
-
   // Open the datalogging file for writing.  The FILE_WRITE mode will open
   // the file for appending, i.e. it will add new data to the end of the file.
   File dataFile = fatfs.open(FILE_NAME, FILE_WRITE);
@@ -89,6 +92,9 @@ void loop() {
   else {
     Serial.println("Failed to open data file for writing!");
   }
-  
-  Serial.println("Trying again in 60 seconds...");
+
+  Serial.println("Trying again in 10 seconds...");
+
+  // Wait 10 seconds.
+  delay(10000L);
 }
