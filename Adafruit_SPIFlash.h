@@ -9,6 +9,8 @@
  #include "WProgram.h"
 #endif
 
+#include <SPI.h>
+
 #if defined(__ARM__) || defined(ARDUINO_ARCH_SAMD)
   #define REGTYPE uint32_t
 #else
