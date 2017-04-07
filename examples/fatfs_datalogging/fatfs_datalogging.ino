@@ -4,8 +4,8 @@
 // This is a simple dataloging example using the SPI Flash
 // FatFs library.  The example will open a file on the SPI
 // flash and append new lines of data every minute. Note that
-// you MUST have a flash chip that's formatted with a flash 
-// filesystem before running.  See the fatfs_format example 
+// you MUST have a flash chip that's formatted with a flash
+// filesystem before running.  See the fatfs_format example
 // to perform this formatting.
 //
 // Usage:
@@ -30,7 +30,7 @@
 #define FLASH_SS       SS1                    // Flash chip SS pin.
 #define FLASH_SPI_PORT SPI1                   // What SPI port is Flash on?
 
-Adafruit_SPIFlash flash(FLASH_SS, &FLASH_SPI_PORT);     // Use hardware SPI 
+Adafruit_SPIFlash flash(FLASH_SS, &FLASH_SPI_PORT);     // Use hardware SPI
 
 // Alternatively you can define and use non-SPI pins!
 // Adafruit_SPIFlash flash(FLASH_SCK, FLASH_MISO, FLASH_MOSI, FLASH_SS);
@@ -44,11 +44,8 @@ Adafruit_W25Q16BV_FatFs fatfs(flash);
 void setup() {
   // Initialize serial port and wait for it to open before continuing.
   Serial.begin(115200);
-
-  while (!Serial)   delay(100);      // remove this line when not using with a computer
- 
   Serial.println("Adafruit SPI Flash FatFs Simple Datalogging Example");
-  
+
   // Initialize flash library and check its chip ID.
   if (!flash.begin(FLASH_TYPE)) {
     Serial.println("Error, failed to initialize flash chip!");
@@ -64,8 +61,8 @@ void setup() {
     while(1);
   }
   Serial.println("Mounted filesystem!");
-  
-  Serial.println("Logging data 10 seconds...");
+
+  Serial.println("Logging data every 60 seconds...");
 }
 
 void loop() {
@@ -93,8 +90,8 @@ void loop() {
     Serial.println("Failed to open data file for writing!");
   }
 
-  Serial.println("Trying again in 10 seconds...");
+  Serial.println("Trying again in 60 seconds...");
 
-  // Wait 10 seconds.
-  delay(10000L);
+  // Wait 60 seconds.
+  delay(60000L);
 }

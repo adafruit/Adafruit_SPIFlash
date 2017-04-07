@@ -14,7 +14,7 @@ class Adafruit_SPIFlash_FatFs;
 #include "utility/flashdisk.h"
 
 
-#define DEBUG 1
+#define DEBUG 0
 #define DEBUG_PRINTER Serial
 
 #ifdef DEBUG
@@ -154,10 +154,16 @@ public:
 protected:
   Adafruit_SPIFlash& _flash;   // Reference to low level flash library.
   FATFS _fatFs;                // FatFs main mount handle.
-  const int _fatSectorSize;    // Size of a fat filesystem sector, should always be 512
-                               // as that's how the FatFs library is configured.
-  const int _flashSectorSize;  // Size of a flash erase sector, usually 4k but will be
-                               // set appropriately by subclasses.
+  const int _fatSectorSize;    // Size of a fat filesystem sector, should
+                               // always be 512 as that's how the FatFs library
+                               // is configured.
+  const int _flashSectorSize;  // Size of a flash erase sector, usually 4k but
+                               // will be set appropriately by subclasses.
+
+  // Return the number of fat sectors/blocks available on the flash chip.
+  virtual uint32_t _fatSectorCount() {
+    return (_flash.pageSize()*_flash.numPages())/_fatSectorSize;
+  }
 
   // Return the flash drive address of the specified fat sector.
   // Can be overridden if the default implementation below doesn't suffice.
@@ -183,16 +189,41 @@ public:
   {}
 
 protected:
-  uint32_t _flashSectorBase(uint32_t address) {
+  virtual uint32_t _flashSectorBase(uint32_t address) {
     // Upper 12-bits of address are the base (start) of the sector for this
     // address.
     return address & 0xFFF000;
   }
 
-  uint32_t _flashSectorOffset(uint32_t address) {
+  virtual uint32_t _flashSectorOffset(uint32_t address) {
     // Lower 12-bits of address are the offset into a sector for the specified
     // address.
     return address & 0x000FFF;
+  }
+};
+
+class Adafruit_M0_Express_CircuitPython: public Adafruit_W25Q16BV_FatFs {
+public:
+  Adafruit_M0_Express_CircuitPython(Adafruit_SPIFlash& flash):
+    Adafruit_W25Q16BV_FatFs(flash)
+  {}
+
+  // Override block read and write functions to add synthesized MBR (block 0).
+  virtual DRESULT diskRead(BYTE *buff, DWORD sector, UINT count);
+  virtual DRESULT diskWrite(const BYTE *buff, DWORD sector, UINT count);
+
+protected:
+
+  virtual uint32_t _fatSectorCount() {
+    // Remove a 4kb flash sector from the fat sector count because CircuitPython
+    // reserves one flash sector for a cache.
+    return (_flash.pageSize()*_flash.numPages()-4096)/_fatSectorSize;
+  }
+
+  virtual uint32_t _fatSectorAddress(uint32_t sector) {
+    // Offset the sector by 1 as the last flash sector is actually an unused
+    // cache for writes in CircuitPython.
+    return (sector-1)*_fatSectorSize;
   }
 };
 

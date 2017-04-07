@@ -21,6 +21,46 @@ static bool concatPath(const char* base, const char* addition, char* dest, char 
   return true;
 }
 
+// Build a fake MBR partition.  This is taken from the CircuitPython code
+// and needs to match it exactly to interop with files between both Arduino
+// and CircuitPython.
+static void build_partition(uint8_t *buf, int boot, int type, uint32_t
+                            start_block, uint32_t num_blocks) {
+    buf[0] = boot;
+
+    if (num_blocks == 0) {
+        buf[1] = 0;
+        buf[2] = 0;
+        buf[3] = 0;
+    } else {
+        buf[1] = 0xff;
+        buf[2] = 0xff;
+        buf[3] = 0xff;
+    }
+
+    buf[4] = type;
+
+    if (num_blocks == 0) {
+        buf[5] = 0;
+        buf[6] = 0;
+        buf[7] = 0;
+    } else {
+        buf[5] = 0xff;
+        buf[6] = 0xff;
+        buf[7] = 0xff;
+    }
+
+    buf[8] = start_block;
+    buf[9] = start_block >> 8;
+    buf[10] = start_block >> 16;
+    buf[11] = start_block >> 24;
+
+    buf[12] = num_blocks;
+    buf[13] = num_blocks >> 8;
+    buf[14] = num_blocks >> 16;
+    buf[15] = num_blocks >> 24;
+}
+
 File::File(const char* filepath, uint8_t mode, Adafruit_SPIFlash_FatFs* fatfs):
   _opened(false), _file({0}), _fileInfo({0}), _directory({0}), _dirPath(NULL),
   _fatfs(fatfs)
@@ -56,8 +96,10 @@ File::File(const char* filepath, uint8_t mode, Adafruit_SPIFlash_FatFs* fatfs):
   }
   else {
     // Else not a directory so open the file and return it.
-    if (f_open(&_file, filepath, mode) != FR_OK) {
+    FRESULT fr = f_open(&_file, filepath, mode);
+    if (fr != FR_OK) {
       DEBUG_PRINT("Error opening file: "); DEBUG_PRINTLN(filepath);
+      DEBUG_PRINT("Error code: "); DEBUG_PRINTLN(fr, DEC);
       return;
     }
   }
@@ -187,7 +229,7 @@ void File::activate() {
 bool Adafruit_SPIFlash_FatFs::begin() {
   activate();
   // Mount the filesystem.
-  FRESULT r = f_mount(&_fatFs, "", 0);
+  FRESULT r = f_mount(&_fatFs, "", 1);
   if (r != FR_OK) {
     DEBUG_PRINT("f_mount failed with error code: "); DEBUG_PRINTLN(r, DEC);
     return false;
@@ -310,7 +352,7 @@ DRESULT Adafruit_SPIFlash_FatFs::diskWrite(const BYTE *buff, DWORD sector,
     DEBUG_PRINTLN("Flash sector buffer was not allocated!");
     return RES_ERROR;
   }
-  // Loop through each of the specified fat sectors and updat them.
+  // Loop through each of the specified fat sectors and update them.
   // This loop tries to be smart about minimizing flash sector writes by
   // combining multiple contiguous fat sector writes into one erase/update
   // cycle of the loop.
@@ -375,7 +417,7 @@ DRESULT Adafruit_SPIFlash_FatFs::diskIoctl(BYTE cmd, void* buff) {
       {
         // Set the number of fat sectors available.
         DWORD* count = (DWORD*)buff;
-        *count = (_flash.pageSize()*_flash.numPages())/_fatSectorSize;
+        *count = _fatSectorCount();
         break;
       }
     case GET_SECTOR_SIZE:
@@ -398,4 +440,52 @@ DRESULT Adafruit_SPIFlash_FatFs::diskIoctl(BYTE cmd, void* buff) {
       break;
   }
   return RES_OK;
+}
+
+DRESULT Adafruit_M0_Express_CircuitPython::diskRead(BYTE *buff, DWORD sector,
+                                                    UINT count) {
+  // Handle synthesizing block 0 (the MBR).
+  if (sector == 0) {
+    // Synthesize a MBR in the same way as Micro/CircuitPython, see the code
+    // in spi_flash_read here:
+    //  https://github.com/adafruit/circuitpython/blob/master/atmel-samd/spi_flash.c#L456-L472
+    memset(buff, 0, 512);
+    // First partition starts at block 1.
+    build_partition(buff + 446, 0, 0x01 /* FAT12 */, 1, _fatSectorCount());
+    build_partition(buff + 462, 0, 0, 0, 0);
+    build_partition(buff + 478, 0, 0, 0, 0);
+    build_partition(buff + 494, 0, 0, 0, 0);
+    buff[510] = 0x55;
+    buff[511] = 0xaa;
+    // After reading the synthesized MBR go on to read other blocks if
+    // requested.
+    if (count > 1) {
+      return Adafruit_W25Q16BV_FatFs::diskRead(buff, sector+1, count-1);
+    }
+    else {
+      return RES_OK;
+    }
+  }
+  else {
+    // Read other blocks using base class logic (no synthetic MBR requested).
+    return Adafruit_W25Q16BV_FatFs::diskRead(buff, sector, count);
+  }
+}
+
+DRESULT Adafruit_M0_Express_CircuitPython::diskWrite(const BYTE *buff,
+                                                     DWORD sector, UINT count)
+{
+  // Ignore writes to block 0 (synthesized MBR).
+  if (sector == 0) {
+    // Ignore write to block zero, but write any other sectors after it.
+    if (count > 1) {
+      return Adafruit_W25Q16BV_FatFs::diskWrite(buff, sector+1, count-1);
+    }
+    else {
+      return RES_OK;
+    }
+  }
+  else {
+    return Adafruit_W25Q16BV_FatFs::diskWrite(buff, sector, count);
+  }
 }
