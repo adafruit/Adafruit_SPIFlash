@@ -74,6 +74,14 @@ File::File(const char* filepath, uint8_t mode, Adafruit_SPIFlash_FatFs* fatfs):
       return;
     }
   }
+  // Force the directory bit on if this is the root.
+  // This works around a weird quirk or maybe even bug in FatFs where the
+  // root doesn't have the directory bit set.  Perhaps this is by design
+  // with FAT filesystems, but regardless forcing the dir bit on will make
+  // root paths look like directories as expected.
+  if ((strcmp(filepath, "") == 0) || (strcmp(filepath, "/") == 0)) {
+    _fileInfo.fattrib |= AM_DIR;
+  }
   // Handle directory case (assumes we are only ever opening dirs to read,
   // to write/create use the explicit mkdir function).
   if ((_fileInfo.fattrib & AM_DIR) > 0) {
@@ -239,6 +247,7 @@ bool Adafruit_SPIFlash_FatFs::begin() {
 
 File Adafruit_SPIFlash_FatFs::open(const char *filename, uint8_t mode) {
   activate();
+  Serial.println("Test!");
   return File(filename,  mode, this);
 }
 
