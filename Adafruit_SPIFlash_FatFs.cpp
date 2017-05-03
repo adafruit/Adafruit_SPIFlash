@@ -247,7 +247,6 @@ bool Adafruit_SPIFlash_FatFs::begin() {
 
 File Adafruit_SPIFlash_FatFs::open(const char *filename, uint8_t mode) {
   activate();
-  Serial.println("Test!");
   return File(filename,  mode, this);
 }
 
