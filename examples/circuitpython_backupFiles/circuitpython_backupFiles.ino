@@ -6,9 +6,9 @@
  *  install. It will find any files named main.py, boot.py, main.txt, code.py
  *  or code.txt and move them to backup files. its a tad slow but then you
  *  can reload circuitpython safely. This example right now is only for
- *  the Metro M0 Express but i have a...
+ *  the Metro M0 Express & Circuit Playground M0 but i have a...
  *  
- *  TODO: automagically detect if it's Feather or CircuitPlayground!
+ *  TODO: automagically detect if it's Feather/Metro/CircuitPlayground!
  */
 
 #include <SPI.h>
@@ -24,9 +24,16 @@
                                               // sure to change the fatfs
                                               // object type below to match.
 
-#define FLASH_SS       SS1                    // Flash chip SS pin.
-#define FLASH_SPI_PORT SPI1                   // What SPI port is Flash on?
-#define NEOPIN         40
+#if defined(ADAFRUIT_CIRCUITPLAYGROUND_M0)
+  #define FLASH_SS       SS                    // Flash chip SS pin.
+  #define FLASH_SPI_PORT SPI                   // What SPI port is Flash on?
+  #define NEOPIN         8
+#else
+  #define FLASH_SS       SS1                    // Flash chip SS pin.
+  #define FLASH_SPI_PORT SPI1                   // What SPI port is Flash on?
+  #define NEOPIN         40
+#endif
+
 #define BUFFERSIZ      200
 
 Adafruit_SPIFlash flash(FLASH_SS, &FLASH_SPI_PORT);     // Use hardware SPI 
@@ -43,8 +50,9 @@ Adafruit_NeoPixel pixel = Adafruit_NeoPixel(1, NEOPIN, NEO_GRB + NEO_KHZ800);
 
 void setup() {
   Serial.begin(115200);
+  while (!Serial);
   delay(1000); // small delay in case we want to watch it on the serial port  
-  Serial.println("Adafruit M0 Express CircuitPython Flash Repair");
+  Serial.println("Adafruit Express CircuitPython Flash Repair");
   
   pixel.begin();             // This initializes the NeoPixel library
   pixel.setBrightness(30);   // not too bright!
