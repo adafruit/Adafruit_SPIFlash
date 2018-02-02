@@ -460,8 +460,8 @@ uint32_t Adafruit_SPIFlash::readBuffer (uint32_t address, uint8_t *buffer, uint3
 
   digitalWrite(_ss, HIGH);
 
-  // Return bytes written
-  return i;
+  // Return bytes read
+  return len;
 }
 
 /**************************************************************************/
