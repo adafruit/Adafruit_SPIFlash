@@ -34,10 +34,18 @@
                                               // If you change this be
                                               // sure to change the fatfs
                                               // object type below to match.
-#define FLASH_SS       SS1                    // Flash chip SS pin.
-#define FLASH_SPI_PORT SPI1                   // What SPI port is Flash on?
 
-Adafruit_SPIFlash flash(FLASH_SS, &FLASH_SPI_PORT);     // Use hardware SPI 
+#if defined(ARDUINO_SAMD_CIRCUITPLAYGROUND_EXPRESS)
+  #define FLASH_SS       SS                    // Flash chip SS pin.
+  #define FLASH_SPI_PORT SPI                   // What SPI port is Flash on?
+  #define NEOPIN         8
+#else
+  #define FLASH_SS       SS1                    // Flash chip SS pin.
+  #define FLASH_SPI_PORT SPI1                   // What SPI port is Flash on?
+  #define NEOPIN         40
+#endif
+
+Adafruit_SPIFlash flash(FLASH_SS, &FLASH_SPI_PORT);     // Use hardware SPI
 
 // Alternatively you can define and use non-SPI pins!
 // Adafruit_SPIFlash flash(FLASH_SCK, FLASH_MISO, FLASH_MOSI, FLASH_SS);
@@ -52,7 +60,7 @@ void setup() {
     delay(100);
   }
   Serial.println("Adafruit SPI Flash FatFs Full Usage Example");
-  
+
   // Initialize flash library and check its chip ID.
   if (!flash.begin(FLASH_TYPE)) {
     Serial.println("Error, failed to initialize flash chip!");
@@ -87,12 +95,12 @@ void setup() {
   Serial.println("Creating deep folder structure...");
   if (!fatfs.mkdir("/test/foo/bar")) {
     Serial.println("Error, couldn't create deep directory structure!");
-    while(1); 
+    while(1);
   }
   // This will create the hierarchy /test/foo/baz, even when /test/foo already exists:
   if (!fatfs.mkdir("/test/foo/baz")) {
     Serial.println("Error, couldn't create deep directory structure!");
-    while(1); 
+    while(1);
   }
   Serial.println("Created /test/foo/bar and /test/foo/baz folders!");
 
@@ -220,7 +228,7 @@ void setup() {
     while(1);
   }
   Serial.println("Test directory was deleted!");
-  
+
   Serial.println("Finished!");
 }
 
