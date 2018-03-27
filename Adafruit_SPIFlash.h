@@ -77,6 +77,7 @@ typedef enum
   SPIFLASHTYPE_W25Q16BV,
   SPIFLASHTYPE_25C02,
   SPIFLASHTYPE_W25X40CL,
+  SPIFLASHTYPE_AT25SF041,
 } spiflash_type_t;
 
 class Adafruit_SPIFlash  : public Print {
