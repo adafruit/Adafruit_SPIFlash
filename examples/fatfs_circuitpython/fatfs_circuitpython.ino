@@ -6,7 +6,7 @@
 // You can create, update, and read files on the CircuitPython
 // filesystem in an Arduino sketch and then later load CircuitPython
 // to interact with the same files.  This example will print out
-// the contents of boot.py and main.py (if found) and add a line 
+// the contents of boot.py and main.py (if found) and add a line
 // to a data.txt file on CircuitPython's filesystem.
 //
 // Note before you use this sketch you must load CircuitPython
@@ -35,10 +35,17 @@
                                               // sure to change the fatfs
                                               // object type below to match.
 
-#define FLASH_SS       SS1                    // Flash chip SS pin.
-#define FLASH_SPI_PORT SPI1                   // What SPI port is Flash on?
+#if defined(ARDUINO_SAMD_CIRCUITPLAYGROUND_EXPRESS)
+  #define FLASH_SS       SS                    // Flash chip SS pin.
+  #define FLASH_SPI_PORT SPI                   // What SPI port is Flash on?
+  #define NEOPIN         8
+#else
+  #define FLASH_SS       SS1                    // Flash chip SS pin.
+  #define FLASH_SPI_PORT SPI1                   // What SPI port is Flash on?
+  #define NEOPIN         40
+#endif
 
-Adafruit_SPIFlash flash(FLASH_SS, &FLASH_SPI_PORT);     // Use hardware SPI 
+Adafruit_SPIFlash flash(FLASH_SS, &FLASH_SPI_PORT);     // Use hardware SPI
 
 // Alternatively you can define and use non-SPI pins!
 //Adafruit_SPIFlash flash(SCK1, MISO1, MOSI1, FLASH_SS);
@@ -56,7 +63,7 @@ void setup() {
     delay(100);
   }
   Serial.println("Adafruit M0 Express CircuitPython Flash Example");
-  
+
   // Initialize flash library and check its chip ID.
   if (!flash.begin(FLASH_TYPE)) {
     Serial.println("Error, failed to initialize flash chip!");
@@ -72,7 +79,7 @@ void setup() {
     while(1);
   }
   Serial.println("Mounted filesystem!");
-  
+
   // Check if a boot.py exists and print it out.
   if (pythonfs.exists("boot.py")) {
     File bootPy = pythonfs.open("boot.py", FILE_READ);

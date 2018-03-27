@@ -3,9 +3,9 @@
 //
 // This is a simple example that opens a file and prints its
 // entire contents to the serial monitor.  Note that
-// you MUST have a flash chip that's formatted with a flash 
+// you MUST have a flash chip that's formatted with a flash
 // filesystem before running, and there should be some sort
-// of text file on it to open and read.  See the fatfs_format 
+// of text file on it to open and read.  See the fatfs_format
 // example to perform this formatting, and the fatfs_datalogging
 // example to write a simple text file.
 //
@@ -31,10 +31,17 @@
                                               // sure to change the fatfs
                                               // object type below to match.
 
-#define FLASH_SS       SS1                    // Flash chip SS pin.
-#define FLASH_SPI_PORT SPI1                   // What SPI port is Flash on?
+#if defined(ARDUINO_SAMD_CIRCUITPLAYGROUND_EXPRESS)
+  #define FLASH_SS       SS                    // Flash chip SS pin.
+  #define FLASH_SPI_PORT SPI                   // What SPI port is Flash on?
+  #define NEOPIN         8
+#else
+  #define FLASH_SS       SS1                    // Flash chip SS pin.
+  #define FLASH_SPI_PORT SPI1                   // What SPI port is Flash on?
+  #define NEOPIN         40
+#endif
 
-Adafruit_SPIFlash flash(FLASH_SS, &FLASH_SPI_PORT);     // Use hardware SPI 
+Adafruit_SPIFlash flash(FLASH_SS, &FLASH_SPI_PORT);     // Use hardware SPI
 
 // Alternatively you can define and use non-SPI pins!
 // Adafruit_SPIFlash flash(FLASH_SCK, FLASH_MISO, FLASH_MOSI, FLASH_SS);
@@ -52,7 +59,7 @@ void setup() {
     delay(100);
   }
   Serial.println("Adafruit SPI Flash FatFs Simple File Printing Example");
-  
+
   // Initialize flash library and check its chip ID.
   if (!flash.begin(FLASH_TYPE)) {
     Serial.println("Error, failed to initialize flash chip!");
@@ -68,7 +75,7 @@ void setup() {
     while(1);
   }
   Serial.println("Mounted filesystem!");
-  
+
   // Open the file for reading and check that it was successfully opened.
   // The FILE_READ mode will open the file for reading.
   File dataFile = fatfs.open(FILE_NAME, FILE_READ);
