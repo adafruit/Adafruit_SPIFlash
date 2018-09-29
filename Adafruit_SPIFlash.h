@@ -85,7 +85,7 @@ class Adafruit_SPIFlash  : public Print {
   Adafruit_SPIFlash(int8_t clk, int8_t miso, int8_t mosi, int8_t ss);
   Adafruit_SPIFlash(int8_t ss, SPIClass *spiinterface=&SPI);
 
-  boolean begin(spiflash_type_t t);
+  bool begin(spiflash_type_t t);
 
   // Help functions to display formatted text
   void PrintHex(const byte * data, const uint32_t numBytes);
@@ -104,17 +104,17 @@ class Adafruit_SPIFlash  : public Print {
   bool     eraseChip (void);
   
   // Write one page worth of data
-  uint32_t writePage (uint32_t address, uint8_t *buffer, uint32_t len, bool fastquit=false) {
+  uint32_t writePage (uint32_t address, const uint8_t *buffer, uint32_t len, bool fastquit=false) {
     return WritePage(address, buffer, len, fastquit);
   }
-  uint32_t WritePage (uint32_t address, uint8_t *buffer, uint32_t len, bool fastquit=false);
+  uint32_t WritePage (uint32_t address, const uint8_t *buffer, uint32_t len, bool fastquit=false);
 
   // Write an arbitrary-sized buffer
-  uint32_t writeBuffer (uint32_t address, uint8_t *buffer, uint32_t len);
+  uint32_t writeBuffer (uint32_t address, const uint8_t *buffer, uint32_t len);
   uint32_t findFirstEmptyAddr(void);
   void seek(uint32_t);
   size_t write(uint8_t b);
-  boolean appendData(void);
+  bool appendData(void);
   uint32_t getAddr();
   uint8_t readstatus();
 
@@ -123,9 +123,9 @@ class Adafruit_SPIFlash  : public Print {
 
  private:
   spiflash_type_t type;
-  int32_t pagesize;
-  int32_t pages;
-  int32_t totalsize;
+  uint32_t pagesize;
+  uint32_t pages;
+  uint32_t totalsize;
   uint8_t addrsize;
 
   SPIClass *_spi;
@@ -138,7 +138,7 @@ class Adafruit_SPIFlash  : public Print {
 
   void readspidata(uint8_t* buff, uint8_t n);
   void spiwrite(uint8_t c);
-  void spiwrite(uint8_t *data, uint16_t length);
+  void spiwrite(const uint8_t *data, uint16_t length);
   uint8_t spiread(void);
   void spiread(uint8_t *data, uint16_t length);
   bool WaitForReady(uint32_t timeout=1000);
