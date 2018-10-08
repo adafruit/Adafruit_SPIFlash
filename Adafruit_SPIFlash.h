@@ -96,10 +96,10 @@ class Adafruit_SPIFlash  : public Print {
   uint32_t GetJEDECID (void);
 
   void WriteEnable (bool enable);
-  uint32_t readBuffer (uint32_t address, uint8_t *buffer, uint32_t len);
+  virtual uint32_t readBuffer (uint32_t address, uint8_t *buffer, uint32_t len);
   bool     eraseBlock  (uint32_t blockNumber);
-  bool     EraseSector (uint32_t sectorNumber) { return eraseSector(sectorNumber); }
-  bool     eraseSector (uint32_t sectorNumber);
+  virtual bool     EraseSector (uint32_t sectorNumber) { return eraseSector(sectorNumber); }
+  virtual bool     eraseSector (uint32_t sectorNumber);
   bool     EraseChip (void) { return eraseChip(); }
   bool     eraseChip (void);
   
@@ -110,7 +110,7 @@ class Adafruit_SPIFlash  : public Print {
   uint32_t WritePage (uint32_t address, uint8_t *buffer, uint32_t len, bool fastquit=false);
 
   // Write an arbitrary-sized buffer
-  uint32_t writeBuffer (uint32_t address, uint8_t *buffer, uint32_t len);
+  virtual uint32_t writeBuffer (uint32_t address, uint8_t *buffer, uint32_t len);
   uint32_t findFirstEmptyAddr(void);
   void seek(uint32_t);
   size_t write(uint8_t b);
@@ -121,20 +121,21 @@ class Adafruit_SPIFlash  : public Print {
   uint16_t numPages() {return pages; }
   uint16_t pageSize() {return pagesize;}
 
- private:
+ protected:
   spiflash_type_t type;
   int32_t pagesize;
   int32_t pages;
   int32_t totalsize;
   uint8_t addrsize;
 
+  uint32_t currentAddr;
+
+private:
   SPIClass *_spi;
 
   int8_t _ss, _clk, _mosi, _miso;
   volatile REGTYPE *clkportreg, *misoportreg, *mosiportreg;
   uint32_t clkpin, misopin, mosipin;
-
-  uint32_t currentAddr;
 
   void readspidata(uint8_t* buff, uint8_t n);
   void spiwrite(uint8_t c);
