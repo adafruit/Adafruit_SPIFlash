@@ -21,7 +21,7 @@ install:
    - arduino --install-library "Adafruit NeoPixel"
 
 script:
-   - build_main_platforms
+   - build_samd_platforms
 
 # Generate and deploy documentation
 after_success:

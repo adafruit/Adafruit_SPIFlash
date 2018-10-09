@@ -35,7 +35,7 @@
                                               // sure to change the fatfs
                                               // object type below to match.
 
-#if defined(ARDUINO_SAMD_CIRCUITPLAYGROUND_EXPRESS)
+#if !defined(SS1)
   #define FLASH_SS       SS                    // Flash chip SS pin.
   #define FLASH_SPI_PORT SPI                   // What SPI port is Flash on?
   #define NEOPIN         8
