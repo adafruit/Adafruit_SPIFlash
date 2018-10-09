@@ -13,7 +13,6 @@ class Adafruit_SPIFlash_FatFs;
 
 #include "utility/flashdisk.h"
 
-
 #define DEBUG 0
 #define DEBUG_PRINTER Serial
 
@@ -114,8 +113,8 @@ public:
 
   // Functions that are similar to the Arduino SD library:
   bool begin();
-  File open(const char *filename, uint8_t mode = FILE_READ);
-  File open(const String &filename, uint8_t mode = FILE_READ) {
+  ::File open(const char *filename, uint8_t mode = FILE_READ);
+  ::File open(const String &filename, uint8_t mode = FILE_READ) {
     return open( filename.c_str(), mode );
   }
   bool exists(const char *filepath);
