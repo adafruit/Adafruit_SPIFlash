@@ -77,6 +77,11 @@ boolean Adafruit_SPIFlash::begin(spiflash_type_t t) {
     addrsize = 24;
     pages = 4096;
     totalsize = pages * pagesize;  // 1 MBytes
+  } else if (type == SPIFLASHTYPE_W25Q64) {
+	  pagesize = 256;
+	  addrsize = 24;
+	  pages = 32768;
+	  totalsize = pages * pagesize; // 8 MBytes
   }
   else {
     pagesize = 0;
