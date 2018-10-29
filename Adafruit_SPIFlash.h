@@ -93,7 +93,7 @@ class Adafruit_SPIFlash  : public Print {
   void PrintHexChar(const byte * pbtData, const uint32_t numBytes);
   // Flash Functions
   void GetUniqueID(uint8_t *buffer);
-  void GetManufacturerInfo (uint8_t *manufID, uint8_t *deviceID);
+  virtual void GetManufacturerInfo (uint8_t *manufID, uint8_t *deviceID);
   uint32_t GetJEDECID (void);
 
   void WriteEnable (bool enable);
