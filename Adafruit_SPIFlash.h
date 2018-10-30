@@ -94,7 +94,7 @@ class Adafruit_SPIFlash  : public Print {
   // Flash Functions
   void GetUniqueID(uint8_t *buffer);
   virtual void GetManufacturerInfo (uint8_t *manufID, uint8_t *deviceID);
-  uint32_t GetJEDECID (void);
+  virtual uint32_t GetJEDECID (void);
 
   void WriteEnable (bool enable);
   virtual uint32_t readBuffer (uint32_t address, uint8_t *buffer, uint32_t len);

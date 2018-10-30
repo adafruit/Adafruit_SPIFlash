@@ -384,9 +384,8 @@ uint32_t Adafruit_SPIFlash::GetJEDECID (void)
   spiwrite(0x00);            // Dummy write
   spiwrite(0x00);            // Dummy write
 
-  uint32_t id;
+  uint32_t id = 0;
   id = spiread(); id <<= 8;
-  id |= spiread(); id <<= 8;
   id |= spiread(); id <<= 8;
   id |= spiread();
 
