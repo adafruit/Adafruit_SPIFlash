@@ -16,7 +16,7 @@ class Adafruit_SPIFlash_FatFs;
 #define DEBUG 0
 #define DEBUG_PRINTER Serial
 
-#ifdef DEBUG
+#if DEBUG
   #define DEBUG_PRINT(...) { DEBUG_PRINTER.print(__VA_ARGS__); }
   #define DEBUG_PRINTLN(...) { DEBUG_PRINTER.println(__VA_ARGS__); }
 #else
