@@ -3,6 +3,15 @@
 #ifndef ADAFRUIT_SPIFLASH_H
 #define ADAFRUIT_SPIFLASH_H
 
+//#define DEBUG
+#ifdef DEBUG
+# define DEBUG_PRINT(...) Serial.print(__VA_ARGS__)
+# define DEBUG_PRINTLN(...) Serial.println(__VA_ARGS__)
+#else
+# define DEBUG_PRINT(...) do {} while (0)
+# define DEBUG_PRINTLN(...) do {} while (0)
+#endif
+
 #if ARDUINO >= 100
  #include "Arduino.h"
 #else
@@ -11,7 +20,7 @@
 
 #include <SPI.h>
 
-#if defined(__ARM__) || defined(ARDUINO_ARCH_SAMD)
+#if defined(__ARM__) || defined(ARDUINO_ARCH_SAMD) || defined(NRF52_SERIES)
   #define REGTYPE uint32_t
   #define SPIFLASH_SPI_SPEED 16000000
 #else

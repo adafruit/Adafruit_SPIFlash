@@ -15,6 +15,7 @@ Adafruit_SPIFlash::Adafruit_SPIFlash(int8_t clk, int8_t miso, int8_t mosi, int8_
   _miso = miso;
   _mosi = mosi;
   _ss = ss;
+  _spi = NULL;
 }
 
 
@@ -24,16 +25,18 @@ Adafruit_SPIFlash::Adafruit_SPIFlash(int8_t ss, SPIClass *spiinterface)
   _ss = ss;
 
   _spi = spiinterface;  // default to built in SPI
-
-  digitalWrite(_ss, HIGH);  
-  pinMode(_ss, OUTPUT);
 }
 
 
 boolean Adafruit_SPIFlash::begin(spiflash_type_t t) {
   type = t;
 
-  if (_clk != -1) {
+  DEBUG_PRINTLN("Begin SPIFlash");
+  pinMode(_ss, OUTPUT);
+  digitalWrite(_ss, HIGH);  
+
+  if (! _spi) {
+    DEBUG_PRINTLN("Software SPI init");
     pinMode(_clk, OUTPUT);
     pinMode(_mosi, OUTPUT);
     pinMode(_miso, INPUT);
@@ -43,15 +46,14 @@ boolean Adafruit_SPIFlash::begin(spiflash_type_t t) {
 
     clkportreg =  portOutputRegister(digitalPinToPort(_clk));
     clkpin = digitalPinToBitMask(_clk);
+    mosiportreg =  portOutputRegister(digitalPinToPort(_mosi));
+    mosipin = digitalPinToBitMask(_mosi);
     misoportreg =  portInputRegister(digitalPinToPort(_miso));
     misopin = digitalPinToBitMask(_miso);
   } else {
+    DEBUG_PRINTLN("Hardware SPI init");
     _spi->begin();
   }
-
-  pinMode(_ss, OUTPUT);
-  digitalWrite(_ss, HIGH);  
-
 
   currentAddr = 0;
 
@@ -78,10 +80,10 @@ boolean Adafruit_SPIFlash::begin(spiflash_type_t t) {
     pages = 4096;
     totalsize = pages * pagesize;  // 1 MBytes
   } else if (type == SPIFLASHTYPE_W25Q64) {
-	  pagesize = 256;
-	  addrsize = 24;
-	  pages = 32768;
-	  totalsize = pages * pagesize; // 8 MBytes
+    pagesize = 256;
+    addrsize = 24;
+    pages = 32768;
+    totalsize = pages * pagesize; // 8 MBytes
   }
   else {
     pagesize = 0;
@@ -136,7 +138,7 @@ void Adafruit_SPIFlash::spiwrite(uint8_t data) {
 void Adafruit_SPIFlash::spiwrite(uint8_t *data, uint16_t length) {
   byte c;
   
-  if (_clk == -1) { // hardware SPI
+  if (_spi) { // hardware SPI
     _spi->beginTransaction(SPISettings(SPIFLASH_SPI_SPEED, MSBFIRST, SPI_MODE0));
     while (length--) {
       c = *data;
@@ -146,11 +148,7 @@ void Adafruit_SPIFlash::spiwrite(uint8_t *data, uint16_t length) {
     _spi->endTransaction();
   } else {
     // Software SPI
-    clkportreg =  portOutputRegister(digitalPinToPort(_clk));
-    clkpin = digitalPinToBitMask(_clk);
-    mosiportreg =  portOutputRegister(digitalPinToPort(_mosi));
-    mosipin = digitalPinToBitMask(_mosi);
-    
+    DEBUG_PRINT("SSPI Sending: ");
     while (length--) {
       int8_t i;
       c = *data;
@@ -159,7 +157,7 @@ void Adafruit_SPIFlash::spiwrite(uint8_t *data, uint16_t length) {
       // Make sure clock starts low
       // slow version - built in shiftOut function
       //shiftOut(_mosi, _clk, MSBFIRST, c); return;
-
+      DEBUG_PRINT("0x"); DEBUG_PRINT(c, HEX); DEBUG_PRINT(", ");
       for (i=7; i>=0; i--) {
 	*clkportreg &= ~clkpin;
 	if (c & (1<<i)) {
@@ -174,6 +172,7 @@ void Adafruit_SPIFlash::spiwrite(uint8_t *data, uint16_t length) {
     *clkportreg &= ~clkpin;
     // Make sure clock ends low
   }
+  DEBUG_PRINTLN("");
 }
   
 uint8_t Adafruit_SPIFlash::spiread(void) 
@@ -186,7 +185,7 @@ uint8_t Adafruit_SPIFlash::spiread(void)
 void Adafruit_SPIFlash::spiread(uint8_t *data, uint16_t length) 
 {
   uint8_t x = 0;
-  if (_clk == -1) {
+  if (_spi) {
     // hardware SPI
     _spi->beginTransaction(SPISettings(SPIFLASH_SPI_SPEED, MSBFIRST, SPI_MODE0));
     while (length--) {
@@ -197,8 +196,10 @@ void Adafruit_SPIFlash::spiread(uint8_t *data, uint16_t length)
     _spi->endTransaction();
   } else {
     // Software SPI
+    DEBUG_PRINT("SSPI Receiving: ");
     while (length--) {
        x = shiftIn(_miso, _clk, MSBFIRST);
+       DEBUG_PRINT("0x"); DEBUG_PRINT(x, HEX); DEBUG_PRINT(", ");
       *data = x;
       data++;
     }
@@ -222,6 +223,7 @@ void Adafruit_SPIFlash::spiread(uint8_t *data, uint16_t length)
     *clkportreg &= ~clkpin;
     */
   }
+  DEBUG_PRINTLN("");
 }
 
 /**************************************************************************/
