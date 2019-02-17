@@ -33,15 +33,16 @@
                                               // sure to change the fatfs
                                               // object type below to match.
 
-#if !defined(SS1)
+#if (SPI_INTERFACES_COUNT == 1)
   #define FLASH_SS       SS                    // Flash chip SS pin.
   #define FLASH_SPI_PORT SPI                   // What SPI port is Flash on?
-  #define NEOPIN         8
 #else
   #define FLASH_SS       SS1                    // Flash chip SS pin.
   #define FLASH_SPI_PORT SPI1                   // What SPI port is Flash on?
-  #define NEOPIN         40
 #endif
+
+#define NEOPIN         40       // neopixel pin
+
 
 Adafruit_SPIFlash flash(FLASH_SS, &FLASH_SPI_PORT);     // Use hardware SPI
 // Alternatively you can define and use non-SPI pins!

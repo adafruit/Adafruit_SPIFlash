@@ -4,13 +4,14 @@
 void PrintHex(const byte * data, const uint32_t numBytes);
 #include <Adafruit_SPIFlash.h>
 
-#if !defined(SS1)
+#if (SPI_INTERFACES_COUNT == 1)
   #define FLASH_SS       SS                    // Flash chip SS pin.
   #define FLASH_SPI_PORT SPI                   // What SPI port is Flash on?
 #else
   #define FLASH_SS       SS1                    // Flash chip SS pin.
   #define FLASH_SPI_PORT SPI1                   // What SPI port is Flash on?
 #endif
+
 Adafruit_SPIFlash flash(FLASH_SS, &FLASH_SPI_PORT);     // Use hardware SPI 
 
 #define SD_CS 2

@@ -24,15 +24,15 @@
                                               // sure to change the fatfs
                                               // object type below to match.
 
-#if !defined(SS1)
+#if (SPI_INTERFACES_COUNT == 1)
   #define FLASH_SS       SS                    // Flash chip SS pin.
   #define FLASH_SPI_PORT SPI                   // What SPI port is Flash on?
-  #define NEOPIN         8
 #else
   #define FLASH_SS       SS1                    // Flash chip SS pin.
   #define FLASH_SPI_PORT SPI1                   // What SPI port is Flash on?
-  #define NEOPIN         40
 #endif
+
+#define NEOPIN         40       // neopixel pin
 
 #define BUFFERSIZ      200
 
@@ -50,7 +50,7 @@ Adafruit_NeoPixel pixel = Adafruit_NeoPixel(1, NEOPIN, NEO_GRB + NEO_KHZ800);
 
 void setup() {
   Serial.begin(115200);
-  while (!Serial);
+  //while (!Serial);
   delay(1000); // small delay in case we want to watch it on the serial port  
   Serial.println("Adafruit Express CircuitPython Flash Repair");
   
