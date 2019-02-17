@@ -28,7 +28,7 @@ Adafruit_SPIFlash::Adafruit_SPIFlash(int8_t ss, SPIClass *spiinterface)
 }
 
 
-boolean Adafruit_SPIFlash::begin(spiflash_type_t t) {
+bool Adafruit_SPIFlash::begin(spiflash_type_t t) {
   type = t;
 
   DEBUG_PRINTLN("Begin SPIFlash");
@@ -135,7 +135,7 @@ void Adafruit_SPIFlash::spiwrite(uint8_t data) {
   spiwrite(&data, 1);
 }
 
-void Adafruit_SPIFlash::spiwrite(uint8_t *data, uint16_t length) {
+void Adafruit_SPIFlash::spiwrite(const uint8_t *data, uint16_t length) {
   byte c;
   
   if (_spi) { // hardware SPI
@@ -434,9 +434,6 @@ void Adafruit_SPIFlash::WriteEnable (bool enable)
 /**************************************************************************/
 uint32_t Adafruit_SPIFlash::readBuffer (uint32_t address, uint8_t *buffer, uint32_t len)
 {
-  uint32_t a, i;
-  a = i = 0;
-
   // Make sure the address is valid
   if (address >= totalsize)
   {
@@ -625,7 +622,7 @@ bool Adafruit_SPIFlash::eraseChip (void)
                 within the limits of the starting address and page length.
 */
 /**************************************************************************/
-uint32_t Adafruit_SPIFlash::WritePage (uint32_t address, uint8_t *buffer, uint32_t len, bool fastquit)
+uint32_t Adafruit_SPIFlash::WritePage (uint32_t address, const uint8_t *buffer, uint32_t len, bool fastquit)
 {
   uint8_t status;
 
@@ -690,7 +687,7 @@ uint32_t Adafruit_SPIFlash::WritePage (uint32_t address, uint8_t *buffer, uint32
     return 0;
   }
 
-  // Transfer data
+  // Transfer data 
   spiwrite(buffer, len);
 
   // Write only occurs after the CS line is de-asserted
@@ -723,7 +720,7 @@ uint32_t Adafruit_SPIFlash::WritePage (uint32_t address, uint8_t *buffer, uint32
                 address and size of the flash device.
 */
 /**************************************************************************/
-uint32_t Adafruit_SPIFlash::writeBuffer(uint32_t address, uint8_t *buffer, uint32_t len)
+uint32_t Adafruit_SPIFlash::writeBuffer(uint32_t address, const uint8_t *buffer, uint32_t len)
 {
   uint32_t bytestowrite;
   uint32_t bufferoffset;
@@ -787,8 +784,8 @@ uint32_t Adafruit_SPIFlash::writeBuffer(uint32_t address, uint8_t *buffer, uint3
 /**************************************************************************/
 uint32_t Adafruit_SPIFlash::findFirstEmptyAddr(void)
 {
-  uint32_t address, latestUsedAddr;
-  uint8_t b;
+  uint32_t address = 0, latestUsedAddr = 0;
+  uint8_t b = 0;
 
   // Wait until the device is ready or a timeout occurs
   if (WaitForReady())
@@ -837,10 +834,12 @@ uint32_t Adafruit_SPIFlash::getAddr(void) {
   return currentAddr;
 }
 
-boolean Adafruit_SPIFlash::appendData(void) {
+bool Adafruit_SPIFlash::appendData(void) {
   uint32_t addr = findFirstEmptyAddr();
-  if (addr == -1) return false;
+  if (addr == uint32_t(-1)) 
+    return false;
   seek(addr);
+  return true;
 }
 
 size_t Adafruit_SPIFlash::write(uint8_t b) {
