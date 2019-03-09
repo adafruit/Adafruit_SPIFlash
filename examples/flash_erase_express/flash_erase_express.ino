@@ -33,22 +33,23 @@
                                               // sure to change the fatfs
                                               // object type below to match.
 
-#if (SPI_INTERFACES_COUNT == 1)
-  #define FLASH_SS       SS                    // Flash chip SS pin.
-  #define FLASH_SPI_PORT SPI                   // What SPI port is Flash on?
+#if defined(__SAMD51__)
+  // Alternatively you can define and use non-SPI pins, QSPI isnt on a sercom
+  Adafruit_SPIFlash flash(PIN_QSPI_SCK, PIN_QSPI_IO1, PIN_QSPI_IO0, PIN_QSPI_CS);
 #else
-  #define FLASH_SS       SS1                    // Flash chip SS pin.
-  #define FLASH_SPI_PORT SPI1                   // What SPI port is Flash on?
-#endif
-
-#define NEOPIN         40       // neopixel pin
-
+  #if (SPI_INTERFACES_COUNT == 1)
+    #define FLASH_SS       SS                    // Flash chip SS pin.
+    #define FLASH_SPI_PORT SPI                   // What SPI port is Flash on?
+  #else
+    #define FLASH_SS       SS1                    // Flash chip SS pin.
+    #define FLASH_SPI_PORT SPI1                   // What SPI port is Flash on?
+  #endif
 
 Adafruit_SPIFlash flash(FLASH_SS, &FLASH_SPI_PORT);     // Use hardware SPI
-// Alternatively you can define and use non-SPI pins!
-//Adafruit_SPIFlash flash(SCK1, MISO1, MOSI1, FLASH_SS);
+#endif
 
 // On-board status Neopixel.
+#define NEOPIN         40       // neopixel pin
 Adafruit_NeoPixel pixel = Adafruit_NeoPixel(1, NEOPIN, NEO_GRB + NEO_KHZ800);
 uint32_t BLUE = pixel.Color(0, 0, 100);
 uint32_t GREEN = pixel.Color(0, 100, 0);
@@ -92,4 +93,3 @@ void blink(int times, uint32_t color) {
   }
 
 }
-
