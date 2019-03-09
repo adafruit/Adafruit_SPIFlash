@@ -44,18 +44,20 @@
                                               // sure to change the fatfs
                                               // object type below to match.
 
-#if (SPI_INTERFACES_COUNT == 1)
-  #define FLASH_SS       SS                    // Flash chip SS pin.
-  #define FLASH_SPI_PORT SPI                   // What SPI port is Flash on?
+#if defined(__SAMD51__)
+  // Alternatively you can define and use non-SPI pins, QSPI isnt on a sercom
+  Adafruit_SPIFlash flash(PIN_QSPI_SCK, PIN_QSPI_IO1, PIN_QSPI_IO0, PIN_QSPI_CS);
 #else
-  #define FLASH_SS       SS1                    // Flash chip SS pin.
-  #define FLASH_SPI_PORT SPI1                   // What SPI port is Flash on?
-#endif
+  #if (SPI_INTERFACES_COUNT == 1)
+    #define FLASH_SS       SS                    // Flash chip SS pin.
+    #define FLASH_SPI_PORT SPI                   // What SPI port is Flash on?
+  #else
+    #define FLASH_SS       SS1                    // Flash chip SS pin.
+    #define FLASH_SPI_PORT SPI1                   // What SPI port is Flash on?
+  #endif
 
 Adafruit_SPIFlash flash(FLASH_SS, &FLASH_SPI_PORT);     // Use hardware SPI
-
-// Alternatively you can define and use non-SPI pins!
-// Adafruit_SPIFlash flash(FLASH_SCK, FLASH_MISO, FLASH_MOSI, FLASH_SS);
+#endif
 
 Adafruit_W25Q16BV_FatFs fatfs(flash);
 
