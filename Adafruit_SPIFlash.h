@@ -120,7 +120,7 @@ class Adafruit_SPIFlash  : public Print {
   uint32_t WritePage (uint32_t address, const uint8_t *buffer, uint32_t len, bool fastquit=false);
 
   // Write an arbitrary-sized buffer
-  uint32_t writeBuffer (uint32_t address, const uint8_t *buffer, uint32_t len);
+  virtual uint32_t writeBuffer (uint32_t address, uint8_t *buffer, uint32_t len);
   uint32_t findFirstEmptyAddr(void);
   void seek(uint32_t);
   size_t write(uint8_t b);
