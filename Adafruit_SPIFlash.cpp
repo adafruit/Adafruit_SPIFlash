@@ -720,7 +720,7 @@ uint32_t Adafruit_SPIFlash::WritePage (uint32_t address, const uint8_t *buffer, 
                 address and size of the flash device.
 */
 /**************************************************************************/
-uint32_t Adafruit_SPIFlash::writeBuffer(uint32_t address, const uint8_t *buffer, uint32_t len)
+uint32_t Adafruit_SPIFlash::writeBuffer(uint32_t address, uint8_t *buffer, uint32_t len)
 {
   uint32_t bytestowrite;
   uint32_t bufferoffset;
