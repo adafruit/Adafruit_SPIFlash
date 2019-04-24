@@ -248,7 +248,7 @@ bool Adafruit_SPIFlash_FatFs::begin() {
   // Mount the filesystem.
   FRESULT r = f_mount(&_fatFs, "", 1);
   if (r != FR_OK) {
-    FATFS_DEBUG_PRINT("f_mount failed with error code: "); DEBUG_PRINTLN(r, DEC);
+    FATFS_DEBUG_PRINT("f_mount failed with error code: "); FATFS_DEBUG_PRINTLN(r, DEC);
     return false;
   }
   return true;
