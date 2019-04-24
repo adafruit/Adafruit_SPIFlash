@@ -17,11 +17,11 @@ class Adafruit_SPIFlash_FatFs;
 #define DEBUG_PRINTER Serial
 
 #if DEBUG
-  #define DEBUG_PRINT(...) { DEBUG_PRINTER.print(__VA_ARGS__); }
-  #define DEBUG_PRINTLN(...) { DEBUG_PRINTER.println(__VA_ARGS__); }
+  #define FATFS_DEBUG_PRINT(...) { DEBUG_PRINTER.print(__VA_ARGS__); }
+  #define FATFS_DEBUG_PRINTLN(...) { DEBUG_PRINTER.println(__VA_ARGS__); }
 #else
-  #define DEBUG_PRINT(...) {}
-  #define DEBUG_PRINTLN(...) {}
+  #define FATFS_DEBUG_PRINT(...) {}
+  #define FATFS_DEBUG_PRINTLN(...) {}
 #endif
 
 
@@ -60,6 +60,10 @@ public:
   virtual void flush();
   int read(void *buf, uint16_t nbyte);
   bool seek(uint32_t pos);
+  bool seekSet(uint32_t pos);
+  bool seekCur(int32_t offset);
+  void rewind() { seekSet(0); }
+
   uint32_t position();
   uint32_t size();
   void close();

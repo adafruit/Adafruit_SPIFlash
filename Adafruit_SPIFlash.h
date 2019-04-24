@@ -5,11 +5,11 @@
 
 //#define DEBUG
 #ifdef DEBUG
-# define DEBUG_PRINT(...) Serial.print(__VA_ARGS__)
-# define DEBUG_PRINTLN(...) Serial.println(__VA_ARGS__)
+# define SPIFL_DEBUG_PRINT(...) Serial.print(__VA_ARGS__)
+# define SPIFL_DEBUG_PRINTLN(...) Serial.println(__VA_ARGS__)
 #else
-# define DEBUG_PRINT(...) do {} while (0)
-# define DEBUG_PRINTLN(...) do {} while (0)
+# define SPIFL_DEBUG_PRINT(...) do {} while (0)
+# define SPIFL_DEBUG_PRINTLN(...) do {} while (0)
 #endif
 
 #if ARDUINO >= 100

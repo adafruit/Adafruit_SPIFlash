@@ -31,12 +31,12 @@ Adafruit_SPIFlash::Adafruit_SPIFlash(int8_t ss, SPIClass *spiinterface)
 bool Adafruit_SPIFlash::begin(spiflash_type_t t) {
   type = t;
 
-  DEBUG_PRINTLN("Begin SPIFlash");
+  SPIFL_DEBUG_PRINTLN("Begin SPIFlash");
   pinMode(_ss, OUTPUT);
   digitalWrite(_ss, HIGH);  
 
   if (! _spi) {
-    DEBUG_PRINTLN("Software SPI init");
+    SPIFL_DEBUG_PRINTLN("Software SPI init");
     pinMode(_clk, OUTPUT);
     pinMode(_mosi, OUTPUT);
     pinMode(_miso, INPUT);
@@ -51,7 +51,7 @@ bool Adafruit_SPIFlash::begin(spiflash_type_t t) {
     misoportreg =  portInputRegister(digitalPinToPort(_miso));
     misopin = digitalPinToBitMask(_miso);
   } else {
-    DEBUG_PRINTLN("Hardware SPI init");
+    SPIFL_DEBUG_PRINTLN("Hardware SPI init");
     _spi->begin();
   }
 
@@ -148,7 +148,7 @@ void Adafruit_SPIFlash::spiwrite(const uint8_t *data, uint16_t length) {
     _spi->endTransaction();
   } else {
     // Software SPI
-    DEBUG_PRINT("SSPI Sending: ");
+    SPIFL_DEBUG_PRINT("SSPI Sending: ");
     while (length--) {
       int8_t i;
       c = *data;
@@ -157,7 +157,7 @@ void Adafruit_SPIFlash::spiwrite(const uint8_t *data, uint16_t length) {
       // Make sure clock starts low
       // slow version - built in shiftOut function
       //shiftOut(_mosi, _clk, MSBFIRST, c); return;
-      DEBUG_PRINT("0x"); DEBUG_PRINT(c, HEX); DEBUG_PRINT(", ");
+      SPIFL_DEBUG_PRINT("0x"); SPIFL_DEBUG_PRINT(c, HEX); SPIFL_DEBUG_PRINT(", ");
       for (i=7; i>=0; i--) {
 	*clkportreg &= ~clkpin;
 	if (c & (1<<i)) {
@@ -172,7 +172,7 @@ void Adafruit_SPIFlash::spiwrite(const uint8_t *data, uint16_t length) {
     *clkportreg &= ~clkpin;
     // Make sure clock ends low
   }
-  DEBUG_PRINTLN("");
+  SPIFL_DEBUG_PRINTLN("");
 }
   
 uint8_t Adafruit_SPIFlash::spiread(void) 
@@ -196,10 +196,10 @@ void Adafruit_SPIFlash::spiread(uint8_t *data, uint16_t length)
     _spi->endTransaction();
   } else {
     // Software SPI
-    DEBUG_PRINT("SSPI Receiving: ");
+    SPIFL_DEBUG_PRINT("SSPI Receiving: ");
     while (length--) {
        x = shiftIn(_miso, _clk, MSBFIRST);
-       DEBUG_PRINT("0x"); DEBUG_PRINT(x, HEX); DEBUG_PRINT(", ");
+       SPIFL_DEBUG_PRINT("0x"); SPIFL_DEBUG_PRINT(x, HEX); SPIFL_DEBUG_PRINT(", ");
       *data = x;
       data++;
     }
@@ -223,7 +223,7 @@ void Adafruit_SPIFlash::spiread(uint8_t *data, uint16_t length)
     *clkportreg &= ~clkpin;
     */
   }
-  DEBUG_PRINTLN("");
+  SPIFL_DEBUG_PRINTLN("");
 }
 
 /**************************************************************************/
