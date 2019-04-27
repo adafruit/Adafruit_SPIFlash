@@ -74,6 +74,9 @@ public:
   char* name() {
     return _fileInfo.fname;
   }
+  void getName(char *buf, uint16_t bufsize) {
+    strncpy(buf, _fileInfo.fname, bufsize);
+  }
   bool isDirectory() {
     return (_fileInfo.fattrib & AM_DIR) > 0;
   }
