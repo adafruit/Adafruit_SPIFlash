@@ -61,6 +61,8 @@ static void build_partition(uint8_t *buf, int boot, int type, uint32_t
     buf[15] = num_blocks >> 24;
 }
 
+namespace Adafruit_SPIFlash_FAT {
+
 File::File(const char* filepath, uint8_t mode, Adafruit_SPIFlash_FatFs* fatfs):
   _opened(false), _file({0}), _fileInfo({0}), _directory({0}), _dirPath(NULL),
   _fatfs(fatfs)
@@ -243,6 +245,8 @@ void File::activate() {
   }
 }
 
+} // Adafruit_SPIFlash_FAT namespace
+
 bool Adafruit_SPIFlash_FatFs::begin() {
   activate();
   // Mount the filesystem.
@@ -254,9 +258,9 @@ bool Adafruit_SPIFlash_FatFs::begin() {
   return true;
 }
 
-File Adafruit_SPIFlash_FatFs::open(const char *filename, uint8_t mode) {
+Adafruit_SPIFlash_FAT::File Adafruit_SPIFlash_FatFs::open(const char *filename, uint8_t mode) {
   activate();
-  return File(filename,  mode, this);
+  return Adafruit_SPIFlash_FAT::File(filename,  mode, this);
 }
 
 bool Adafruit_SPIFlash_FatFs::exists(const char *filepath) {
@@ -306,14 +310,14 @@ bool Adafruit_SPIFlash_FatFs::remove(const char *filepath) {
 bool Adafruit_SPIFlash_FatFs::rmdir(const char *filepath) {
   activate();
   // Check the specified path is a directory and can be opened.
-  File root = open(filepath);
+  Adafruit_SPIFlash_FAT::File root = open(filepath);
   if (!root || !root.isDirectory()) {
     FATFS_DEBUG_PRINTLN("rmdir was not given a directory!");
     return false;
   }
   // Walk through all the children, deleting if it's a file and traversing
   // down to delete if a subdirectory (depth first search).
-  File child = root.openNextFile();
+  Adafruit_SPIFlash_FAT::File child = root.openNextFile();
   while (child) {
     // Construct full path to the child by concatenating a path separateor
     // and the file name.

@@ -115,7 +115,7 @@ void setup() {
   // using the FatFs f_open modes directly (which can be specified instead
   // of FILE_WRITE), see documentation at:
   //   http://elm-chan.org/fsw/ff/en/open.html
-  File writeFile = fatfs.open("/test/test.txt", FILE_WRITE);
+  Adafruit_SPIFlash_FAT::File writeFile = fatfs.open("/test/test.txt", FILE_WRITE);
   if (!writeFile) {
     Serial.println("Error, failed to open test.txt for writing!");
     while(1);
@@ -133,7 +133,7 @@ void setup() {
   Serial.println("Wrote to file /test/test.txt!");
 
   // Now open the same file but for reading.
-  File readFile = fatfs.open("/test/test.txt", FILE_READ);
+  Adafruit_SPIFlash_FAT::File readFile = fatfs.open("/test/test.txt", FILE_READ);
   if (!readFile) {
     Serial.println("Error, failed to open test.txt for reading!");
     while(1);
@@ -175,7 +175,7 @@ void setup() {
 
   // You can open a directory to list all the children (files and directories).
   // Just like the SD library the File type represents either a file or directory.
-  File testDir = fatfs.open("/test");
+  Adafruit_SPIFlash_FAT::File testDir = fatfs.open("/test");
   if (!testDir) {
     Serial.println("Error, failed to open test directory!");
     while(1);
@@ -185,7 +185,7 @@ void setup() {
     while(1);
   }
   Serial.println("Listing children of directory /test:");
-  File child = testDir.openNextFile();
+  Adafruit_SPIFlash_FAT::File child = testDir.openNextFile();
   while (child) {
     // Print the file name and mention if it's a directory.
     Serial.print("- "); Serial.print(child.name());
@@ -207,7 +207,7 @@ void setup() {
 
   // Delete a file with the remove command.  For example create a test2.txt file
   // inside /test/foo and then delete it.
-  File test2File = fatfs.open("/test/foo/test2.txt", FILE_WRITE);
+  Adafruit_SPIFlash_FAT::File test2File = fatfs.open("/test/foo/test2.txt", FILE_WRITE);
   test2File.close();
   Serial.println("Deleting /test/foo/test2.txt...");
   if (!fatfs.remove("/test/foo/test2.txt")) {

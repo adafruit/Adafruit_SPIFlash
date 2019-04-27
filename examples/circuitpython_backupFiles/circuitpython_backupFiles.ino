@@ -113,8 +113,8 @@ boolean moveFile(char *file, char *dest) {
 
   pixel.setPixelColor(0, pixel.Color(100,100,0)); pixel.show();
 
-  File source = pythonfs.open(file, FILE_READ);
-  File backup = pythonfs.open(dest, FILE_WRITE);
+  Adafruit_SPIFlash_FAT::File source = pythonfs.open(file, FILE_READ);
+  Adafruit_SPIFlash_FAT::File backup = pythonfs.open(dest, FILE_WRITE);
   Serial.println("Making backup!");
   Serial.println("\n---------------------\n");
 

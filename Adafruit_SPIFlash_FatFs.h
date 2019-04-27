@@ -13,6 +13,8 @@ class Adafruit_SPIFlash_FatFs;
 
 #include "utility/flashdisk.h"
 
+namespace Adafruit_SPIFlash_FAT {
+
 #define DEBUG 0
 #define DEBUG_PRINTER Serial
 
@@ -32,7 +34,6 @@ class Adafruit_SPIFlash_FatFs;
 // These just map to FatFs file modes.
 #define FILE_READ FA_READ
 #define FILE_WRITE (FA_READ | FA_WRITE | FA_OPEN_APPEND)
-
 
 class File : public Stream {
 public:
@@ -97,6 +98,8 @@ private:
   void activate();
 };
 
+}
+
 class Adafruit_SPIFlash_FatFs {
 public:
   Adafruit_SPIFlash_FatFs(Adafruit_SPIFlash& flash, int flashSectorSize,
@@ -117,8 +120,8 @@ public:
 
   // Functions that are similar to the Arduino SD library:
   bool begin();
-  ::File open(const char *filename, uint8_t mode = FILE_READ);
-  ::File open(const String &filename, uint8_t mode = FILE_READ) {
+  Adafruit_SPIFlash_FAT::File open(const char *filename, uint8_t mode = FILE_READ);
+  Adafruit_SPIFlash_FAT::File open(const String &filename, uint8_t mode = FILE_READ) {
     return open( filename.c_str(), mode );
   }
   bool exists(const char *filepath);

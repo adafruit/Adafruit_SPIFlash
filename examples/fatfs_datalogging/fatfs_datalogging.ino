@@ -78,7 +78,7 @@ void setup() {
 void loop() {
   // Open the datalogging file for writing.  The FILE_WRITE mode will open
   // the file for appending, i.e. it will add new data to the end of the file.
-  File dataFile = fatfs.open(FILE_NAME, FILE_WRITE);
+  Adafruit_SPIFlash_FAT::File dataFile = fatfs.open(FILE_NAME, FILE_WRITE);
   // Check that the file opened successfully and write a line to it.
   if (dataFile) {
     // Take a new data reading from a sensor, etc.  For this example just
