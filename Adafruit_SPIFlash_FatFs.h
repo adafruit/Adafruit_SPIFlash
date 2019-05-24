@@ -67,6 +67,7 @@ public:
 
   uint32_t position();
   uint32_t size();
+  uint32_t fileSize() { return size(); }
   void close();
   operator bool() {
     return _opened;
