@@ -10,6 +10,12 @@ git:
   depth: false
   quiet: true
 
+addons:
+  apt:
+    packages:
+      - python3
+      - python3-pip
+      - python3-setuptools
 
 # Blacklist
 branches:
@@ -26,9 +32,11 @@ before_install:
 
 install:
    - arduino --install-library "Adafruit NeoPixel"
+   - pip3 install --user adafruit-nrfutil
 
 script:
    - build_samd_platforms
+   - build_nrf5x_platforms
 
 # Generate and deploy documentation
 after_success:
