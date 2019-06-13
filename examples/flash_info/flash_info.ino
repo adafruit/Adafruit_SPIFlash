@@ -4,7 +4,7 @@
 #include "Adafruit_SPIFlash.h"
 
 #if defined(__SAMD51__) || defined(NRF52840_XXAA)
-Adafruit_Flash_Transport_QSPI flashTransport(PIN_QSPI_SCK, PIN_QSPI_CS, PIN_QSPI_IO0, PIN_QSPI_IO1, PIN_QSPI_IO2, PIN_QSPI_IO3);
+  Adafruit_Flash_Transport_QSPI flashTransport(PIN_QSPI_SCK, PIN_QSPI_CS, PIN_QSPI_IO0, PIN_QSPI_IO1, PIN_QSPI_IO2, PIN_QSPI_IO3);
 #else
   #if (SPI_INTERFACES_COUNT == 1)
     Adafruit_Flash_Transport_SPI flashTransport(SS0, &SPI);

@@ -22,31 +22,23 @@
 
 #include <SPI.h>
 #include <Adafruit_SPIFlash.h>
-#include <Adafruit_SPIFlash_FatFs.h>
 #include <Adafruit_NeoPixel.h>
 
-// Configuration of the flash chip pins.
+// Configuration of the flash chip pins and flash fatfs object.
 // You don't normally need to change these if using a Feather/Metro
 // M0 express board.
-#define FLASH_TYPE     SPIFLASHTYPE_W25Q16BV  // Flash chip type.
-                                              // If you change this be
-                                              // sure to change the fatfs
-                                              // object type below to match.
 
-#if defined(__SAMD51__)
-  // Alternatively you can define and use non-SPI pins, QSPI isnt on a sercom
-  Adafruit_SPIFlash flash(PIN_QSPI_SCK, PIN_QSPI_IO1, PIN_QSPI_IO0, PIN_QSPI_CS);
+#if defined(__SAMD51__) || defined(NRF52840_XXAA)
+  Adafruit_Flash_Transport_QSPI flashTransport(PIN_QSPI_SCK, PIN_QSPI_CS, PIN_QSPI_IO0, PIN_QSPI_IO1, PIN_QSPI_IO2, PIN_QSPI_IO3);
 #else
   #if (SPI_INTERFACES_COUNT == 1)
-    #define FLASH_SS       SS                    // Flash chip SS pin.
-    #define FLASH_SPI_PORT SPI                   // What SPI port is Flash on?
+    Adafruit_Flash_Transport_SPI flashTransport(SS0, &SPI);
   #else
-    #define FLASH_SS       SS1                    // Flash chip SS pin.
-    #define FLASH_SPI_PORT SPI1                   // What SPI port is Flash on?
+    Adafruit_Flash_Transport_SPI flashTransport(SS1, &SPI1);
   #endif
-
-Adafruit_SPIFlash flash(FLASH_SS, &FLASH_SPI_PORT);     // Use hardware SPI
 #endif
+
+Adafruit_SPIFlash flash(&flashTransport);
 
 // On-board status Neopixel.
 #define NEOPIN         40       // neopixel pin
@@ -64,11 +56,11 @@ void setup() {
   pixel.show();
 
   // Initialize flash library and check its chip ID.
-  if (!flash.begin(FLASH_TYPE)) {
+  if (!flash.begin()) {
     // blink red
     blink(2, RED);
   }
-  if (!flash.EraseChip()) {
+  if (!flash.eraseChip()) {
     blink(3, RED);
   }
   blink(1, GREEN);
