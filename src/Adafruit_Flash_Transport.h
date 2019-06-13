@@ -80,7 +80,7 @@ class Adafruit_Flash_Transport
     virtual bool writeMemory(uint32_t addr, uint8_t *data, uint32_t len) = 0;
 };
 
-
 #include "spi/Adafruit_Flash_Transport_SPI.h"
+#include "qspi/Adafruit_Flash_Transport_QSPI.h"
 
 #endif /* ADAFRUIT_FLASH_TRANSPORT_H_ */

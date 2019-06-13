@@ -3,11 +3,17 @@
 
 #include "Adafruit_SPIFlash.h"
 
-int chipSelect = 10;
+#if defined(__SAMD51__) || defined(NRF52840_XXAA)
+Adafruit_Flash_Transport_QSPI flashTransport(PIN_QSPI_SCK, PIN_QSPI_CS, PIN_QSPI_IO0, PIN_QSPI_IO1, PIN_QSPI_IO2, PIN_QSPI_IO3);
+#else
+  #if (SPI_INTERFACES_COUNT == 1)
+    Adafruit_Flash_Transport_SPI flashTransport(SS0, &SPI);
+  #else
+    Adafruit_Flash_Transport_SPI flashTransport(SS1, &SPI1);
+  #endif
+#endif
 
-Adafruit_Flash_Transport_SPI spiTransport(SS1, &SPI1);
-
-Adafruit_SPIFlash flash(&spiTransport);
+Adafruit_SPIFlash flash(&flashTransport);
 
 // the setup function runs once when you press reset or power the board
 void setup()

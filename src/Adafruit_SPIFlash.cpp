@@ -71,7 +71,6 @@ bool Adafruit_SPIFlash::begin(void)
   // Enable Quad Mode if available
   if ( _trans->supportQuadMode() && (_flash_dev->quad_enable_bit_mask) )
   {
-    Serial.println("quad mode");
     // Verify that QSPI mode is enabled.
     uint8_t status = _flash_dev->single_status_byte ? readStatus() : readStatus2();
 
