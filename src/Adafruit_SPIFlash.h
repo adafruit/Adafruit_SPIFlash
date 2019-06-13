@@ -57,22 +57,16 @@ enum
   SFLASH_CMD_ERASE_CHIP        = 0xC7,
 };
 
-/**************************************************************************/
-/*! 
-    @brief  a class for interfacing with a generic QSPI flash device.
-*/
-/**************************************************************************/
+/// Constant that is (mostly) true to all external flash devices
+enum {
+  SFLASH_BLOCK_SIZE  = 64*1024,
+  SFLASH_SECTOR_SIZE = 4*1024,
+  SFLASH_PAGE_SIZE   = 256,
+};
+
 class Adafruit_SPIFlash
 {
 public:
-
-  /// Constant that is (mostly) true to all external flash devices
-  enum {
-    SFLASH_BLOCK_SIZE  = 64*1024,
-    SFLASH_SECTOR_SIZE = 4*1024,
-    SFLASH_PAGE_SIZE   = 256,
-  };
-
 	Adafruit_SPIFlash(Adafruit_Flash_Transport* transport);
 	~Adafruit_SPIFlash() {}
 
@@ -97,14 +91,10 @@ public:
 	bool eraseBlock (uint32_t blockNumber);
 	bool eraseChip  (void);
 
-//	// Helper
-//	uint8_t  read8(uint32_t addr);
-//	uint16_t read16(uint32_t addr);
-//	uint32_t read32(uint32_t addr);
-//
-//	/// @brief same as @ref eraseSector
-//	/// @param sectorNumber the sector number to erase.
-//	/// @return true if success
+	// Helper
+	uint8_t  read8(uint32_t addr);
+	uint16_t read16(uint32_t addr);
+	uint32_t read32(uint32_t addr);
 
 private:
 	Adafruit_Flash_Transport* _trans;

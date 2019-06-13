@@ -5,9 +5,6 @@
 
 #include "flash_devices.h"
 
-//#define SPIFLASH_BUFFERSIZE   (W25Q16BV_PAGESIZE)
-//byte spiflash_buffer[SPIFLASH_BUFFERSIZE];
-
 /// List of all possible flash devices used by Adafruit boards
 static const external_flash_device possible_devices[] =
 {
@@ -186,6 +183,24 @@ uint32_t Adafruit_SPIFlash::readBuffer  (uint32_t address, uint8_t *buffer, uint
   _wait_for_flash_ready();
 
   return _trans->readMemory(address, buffer, len) ? len : 0;
+}
+
+uint8_t Adafruit_SPIFlash::read8(uint32_t addr)
+{
+	uint8_t ret;
+	return readBuffer(addr, &ret, sizeof(ret)) ? 0xff : ret;
+}
+
+uint16_t Adafruit_SPIFlash::read16(uint32_t addr)
+{
+	uint16_t ret;
+	return readBuffer(addr, (uint8_t*) &ret, sizeof(ret)) ? 0xffff : ret;
+}
+
+uint32_t Adafruit_SPIFlash::read32(uint32_t addr)
+{
+	uint32_t ret;
+	return readBuffer(addr, (uint8_t*) &ret, sizeof(ret)) ? 0xffffffff : ret;
 }
 
 uint32_t Adafruit_SPIFlash::writeBuffer (uint32_t address, uint8_t *buffer, uint32_t len)
