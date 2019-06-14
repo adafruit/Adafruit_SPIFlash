@@ -26,22 +26,17 @@ FatFile file;
 //------------------------------------------------------------------------------
 void setup() {
   Serial.begin(115200);
-  
-  // Wait for USB Serial 
-  while (!Serial) {
-    SysCall::yield();
-  }
-  
-  Serial.println("Type any character to start");
-  while (!Serial.available()) {
-    SysCall::yield();
-  }
 
   // Init external flash
   flash.begin();
 
   // Init file system on the flash
   fatfs.begin(&flash);
+  
+  // Wait for USB Serial 
+  while (!Serial) {
+    SysCall::yield();
+  }
   
   if (!root.open("/")) {
     Serial.println("open root failed");
