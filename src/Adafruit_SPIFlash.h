@@ -30,6 +30,9 @@
 #include "Adafruit_Flash_Transport.h"
 #include "flash_devices.h"
 
+// implement SdFat Block Driver
+#include <SdFat.h>
+
 enum
 {
   SFLASH_CMD_READ              = 0x03, // Single Read
@@ -64,7 +67,7 @@ enum {
   SFLASH_PAGE_SIZE   = 256,
 };
 
-class Adafruit_SPIFlash
+class Adafruit_SPIFlash : public BaseBlockDriver
 {
 public:
 	Adafruit_SPIFlash(Adafruit_Flash_Transport* transport);
@@ -85,7 +88,7 @@ public:
 	uint32_t getJEDECID (void);
 	
 	uint32_t readBuffer  (uint32_t address, uint8_t *buffer, uint32_t len);
-	uint32_t writeBuffer (uint32_t address, uint8_t *buffer, uint32_t len);
+	uint32_t writeBuffer (uint32_t address, uint8_t const *buffer, uint32_t len);
 
 	bool eraseSector(uint32_t sectorNumber);
 	bool eraseBlock (uint32_t blockNumber);
@@ -95,6 +98,13 @@ public:
 	uint8_t  read8(uint32_t addr);
 	uint16_t read16(uint32_t addr);
 	uint32_t read32(uint32_t addr);
+
+	//------------- SdFat BaseBlockDRiver API -------------//
+	virtual bool readBlock(uint32_t block, uint8_t* dst);
+	virtual bool syncBlocks();
+	virtual bool writeBlock(uint32_t block, const uint8_t* src);
+	virtual bool readBlocks(uint32_t block, uint8_t* dst, size_t nb);
+	virtual bool writeBlocks(uint32_t block, const uint8_t* src, size_t nb);
 
 private:
 	Adafruit_Flash_Transport* _trans;

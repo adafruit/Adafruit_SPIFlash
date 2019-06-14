@@ -203,7 +203,7 @@ uint32_t Adafruit_SPIFlash::read32(uint32_t addr)
 	return readBuffer(addr, (uint8_t*) &ret, sizeof(ret)) ? 0xffffffff : ret;
 }
 
-uint32_t Adafruit_SPIFlash::writeBuffer (uint32_t address, uint8_t *buffer, uint32_t len)
+uint32_t Adafruit_SPIFlash::writeBuffer (uint32_t address, uint8_t const *buffer, uint32_t len)
 {
   if (!_flash_dev) return 0;
 
@@ -227,3 +227,31 @@ uint32_t Adafruit_SPIFlash::writeBuffer (uint32_t address, uint8_t *buffer, uint
 	return len - remain;
 }
 
+//--------------------------------------------------------------------+
+// SdFat BaseBlockDRiver API
+// A block is 512 bytes
+//--------------------------------------------------------------------+
+bool Adafruit_SPIFlash::readBlock(uint32_t block, uint8_t* dst)
+{
+  return readBuffer(block*512, dst, 512) == 512;
+}
+
+bool Adafruit_SPIFlash::syncBlocks()
+{
+  return true;
+}
+
+bool Adafruit_SPIFlash::writeBlock(uint32_t block, const uint8_t* src)
+{
+  return writeBuffer(block*512, src, 512) == 512;
+}
+
+bool Adafruit_SPIFlash::readBlocks(uint32_t block, uint8_t* dst, size_t nb)
+{
+  return readBuffer(block*512, dst, 512*nb) == 512*nb;
+}
+
+bool Adafruit_SPIFlash::writeBlocks(uint32_t block, const uint8_t* src, size_t nb)
+{
+  return writeBuffer(block*512, src, 512*nb) == 512*nb;
+}
