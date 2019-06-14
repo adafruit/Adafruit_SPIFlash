@@ -129,12 +129,12 @@ bool Adafruit_Flash_Transport_QSPI::readMemory(uint32_t addr, uint8_t *data, uin
   return _run_instruction(SFLASH_CMD_QUAD_READ, iframe, addr, data, len);
 }
 
-bool Adafruit_Flash_Transport_QSPI::writeMemory(uint32_t addr, uint8_t *data, uint32_t len)
+bool Adafruit_Flash_Transport_QSPI::writeMemory(uint32_t addr, uint8_t const *data, uint32_t len)
 {
   uint32_t iframe = QSPI_INSTRFRAME_WIDTH_QUAD_OUTPUT | QSPI_INSTRFRAME_ADDRLEN_24BITS |
                     QSPI_INSTRFRAME_TFRTYPE_WRITEMEMORY | QSPI_INSTRFRAME_INSTREN | QSPI_INSTRFRAME_ADDREN | QSPI_INSTRFRAME_DATAEN;
 
-  return _run_instruction(SFLASH_CMD_QUAD_PAGE_PROGRAM, iframe, addr, data, len);
+  return _run_instruction(SFLASH_CMD_QUAD_PAGE_PROGRAM, iframe, addr, (uint8_t*) data, len);
 }
 
 /**************************************************************************/

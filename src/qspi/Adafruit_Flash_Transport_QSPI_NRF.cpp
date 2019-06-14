@@ -165,7 +165,7 @@ bool Adafruit_Flash_Transport_QSPI::readMemory (uint32_t addr, uint8_t *data, ui
   return NRFX_SUCCESS == nrfx_qspi_read(data, len, addr);
 }
 
-bool Adafruit_Flash_Transport_QSPI::writeMemory (uint32_t addr, uint8_t *data, uint32_t len)
+bool Adafruit_Flash_Transport_QSPI::writeMemory (uint32_t addr, uint8_t const *data, uint32_t len)
 {
   return NRFX_SUCCESS == nrfx_qspi_write(data, len, addr);
 }

@@ -77,7 +77,7 @@ class Adafruit_Flash_Transport
     /// @param data       writing data
     /// @param len        number of byte to read
     /// @return true if success
-    virtual bool writeMemory(uint32_t addr, uint8_t *data, uint32_t len) = 0;
+    virtual bool writeMemory(uint32_t addr, uint8_t const *data, uint32_t len) = 0;
 };
 
 #include "spi/Adafruit_Flash_Transport_SPI.h"

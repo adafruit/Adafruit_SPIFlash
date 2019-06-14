@@ -133,7 +133,7 @@ bool Adafruit_Flash_Transport_SPI::readMemory(uint32_t addr, uint8_t *data, uint
   return true;
 }
 
-bool Adafruit_Flash_Transport_SPI::writeMemory(uint32_t addr, uint8_t *data, uint32_t len)
+bool Adafruit_Flash_Transport_SPI::writeMemory(uint32_t addr, uint8_t const *data, uint32_t len)
 {
   digitalWrite(_ss, LOW);
   _spi->beginTransaction(_setting);
