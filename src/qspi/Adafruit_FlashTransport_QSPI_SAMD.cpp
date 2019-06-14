@@ -45,12 +45,12 @@ static void samd_peripherals_enable_cache (void)
   CMCC->CTRL.bit.CEN = 1;
 }
 
-Adafruit_Flash_Transport_QSPI::Adafruit_Flash_Transport_QSPI(void)
-    : Adafruit_Flash_Transport_QSPI(PIN_QSPI_SCK, PIN_QSPI_CS, PIN_QSPI_IO0, PIN_QSPI_IO1, PIN_QSPI_IO2, PIN_QSPI_IO3)
+Adafruit_FlashTransport_QSPI::Adafruit_FlashTransport_QSPI(void)
+    : Adafruit_FlashTransport_QSPI(PIN_QSPI_SCK, PIN_QSPI_CS, PIN_QSPI_IO0, PIN_QSPI_IO1, PIN_QSPI_IO2, PIN_QSPI_IO3)
 {
 }
 
-Adafruit_Flash_Transport_QSPI::Adafruit_Flash_Transport_QSPI(int8_t sck, int8_t cs, int8_t io0, int8_t io1, int8_t io2, int8_t io3)
+Adafruit_FlashTransport_QSPI::Adafruit_FlashTransport_QSPI(int8_t sck, int8_t cs, int8_t io0, int8_t io1, int8_t io2, int8_t io3)
 {
   _sck = sck;
   _cs = cs;
@@ -60,7 +60,7 @@ Adafruit_Flash_Transport_QSPI::Adafruit_Flash_Transport_QSPI(int8_t sck, int8_t 
   _io3 = io3;
 }
 
-void Adafruit_Flash_Transport_QSPI::begin(void)
+void Adafruit_FlashTransport_QSPI::begin(void)
 {
 	MCLK->AHBMASK.reg |= MCLK_AHBMASK_QSPI;
 	MCLK->AHBMASK.reg |= MCLK_AHBMASK_QSPI_2X;
@@ -85,7 +85,7 @@ void Adafruit_Flash_Transport_QSPI::begin(void)
 	QSPI->CTRLA.bit.ENABLE = 1;
 }
 
-bool Adafruit_Flash_Transport_QSPI::runCommand(uint8_t command)
+bool Adafruit_FlashTransport_QSPI::runCommand(uint8_t command)
 {
 	uint32_t iframe = QSPI_INSTRFRAME_WIDTH_SINGLE_BIT_SPI | QSPI_INSTRFRAME_ADDRLEN_24BITS |
                     QSPI_INSTRFRAME_TFRTYPE_READ | QSPI_INSTRFRAME_INSTREN;
@@ -93,7 +93,7 @@ bool Adafruit_Flash_Transport_QSPI::runCommand(uint8_t command)
 	return _run_instruction(command, iframe, 0, NULL, 0);
 }
 
-bool Adafruit_Flash_Transport_QSPI::readCommand(uint8_t command, uint8_t* response, uint32_t len)
+bool Adafruit_FlashTransport_QSPI::readCommand(uint8_t command, uint8_t* response, uint32_t len)
 {
   uint32_t iframe = QSPI_INSTRFRAME_WIDTH_SINGLE_BIT_SPI | QSPI_INSTRFRAME_ADDRLEN_24BITS |
                     QSPI_INSTRFRAME_TFRTYPE_READ | QSPI_INSTRFRAME_INSTREN | QSPI_INSTRFRAME_DATAEN;
@@ -101,7 +101,7 @@ bool Adafruit_Flash_Transport_QSPI::readCommand(uint8_t command, uint8_t* respon
   return _run_instruction(command, iframe, 0, response, len);
 }
 
-bool Adafruit_Flash_Transport_QSPI::writeCommand(uint8_t command, uint8_t const* data, uint32_t len)
+bool Adafruit_FlashTransport_QSPI::writeCommand(uint8_t command, uint8_t const* data, uint32_t len)
 {
 	uint32_t iframe = QSPI_INSTRFRAME_WIDTH_SINGLE_BIT_SPI | QSPI_INSTRFRAME_ADDRLEN_24BITS |
 	                  QSPI_INSTRFRAME_TFRTYPE_WRITE | QSPI_INSTRFRAME_INSTREN | (data != NULL ? QSPI_INSTRFRAME_DATAEN : 0);
@@ -109,7 +109,7 @@ bool Adafruit_Flash_Transport_QSPI::writeCommand(uint8_t command, uint8_t const*
 	return _run_instruction(command, iframe, 0, (uint8_t*) data, len);
 }
 
-bool Adafruit_Flash_Transport_QSPI::eraseCommand(uint8_t command, uint32_t address)
+bool Adafruit_FlashTransport_QSPI::eraseCommand(uint8_t command, uint32_t address)
 {
 	// Sector Erase
 	uint32_t iframe = QSPI_INSTRFRAME_WIDTH_SINGLE_BIT_SPI | QSPI_INSTRFRAME_ADDRLEN_24BITS |
@@ -118,7 +118,7 @@ bool Adafruit_Flash_Transport_QSPI::eraseCommand(uint8_t command, uint32_t addre
 	return _run_instruction(command, iframe, address, NULL, 0);
 }
 
-bool Adafruit_Flash_Transport_QSPI::readMemory(uint32_t addr, uint8_t *data, uint32_t len)
+bool Adafruit_FlashTransport_QSPI::readMemory(uint32_t addr, uint8_t *data, uint32_t len)
 {
   // Command 0x6B 1 line address, 4 line Data
   // with Continuous Read Mode and Quad output mode, read memory type
@@ -129,7 +129,7 @@ bool Adafruit_Flash_Transport_QSPI::readMemory(uint32_t addr, uint8_t *data, uin
   return _run_instruction(SFLASH_CMD_QUAD_READ, iframe, addr, data, len);
 }
 
-bool Adafruit_Flash_Transport_QSPI::writeMemory(uint32_t addr, uint8_t const *data, uint32_t len)
+bool Adafruit_FlashTransport_QSPI::writeMemory(uint32_t addr, uint8_t const *data, uint32_t len)
 {
   uint32_t iframe = QSPI_INSTRFRAME_WIDTH_QUAD_OUTPUT | QSPI_INSTRFRAME_ADDRLEN_24BITS |
                     QSPI_INSTRFRAME_TFRTYPE_WRITEMEMORY | QSPI_INSTRFRAME_INSTREN | QSPI_INSTRFRAME_ADDREN | QSPI_INSTRFRAME_DATAEN;
@@ -143,7 +143,7 @@ bool Adafruit_Flash_Transport_QSPI::writeMemory(uint32_t addr, uint8_t const *da
     @param clock_hz clock speed in hertz
 */
 /**************************************************************************/
-void Adafruit_Flash_Transport_QSPI::setClockSpeed(uint32_t clock_hz)
+void Adafruit_FlashTransport_QSPI::setClockSpeed(uint32_t clock_hz)
 {
   QSPI->BAUD.bit.BAUD = VARIANT_MCK/clock_hz;
 }

@@ -22,12 +22,12 @@
  * THE SOFTWARE.
  */
 
-#ifndef ADAFRUIT_FLASH_TRANSPORT_SPI_H_
-#define ADAFRUIT_FLASH_TRANSPORT_SPI_H_
+#ifndef ADAFRUIT_FLASHTRANSPORT_SPI_H_
+#define ADAFRUIT_FLASHTRANSPORT_SPI_H_
 
 #include "SPI.h"
 
-class Adafruit_Flash_Transport_SPI : public Adafruit_Flash_Transport
+class Adafruit_FlashTransport_SPI : public Adafruit_FlashTransport
 {
   private:
     SPIClass* _spi;
@@ -35,7 +35,7 @@ class Adafruit_Flash_Transport_SPI : public Adafruit_Flash_Transport
     SPISettings _setting;
 
   public:
-    Adafruit_Flash_Transport_SPI(uint8_t ss, SPIClass *spiinterface);
+    Adafruit_FlashTransport_SPI(uint8_t ss, SPIClass *spiinterface);
 
     virtual void begin(void);
 
@@ -52,4 +52,4 @@ class Adafruit_Flash_Transport_SPI : public Adafruit_Flash_Transport
     virtual bool writeMemory(uint32_t addr, uint8_t const *data, uint32_t len);
 };
 
-#endif /* ADAFRUIT_FLASH_TRANSPORT_SPI_H_ */
+#endif /* ADAFRUIT_FLASHTRANSPORT_SPI_H_ */

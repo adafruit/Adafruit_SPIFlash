@@ -27,7 +27,7 @@
 #ifndef ADAFRUIT_SPIFLASH_H_
 #define ADAFRUIT_SPIFLASH_H_
 
-#include "Adafruit_Flash_Transport.h"
+#include "Adafruit_FlashTransport.h"
 #include "Adafruit_FlashCache.h"
 #include "flash_devices.h"
 
@@ -71,7 +71,7 @@ enum {
 class Adafruit_SPIFlash : public BaseBlockDriver
 {
 public:
-	Adafruit_SPIFlash(Adafruit_Flash_Transport* transport);
+	Adafruit_SPIFlash(Adafruit_FlashTransport* transport);
 	~Adafruit_SPIFlash() {}
 
 	bool begin(void);
@@ -108,7 +108,7 @@ public:
 	virtual bool writeBlocks(uint32_t block, const uint8_t* src, size_t nb);
 
 private:
-	Adafruit_Flash_Transport* _trans;
+	Adafruit_FlashTransport* _trans;
 	external_flash_device const * _flash_dev;
 
 	Adafruit_FlashCache _cache;

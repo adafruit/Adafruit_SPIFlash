@@ -1,5 +1,5 @@
 /**
- * @file Adafruit_Flash_Transport_QSPI.cpp
+ * @file Adafruit_FlashTransport_QSPI.cpp
  *
  * The MIT License (MIT)
  *
@@ -30,12 +30,12 @@
 #include "nrfx_qspi.h"
 #include "Adafruit_SPIFlash.h"
 
-Adafruit_Flash_Transport_QSPI::Adafruit_Flash_Transport_QSPI(void)
-    : Adafruit_Flash_Transport_QSPI(PIN_QSPI_SCK, PIN_QSPI_CS, PIN_QSPI_IO0, PIN_QSPI_IO1, PIN_QSPI_IO2, PIN_QSPI_IO3)
+Adafruit_FlashTransport_QSPI::Adafruit_FlashTransport_QSPI(void)
+    : Adafruit_FlashTransport_QSPI(PIN_QSPI_SCK, PIN_QSPI_CS, PIN_QSPI_IO0, PIN_QSPI_IO1, PIN_QSPI_IO2, PIN_QSPI_IO3)
 {
 }
 
-Adafruit_Flash_Transport_QSPI::Adafruit_Flash_Transport_QSPI(int8_t sck, int8_t cs, int8_t io0, int8_t io1, int8_t io2, int8_t io3)
+Adafruit_FlashTransport_QSPI::Adafruit_FlashTransport_QSPI(int8_t sck, int8_t cs, int8_t io0, int8_t io1, int8_t io2, int8_t io3)
 {
   _sck = sck;
   _cs = cs;
@@ -45,7 +45,7 @@ Adafruit_Flash_Transport_QSPI::Adafruit_Flash_Transport_QSPI(int8_t sck, int8_t 
   _io3 = io3;
 }
 
-void Adafruit_Flash_Transport_QSPI::begin(void)
+void Adafruit_FlashTransport_QSPI::begin(void)
 {
   // Init QSPI flash
   nrfx_qspi_config_t qspi_cfg = {
@@ -77,7 +77,7 @@ void Adafruit_Flash_Transport_QSPI::begin(void)
   nrfx_qspi_init(&qspi_cfg, NULL, NULL);
 }
 
-void Adafruit_Flash_Transport_QSPI::setClockSpeed(uint32_t clock_hz)
+void Adafruit_FlashTransport_QSPI::setClockSpeed(uint32_t clock_hz)
 {
   // Start at 16 MHz and go down.
   // At 32 MHz nRF52840 doesn't work reliably !!!
@@ -97,7 +97,7 @@ void Adafruit_Flash_Transport_QSPI::setClockSpeed(uint32_t clock_hz)
   NRF_QSPI->IFCONFIG1 |= (clkdiv << QSPI_IFCONFIG1_SCKFREQ_Pos) | (delay << QSPI_IFCONFIG1_SCKDELAY_Pos);
 }
 
-bool Adafruit_Flash_Transport_QSPI::runCommand(uint8_t command)
+bool Adafruit_FlashTransport_QSPI::runCommand(uint8_t command)
 {
   nrf_qspi_cinstr_conf_t cinstr_cfg =
   {
@@ -112,7 +112,7 @@ bool Adafruit_Flash_Transport_QSPI::runCommand(uint8_t command)
   return nrfx_qspi_cinstr_xfer(&cinstr_cfg, NULL, NULL) == NRFX_SUCCESS;
 }
 
-bool Adafruit_Flash_Transport_QSPI::readCommand(uint8_t command, uint8_t* response, uint32_t len)
+bool Adafruit_FlashTransport_QSPI::readCommand(uint8_t command, uint8_t* response, uint32_t len)
 {
   nrf_qspi_cinstr_conf_t cinstr_cfg =
   {
@@ -126,7 +126,7 @@ bool Adafruit_Flash_Transport_QSPI::readCommand(uint8_t command, uint8_t* respon
   return nrfx_qspi_cinstr_xfer(&cinstr_cfg, NULL, response) == NRFX_SUCCESS;
 }
 
-bool Adafruit_Flash_Transport_QSPI::writeCommand(uint8_t command, uint8_t const* data, uint32_t len)
+bool Adafruit_FlashTransport_QSPI::writeCommand(uint8_t command, uint8_t const* data, uint32_t len)
 {
   nrf_qspi_cinstr_conf_t cinstr_cfg =
   {
@@ -140,7 +140,7 @@ bool Adafruit_Flash_Transport_QSPI::writeCommand(uint8_t command, uint8_t const*
   return nrfx_qspi_cinstr_xfer(&cinstr_cfg, data, NULL) == NRFX_SUCCESS;
 }
 
-bool Adafruit_Flash_Transport_QSPI::eraseCommand(uint8_t command, uint32_t address)
+bool Adafruit_FlashTransport_QSPI::eraseCommand(uint8_t command, uint32_t address)
 {
   nrf_qspi_erase_len_t erase_len;
 
@@ -160,12 +160,12 @@ bool Adafruit_Flash_Transport_QSPI::eraseCommand(uint8_t command, uint32_t addre
   return NRFX_SUCCESS == nrfx_qspi_erase(erase_len, address);
 }
 
-bool Adafruit_Flash_Transport_QSPI::readMemory (uint32_t addr, uint8_t *data, uint32_t len)
+bool Adafruit_FlashTransport_QSPI::readMemory (uint32_t addr, uint8_t *data, uint32_t len)
 {
   return NRFX_SUCCESS == nrfx_qspi_read(data, len, addr);
 }
 
-bool Adafruit_Flash_Transport_QSPI::writeMemory (uint32_t addr, uint8_t const *data, uint32_t len)
+bool Adafruit_FlashTransport_QSPI::writeMemory (uint32_t addr, uint8_t const *data, uint32_t len)
 {
   return NRFX_SUCCESS == nrfx_qspi_write(data, len, addr);
 }

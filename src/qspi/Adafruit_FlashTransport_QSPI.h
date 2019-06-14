@@ -22,18 +22,18 @@
  * THE SOFTWARE.
  */
 
-#ifndef ADAFRUIT_FLASH_TRANSPORT_QSPI_H_
-#define ADAFRUIT_FLASH_TRANSPORT_QSPI_H_
+#ifndef ADAFRUIT_FLASHTRANSPORT_QSPI_H_
+#define ADAFRUIT_FLASHTRANSPORT_QSPI_H_
 
-class Adafruit_Flash_Transport_QSPI : public Adafruit_Flash_Transport
+class Adafruit_FlashTransport_QSPI : public Adafruit_FlashTransport
 {
   private:
     int8_t _sck, _cs;
     int8_t _io0, _io1, _io2, _io3;
 
   public:
-    Adafruit_Flash_Transport_QSPI(int8_t pinSCK, int8_t pinCS, int8_t pinIO0, int8_t pinIO1, int8_t pinIO2, int8_t pinIO3);
-    Adafruit_Flash_Transport_QSPI(void);
+    Adafruit_FlashTransport_QSPI(int8_t pinSCK, int8_t pinCS, int8_t pinIO0, int8_t pinIO1, int8_t pinIO2, int8_t pinIO3);
+    Adafruit_FlashTransport_QSPI(void);
 
     virtual void begin(void);
 
@@ -50,4 +50,4 @@ class Adafruit_Flash_Transport_QSPI : public Adafruit_Flash_Transport
     virtual bool writeMemory(uint32_t addr, uint8_t const *data, uint32_t len);
 };
 
-#endif /* ADAFRUIT_FLASH_TRANSPORT_QSPI_H_ */
+#endif /* ADAFRUIT_FLASHTRANSPORT_QSPI_H_ */

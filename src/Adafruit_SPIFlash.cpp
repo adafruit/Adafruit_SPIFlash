@@ -22,7 +22,7 @@ enum
 };
 
 
-Adafruit_SPIFlash::Adafruit_SPIFlash(Adafruit_Flash_Transport* transport)
+Adafruit_SPIFlash::Adafruit_SPIFlash(Adafruit_FlashTransport* transport)
   : _cache()
 {
   _trans = transport;

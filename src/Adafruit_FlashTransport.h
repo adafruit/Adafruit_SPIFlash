@@ -22,13 +22,13 @@
  * THE SOFTWARE.
  */
 
-#ifndef ADAFRUIT_FLASH_TRANSPORT_H_
-#define ADAFRUIT_FLASH_TRANSPORT_H_
+#ifndef ADAFRUIT_FLASHTRANSPORT_H_
+#define ADAFRUIT_FLASHTRANSPORT_H_
 
 #include <stdint.h>
 #include <stdbool.h>
 
-class Adafruit_Flash_Transport
+class Adafruit_FlashTransport
 {
   public:
     virtual void begin(void);
@@ -80,7 +80,7 @@ class Adafruit_Flash_Transport
     virtual bool writeMemory(uint32_t addr, uint8_t const *data, uint32_t len) = 0;
 };
 
-#include "spi/Adafruit_Flash_Transport_SPI.h"
-#include "qspi/Adafruit_Flash_Transport_QSPI.h"
+#include "spi/Adafruit_FlashTransport_SPI.h"
+#include "qspi/Adafruit_FlashTransport_QSPI.h"
 
-#endif /* ADAFRUIT_FLASH_TRANSPORT_H_ */
+#endif /* ADAFRUIT_FLASHTRANSPORT_H_ */
