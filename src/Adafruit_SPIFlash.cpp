@@ -23,6 +23,7 @@ enum
 
 
 Adafruit_SPIFlash::Adafruit_SPIFlash(Adafruit_Flash_Transport* transport)
+  : _cache()
 {
   _trans = transport;
   _flash_dev = NULL;
@@ -233,25 +234,25 @@ uint32_t Adafruit_SPIFlash::writeBuffer (uint32_t address, uint8_t const *buffer
 //--------------------------------------------------------------------+
 bool Adafruit_SPIFlash::readBlock(uint32_t block, uint8_t* dst)
 {
-  return readBuffer(block*512, dst, 512) == 512;
+  return _cache.read(this, block*512, dst, 512);
 }
 
 bool Adafruit_SPIFlash::syncBlocks()
 {
-  return true;
+  return _cache.sync(this);
 }
 
 bool Adafruit_SPIFlash::writeBlock(uint32_t block, const uint8_t* src)
 {
-  return writeBuffer(block*512, src, 512) == 512;
+  return _cache.write(this, block*512, src, 512);
 }
 
 bool Adafruit_SPIFlash::readBlocks(uint32_t block, uint8_t* dst, size_t nb)
 {
-  return readBuffer(block*512, dst, 512*nb) == 512*nb;
+  return _cache.read(this, block*512, dst, 512*nb);
 }
 
 bool Adafruit_SPIFlash::writeBlocks(uint32_t block, const uint8_t* src, size_t nb)
 {
-  return writeBuffer(block*512, src, 512*nb) == 512*nb;
+  return _cache.write(this, block*512, src, 512*nb);
 }

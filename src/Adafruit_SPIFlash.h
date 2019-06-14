@@ -28,6 +28,7 @@
 #define ADAFRUIT_SPIFLASH_H_
 
 #include "Adafruit_Flash_Transport.h"
+#include "Adafruit_FlashCache.h"
 #include "flash_devices.h"
 
 // implement SdFat Block Driver
@@ -109,6 +110,8 @@ public:
 private:
 	Adafruit_Flash_Transport* _trans;
 	external_flash_device const * _flash_dev;
+
+	Adafruit_FlashCache _cache;
 
 	void _wait_for_flash_ready(void)
 	{
