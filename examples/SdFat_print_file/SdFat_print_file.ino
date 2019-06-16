@@ -18,7 +18,9 @@
 //   If you don't see anything close the serial monitor, press
 //   the board reset buttton, wait a few seconds, then open the
 //   serial monitor again.
+
 #include <SPI.h>
+#include "SdFat.h"
 #include <Adafruit_SPIFlash.h>
 
 #if defined(__SAMD51__) || defined(NRF52840_XXAA)

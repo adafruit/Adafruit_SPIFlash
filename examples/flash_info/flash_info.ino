@@ -1,6 +1,7 @@
 // The MIT License (MIT)
 // Copyright (c) 2019 Ha Thach for Adafruit Industries
 
+#include "SdFat.h"
 #include "Adafruit_SPIFlash.h"
 
 #if defined(__SAMD51__) || defined(NRF52840_XXAA)

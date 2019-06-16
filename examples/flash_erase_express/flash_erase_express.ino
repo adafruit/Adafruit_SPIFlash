@@ -21,6 +21,7 @@
 //   an error has occurred.
 
 #include <SPI.h>
+#include <SdFat.h>
 #include <Adafruit_SPIFlash.h>
 #include <Adafruit_NeoPixel.h>
 

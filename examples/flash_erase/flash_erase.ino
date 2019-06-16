@@ -20,6 +20,7 @@
 // - Type OK and enter to confirm the format when prompted,
 //   the flash chip will be erased.
 #include <SPI.h>
+#include <SdFat.h>
 #include <Adafruit_SPIFlash.h>
 
 // Configuration of the flash chip pins and flash fatfs object.
