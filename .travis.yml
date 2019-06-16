@@ -31,7 +31,7 @@ before_install:
    - source <(curl -SLs https://raw.githubusercontent.com/adafruit/travis-ci-arduino/master/install.sh)
 
 install:
-   - arduino --install-library "Adafruit NeoPixel"
+   - arduino --install-library "Adafruit NeoPixel","SdFat"
    - pip3 install --user adafruit-nrfutil
 
 script:
