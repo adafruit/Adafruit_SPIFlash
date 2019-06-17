@@ -24,19 +24,23 @@ branches:
 
 env:
   global:
-     - ARDUINO_IDE_VERSION="1.8.7"
-     - PRETTYNAME="Adafruit SPIFlash library"
+    - ARDUINO_IDE_VERSION="1.8.9"
+    - PRETTYNAME="Adafruit SPIFlash library"
 
 before_install:
-   - source <(curl -SLs https://raw.githubusercontent.com/adafruit/travis-ci-arduino/master/install.sh)
+  - source <(curl -SLs https://raw.githubusercontent.com/adafruit/travis-ci-arduino/master/install.sh)
 
 install:
-   - arduino --install-library "Adafruit NeoPixel","SdFat"
-   - pip3 install --user adafruit-nrfutil
+  - arduino --install-library "Adafruit NeoPixel","SdFat"
+  - pip3 install --user adafruit-nrfutil
+
+before_script:
+  - sed -i 's/\(ENABLE_EXTENDED_TRANSFER_CLASS\s\+\)0/\11/' $HOME/Arduino/libraries/SdFat/src/SdFatConfig.h
+  - sed -i 's/\(FAT12_SUPPORT\s\+\)0/\11/' $HOME/Arduino/libraries/SdFat/src/SdFatConfig.h 
 
 script:
-   - build_samd_platforms
-   - build_nrf5x_platforms
+  - build_samd_platforms
+  - build_nrf5x_platforms
 
 # Generate and deploy documentation
 after_success:
