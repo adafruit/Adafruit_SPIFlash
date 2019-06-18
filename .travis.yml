@@ -33,13 +33,13 @@ before_install:
 install:
   - arduino --install-library "Adafruit NeoPixel"
   - git clone --quiet https://github.com/adafruit/SdFat.git $HOME/Arduino/libraries/SdFat
-  - git clone --quiet https://github.com/adafruit/Adafruit_ZeroDMA.git $HOME/Arduino/libraries/Adafruit_ZeroDMA
+  #- git clone --quiet https://github.com/adafruit/Adafruit_ZeroDMA.git $HOME/Arduino/libraries/Adafruit_ZeroDMA
   - pip3 install --user adafruit-nrfutil
 
 before_script:
 
 script:
-  - build_samd_platforms
+  - build_m4_platforms
   - build_nrf5x_platforms
 
 # Generate and deploy documentation
