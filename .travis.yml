@@ -33,6 +33,7 @@ before_install:
 install:
   - arduino --install-library "Adafruit NeoPixel"
   - git clone --quiet https://github.com/adafruit/SdFat.git $HOME/Arduino/libraries/SdFat
+  - git clone --quiet https://github.com/adafruit/Adafruit_ZeroDMA.git $HOME/Arduino/libraries/Adafruit_ZeroDMA
   - pip3 install --user adafruit-nrfutil
 
 before_script:
