@@ -32,11 +32,10 @@ before_install:
 
 install:
   - arduino --install-library "Adafruit NeoPixel","SdFat"
+  - git clone --quiet https://github.com/adafruit/SdFat.git $HOME/Arduino/libraries/SdFat
   - pip3 install --user adafruit-nrfutil
 
 before_script:
-  - sed -i 's/\(ENABLE_EXTENDED_TRANSFER_CLASS\s\+\)0/\11/' $HOME/Arduino/libraries/SdFat/src/SdFatConfig.h
-  - sed -i 's/\(FAT12_SUPPORT\s\+\)0/\11/' $HOME/Arduino/libraries/SdFat/src/SdFatConfig.h 
 
 script:
   - build_samd_platforms
