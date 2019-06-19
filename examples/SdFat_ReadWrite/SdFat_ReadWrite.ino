@@ -33,7 +33,7 @@
 
 Adafruit_SPIFlash flash(&flashTransport);
 
-// file system object
+// file system object from SdFat
 FatFileSystem fatfs;
 
 File myFile;
