@@ -23,38 +23,27 @@
 //   the board reset buttton, wait a few seconds, then open the
 //   serial monitor again.
 #include <SPI.h>
+#include <SdFat.h>
 #include <Adafruit_SPIFlash.h>
-#include <Adafruit_SPIFlash_FatFs.h>
-
 
 // Configuration of the flash chip pins and flash fatfs object.
 // You don't normally need to change these if using a Feather/Metro
 // M0 express board.
-#define FLASH_TYPE     SPIFLASHTYPE_W25Q16BV  // Flash chip type.
-                                              // If you change this be
-                                              // sure to change the fatfs
-                                              // object type below to match.
 
-#if defined(__SAMD51__)
-  // Alternatively you can define and use non-SPI pins, QSPI isnt on a sercom
-  Adafruit_SPIFlash flash(PIN_QSPI_SCK, PIN_QSPI_IO1, PIN_QSPI_IO0, PIN_QSPI_CS);
+#if defined(__SAMD51__) || defined(NRF52840_XXAA)
+  Adafruit_FlashTransport_QSPI flashTransport(PIN_QSPI_SCK, PIN_QSPI_CS, PIN_QSPI_IO0, PIN_QSPI_IO1, PIN_QSPI_IO2, PIN_QSPI_IO3);
 #else
   #if (SPI_INTERFACES_COUNT == 1)
-    #define FLASH_SS       SS                    // Flash chip SS pin.
-    #define FLASH_SPI_PORT SPI                   // What SPI port is Flash on?
+    Adafruit_FlashTransport_SPI flashTransport(SS, &SPI);
   #else
-    #define FLASH_SS       SS1                    // Flash chip SS pin.
-    #define FLASH_SPI_PORT SPI1                   // What SPI port is Flash on?
+    Adafruit_FlashTransport_SPI flashTransport(SS1, &SPI1);
   #endif
-
-Adafruit_SPIFlash flash(FLASH_SS, &FLASH_SPI_PORT);     // Use hardware SPI
 #endif
 
-// Alternatively you can define and use non-SPI pins!
-// Adafruit_SPIFlash flash(FLASH_SCK, FLASH_MISO, FLASH_MOSI, FLASH_SS);
+Adafruit_SPIFlash flash(&flashTransport);
 
-Adafruit_W25Q16BV_FatFs fatfs(flash);
-
+// file system object from SdFat
+FatFileSystem fatfs;
 
 void setup() {
   // Initialize serial port and wait for it to open before continuing.
@@ -65,15 +54,15 @@ void setup() {
   Serial.println("Adafruit SPI Flash FatFs Full Usage Example");
 
   // Initialize flash library and check its chip ID.
-  if (!flash.begin(FLASH_TYPE)) {
+  if (!flash.begin()) {
     Serial.println("Error, failed to initialize flash chip!");
     while(1);
   }
-  Serial.print("Flash chip JEDEC ID: 0x"); Serial.println(flash.GetJEDECID(), HEX);
+  Serial.print("Flash chip JEDEC ID: 0x"); Serial.println(flash.getJEDECID(), HEX);
 
   // First call begin to mount the filesystem.  Check that it returns true
   // to make sure the filesystem was mounted.
-  if (!fatfs.begin()) {
+  if (!fatfs.begin(&flash)) {
     Serial.println("Error, failed to mount newly formatted filesystem!");
     Serial.println("Was the flash chip formatted with the fatfs_format example?");
     while(1);
@@ -96,12 +85,12 @@ void setup() {
   // You can also create all the parent subdirectories automatically with mkdir.
   // For example to create the hierarchy /test/foo/bar:
   Serial.println("Creating deep folder structure...");
-  if (!fatfs.mkdir("/test/foo/bar")) {
+  if ( !fatfs.exists("/test/foo/bar") && !fatfs.mkdir("/test/foo/bar")) {    
     Serial.println("Error, couldn't create deep directory structure!");
     while(1);
   }
   // This will create the hierarchy /test/foo/baz, even when /test/foo already exists:
-  if (!fatfs.mkdir("/test/foo/baz")) {
+  if ( !fatfs.exists("/test/foo/baz") && !fatfs.mkdir("/test/foo/baz")) {
     Serial.println("Error, couldn't create deep directory structure!");
     while(1);
   }
@@ -111,11 +100,8 @@ void setup() {
   // Note the FILE_WRITE parameter which tells the library you intend to
   // write to the file.  This will create the file if it doesn't exist,
   // otherwise it will open the file and start appending new data to the
-  // end of it.  More advanced users can specify different file modes by
-  // using the FatFs f_open modes directly (which can be specified instead
-  // of FILE_WRITE), see documentation at:
-  //   http://elm-chan.org/fsw/ff/en/open.html
-  Adafruit_SPIFlash_FAT::File writeFile = fatfs.open("/test/test.txt", FILE_WRITE);
+  // end of it.
+  File writeFile = fatfs.open("/test/test.txt", FILE_WRITE);
   if (!writeFile) {
     Serial.println("Error, failed to open test.txt for writing!");
     while(1);
@@ -133,7 +119,7 @@ void setup() {
   Serial.println("Wrote to file /test/test.txt!");
 
   // Now open the same file but for reading.
-  Adafruit_SPIFlash_FAT::File readFile = fatfs.open("/test/test.txt", FILE_READ);
+  File readFile = fatfs.open("/test/test.txt", FILE_READ);
   if (!readFile) {
     Serial.println("Error, failed to open test.txt for reading!");
     while(1);
@@ -175,7 +161,7 @@ void setup() {
 
   // You can open a directory to list all the children (files and directories).
   // Just like the SD library the File type represents either a file or directory.
-  Adafruit_SPIFlash_FAT::File testDir = fatfs.open("/test");
+  File testDir = fatfs.open("/test");
   if (!testDir) {
     Serial.println("Error, failed to open test directory!");
     while(1);
@@ -185,10 +171,13 @@ void setup() {
     while(1);
   }
   Serial.println("Listing children of directory /test:");
-  Adafruit_SPIFlash_FAT::File child = testDir.openNextFile();
+  File child = testDir.openNextFile();
   while (child) {
+    char filename[64];
+    child.getName(filename, sizeof(filename));
+    
     // Print the file name and mention if it's a directory.
-    Serial.print("- "); Serial.print(child.name());
+    Serial.print("- "); Serial.print(filename);
     if (child.isDirectory()) {
       Serial.print(" (directory)");
     }
@@ -207,7 +196,7 @@ void setup() {
 
   // Delete a file with the remove command.  For example create a test2.txt file
   // inside /test/foo and then delete it.
-  Adafruit_SPIFlash_FAT::File test2File = fatfs.open("/test/foo/test2.txt", FILE_WRITE);
+  File test2File = fatfs.open("/test/foo/test2.txt", FILE_WRITE);
   test2File.close();
   Serial.println("Deleting /test/foo/test2.txt...");
   if (!fatfs.remove("/test/foo/test2.txt")) {
@@ -218,10 +207,10 @@ void setup() {
 
   // Delete a directory with the rmdir command.  Be careful as
   // this will delete EVERYTHING in the directory at all levels!
-  // I.e. this is like running a recursive delete, rm -rf, in
+  // I.e. this is like running a recursive delete, rm -rf *, in
   // unix filesystems!
   Serial.println("Deleting /test directory and everything inside it...");
-  if (!fatfs.rmdir("/test")) {
+  if (!testDir.rmRfStar()) {
     Serial.println("Error, couldn't delete test directory!");
     while(1);
   }

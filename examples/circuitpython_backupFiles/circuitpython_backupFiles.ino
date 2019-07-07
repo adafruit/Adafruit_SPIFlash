@@ -12,41 +12,31 @@
  */
 
 #include <SPI.h>
+#include <SdFat.h>
 #include <Adafruit_SPIFlash.h>
-#include <Adafruit_SPIFlash_FatFs.h>
 #include <Adafruit_NeoPixel.h>
 
 // Configuration of the flash chip pins and flash fatfs object.
 // You don't normally need to change these if using a Feather/Metro
 // M0 express board.
-#define FLASH_TYPE     SPIFLASHTYPE_W25Q16BV  // Flash chip type.
-                                              // If you change this be
-                                              // sure to change the fatfs
-                                              // object type below to match.
-
-#if defined(__SAMD51__)
-  // Alternatively you can define and use non-SPI pins, QSPI isnt on a sercom
-  Adafruit_SPIFlash flash(PIN_QSPI_SCK, PIN_QSPI_IO1, PIN_QSPI_IO0, PIN_QSPI_CS);
+#if defined(__SAMD51__) || defined(NRF52840_XXAA)
+  Adafruit_FlashTransport_QSPI flashTransport(PIN_QSPI_SCK, PIN_QSPI_CS, PIN_QSPI_IO0, PIN_QSPI_IO1, PIN_QSPI_IO2, PIN_QSPI_IO3);
 #else
   #if (SPI_INTERFACES_COUNT == 1)
-    #define FLASH_SS       SS                    // Flash chip SS pin.
-    #define FLASH_SPI_PORT SPI                   // What SPI port is Flash on?
+    Adafruit_FlashTransport_SPI flashTransport(SS, &SPI);
   #else
-    #define FLASH_SS       SS1                    // Flash chip SS pin.
-    #define FLASH_SPI_PORT SPI1                   // What SPI port is Flash on?
+    Adafruit_FlashTransport_SPI flashTransport(SS1, &SPI1);
   #endif
-
-Adafruit_SPIFlash flash(FLASH_SS, &FLASH_SPI_PORT);     // Use hardware SPI
 #endif
 
+Adafruit_SPIFlash flash(&flashTransport);
+
+// file system object from SdFat
+FatFileSystem fatfs;
+
+
 #define NEOPIN         40       // neopixel pin
-
 #define BUFFERSIZ      200
-
-// Finally create an Adafruit_M0_Express_CircuitPython object which gives
-// an SD card-like interface to interacting with files stored in CircuitPython's
-// flash filesystem.
-Adafruit_M0_Express_CircuitPython pythonfs(flash);
 
 Adafruit_NeoPixel pixel = Adafruit_NeoPixel(1, NEOPIN, NEO_GRB + NEO_KHZ800);
 
@@ -60,18 +50,15 @@ void setup() {
   pixel.setBrightness(30);   // not too bright!
   
   // Initialize flash library and check its chip ID.
-  if (!flash.begin(FLASH_TYPE)) {
+  if (!flash.begin()) {
     Serial.println("Error, failed to initialize flash chip!");
     error(1);
   }
-  Serial.print("Flash chip JEDEC ID: 0x"); Serial.println(flash.GetJEDECID(), HEX);
-  if (flash.GetJEDECID() == 0) {
-    Serial.println("Error, failed to initialize flash chip!");
-    error(2);
-  }
+  Serial.print("Flash chip JEDEC ID: 0x"); Serial.println(flash.getJEDECID(), HEX);
+
   // First call begin to mount the filesystem.  Check that it returns true
   // to make sure the filesystem was mounted.
-  if (!pythonfs.begin()) {
+  if (!fatfs.begin(&flash)) {
     Serial.println("Failed to mount filesystem!");
     Serial.println("Was CircuitPython loaded on the board first to create the filesystem?");
     error(3);
@@ -97,13 +84,13 @@ void loop() {
 
 
 boolean moveFile(char *file, char *dest) {
-  if (! pythonfs.exists(file)) {
+  if (! fatfs.exists(file)) {
     Serial.print(file); Serial.println(" not found");
     return false;
   }
-  if(pythonfs.exists(dest)) {
+  if(fatfs.exists(dest)) {
     Serial.println("Found old backup, removing...");
-    if (!pythonfs.remove(dest)) {
+    if (!fatfs.remove(dest)) {
       Serial.println("Error, couldn't delete ");
       Serial.print(dest);
       Serial.println(" file!");
@@ -113,8 +100,8 @@ boolean moveFile(char *file, char *dest) {
 
   pixel.setPixelColor(0, pixel.Color(100,100,0)); pixel.show();
 
-  Adafruit_SPIFlash_FAT::File source = pythonfs.open(file, FILE_READ);
-  Adafruit_SPIFlash_FAT::File backup = pythonfs.open(dest, FILE_WRITE);
+  File source = fatfs.open(file, FILE_READ);
+  File backup = fatfs.open(dest, FILE_WRITE);
   Serial.println("Making backup!");
   Serial.println("\n---------------------\n");
 
@@ -150,7 +137,7 @@ boolean moveFile(char *file, char *dest) {
   Serial.print("Backup file size: "); Serial.println(backup.size());
   backup.close();
   if (source.size() == backup.size()) {
-     if (!pythonfs.remove(file)) {
+     if (!fatfs.remove(file)) {
         Serial.print("Error, couldn't delete ");
         Serial.println(file);
         error(10);

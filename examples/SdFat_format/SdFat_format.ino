@@ -1,9 +1,5 @@
-// Adafruit SPI Flash Total Erase
+// Adafruit SPI Flash FatFs Format Example
 // Author: Tony DiCola
-//
-// This example will perform a complete erase of ALL data on the SPI
-// flash.  This is handy to reset the flash into a known empty state
-// and fix potential filesystem or other corruption issues.
 //
 // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 // !!  NOTE: YOU WILL ERASE ALL DATA BY RUNNING THIS SKETCH!  !!
@@ -17,15 +13,14 @@
 //   prompt to confirm formatting.  If you don't see the prompt
 //   close the serial monitor, press the board reset buttton,
 //   wait a few seconds, then open the serial monitor again.
-// - Type OK and enter to confirm the format when prompted,
-//   the flash chip will be erased.
+// - Type OK and enter to confirm the format when prompted.
+// - Partitioning and formatting will take about 30-60 seconds.
+//   Once formatted a message will be printed to notify you that
+//   it is finished.
+//
 #include <SPI.h>
 #include <SdFat.h>
 #include <Adafruit_SPIFlash.h>
-
-// Configuration of the flash chip pins and flash fatfs object.
-// You don't normally need to change these if using a Feather/Metro
-// M0 express board.
 
 #if defined(__SAMD51__) || defined(NRF52840_XXAA)
   Adafruit_FlashTransport_QSPI flashTransport(PIN_QSPI_SCK, PIN_QSPI_CS, PIN_QSPI_IO0, PIN_QSPI_IO1, PIN_QSPI_IO2, PIN_QSPI_IO3);
@@ -39,13 +34,17 @@
 
 Adafruit_SPIFlash flash(&flashTransport);
 
+// file system object from SdFat
+FatFileSystem fatfs;
+
+
 void setup() {
   // Initialize serial port and wait for it to open before continuing.
   Serial.begin(115200);
   while (!Serial) {
     delay(100);
   }
-  Serial.println("Adafruit SPI Flash Total Erase Example");
+  Serial.println("Adafruit SPI Flash FatFs Format Example");
 
   // Initialize flash library and check its chip ID.
   if (!flash.begin()) {
@@ -58,26 +57,33 @@ void setup() {
   Serial.setTimeout(30000);  // Increase timeout to print message less frequently.
   do {
     Serial.println("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
-    Serial.println("This sketch will ERASE ALL DATA on the flash chip!");
+    Serial.println("This sketch will ERASE ALL DATA on the flash chip and format it with a new filesystem!");
     Serial.println("Type OK (all caps) and press enter to continue.");
     Serial.println("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
   }
   while (!Serial.find("OK"));
 
-  Serial.println("Erasing flash chip in 10 seconds...");
-  Serial.println("Note you will see stat and other debug output printed repeatedly.");
-  Serial.println("Let it run for ~30 seconds until the flash erase is finished.");
-  Serial.println("An error or success message will be printed when complete.");
-  delay(10000L);
-  if (!flash.eraseChip()) {
-    Serial.println("Failed to erase chip!");
+  // Call fatfs begin and passed flash object to initialize file system
+  fatfs.begin(&flash);
+
+  // Use wipe() for no dot progress indicator.
+  if ( !fatfs.wipe(&Serial) )
+  {
+    Serial.println("Failed to wipe");
+    while(1) delay(1);
   }
-  else {
-    Serial.println("Successfully erased chip!");
+
+  // Must reinitialize after wipe.
+  if (!fatfs.begin(&flash)) {
+    Serial.println("Error, failed to mount newly formatted filesystem!");
+    while(1) delay(1);
   }
+
+  // Done!
+  Serial.println("Flash chip successfully formatted with new empty filesystem!");
 }
 
 void loop() {
-  // Nothing to do in the loop.
+  // Nothing to be done in the main loop.
   delay(100);
 }

@@ -1,25 +1,24 @@
 /* This is my go-to example for erasing, dumping, writing and verifying SPI flash!  */
 
-#include <SD.h>
-void PrintHex(const byte * data, const uint32_t numBytes);
+#include <SdFat.h>
 #include <Adafruit_SPIFlash.h>
 
-#if defined(__SAMD51__)
-  // Alternatively you can define and use non-SPI pins, QSPI isnt on a sercom
-  Adafruit_SPIFlash flash(PIN_QSPI_SCK, PIN_QSPI_IO1, PIN_QSPI_IO0, PIN_QSPI_CS);
+#if defined(__SAMD51__) || defined(NRF52840_XXAA)
+  Adafruit_FlashTransport_QSPI flashTransport(PIN_QSPI_SCK, PIN_QSPI_CS, PIN_QSPI_IO0, PIN_QSPI_IO1, PIN_QSPI_IO2, PIN_QSPI_IO3);
 #else
   #if (SPI_INTERFACES_COUNT == 1)
-    #define FLASH_SS       SS                    // Flash chip SS pin.
-    #define FLASH_SPI_PORT SPI                   // What SPI port is Flash on?
+    Adafruit_FlashTransport_SPI flashTransport(SS, &SPI);
   #else
-    #define FLASH_SS       SS1                    // Flash chip SS pin.
-    #define FLASH_SPI_PORT SPI1                   // What SPI port is Flash on?
+    Adafruit_FlashTransport_SPI flashTransport(SS1, &SPI1);
   #endif
-
-Adafruit_SPIFlash flash(FLASH_SS, &FLASH_SPI_PORT);     // Use hardware SPI
 #endif
 
-#define SD_CS 2
+Adafruit_SPIFlash flash(&flashTransport);
+
+// file system on SD card
+SdFat sd;
+
+#define SD_CS 10
 #define MAXPAGESIZE 256
 
 File dataFile;
@@ -28,29 +27,29 @@ uint32_t results;
 
 void error(char *str) {
   Serial.println(str);
-  while (1);
+  while (1) delay(1);
 }
 
 void setup(void) 
 {
-  while (!Serial);
   Serial.begin(115200);
+  while (!Serial) delay(1);
 
-  flash.begin(SPIFLASHTYPE_W25Q16BV);
+  flash.begin();
 
-  uint8_t manid, devid;
-  flash.GetManufacturerInfo(&manid, &devid);
-  Serial.print(F("Manufacturer: 0x")); Serial.println(manid, HEX);
-  Serial.print(F("Device ID: 0x")); Serial.println(devid, HEX);
+  Serial.println("Adafruit Serial Flash Manipulator example");
+  Serial.print("JEDEC ID: "); Serial.println(flash.getJEDECID(), HEX);
+  Serial.print("Flash size: "); Serial.println(flash.size());
 
-  Serial.print("Initializing SD card...");
+  Serial.print("Initializing SD card... ");
   // see if the card is present and can be initialized:
-  if (!SD.begin(SD_CS)) {
+  if (!sd.begin(SD_CS, SD_SCK_MHZ(50))) {
     Serial.println("Card failed, or not present");
     // don't do anything more:
     while (1);
   }
 
+  Serial.println("OK");
 }
 
 void loop(void) 
@@ -69,7 +68,7 @@ void loop(void)
      // open the file. note that only one file can be open at a time,
      // so you have to close this one before opening another.
      // Open up the file we're going to log to!
-     dataFile = SD.open("flshdump.bin", FILE_WRITE);
+     dataFile = sd.open("flshdump.bin", FILE_WRITE);
      if (! dataFile) {
        error("error opening flshdump.bin");
      }
@@ -88,11 +87,11 @@ void loop(void)
   }
   if (cmd == 'E') {
     Serial.println("Erasing chip");
-    flash.EraseChip();
+    flash.eraseChip();
     
   }
   if (cmd == 'V') {
-     dataFile = SD.open("flshdump.bin", FILE_READ);
+     dataFile = sd.open("flshdump.bin", FILE_READ);
      if (! dataFile) {
        error("error opening flshdump.bin");
      }
@@ -124,7 +123,7 @@ void loop(void)
   }  
 
   if (cmd == 'W') {
-     dataFile = SD.open("flshdump.bin", FILE_READ);
+     dataFile = sd.open("flshdump.bin", FILE_READ);
      if (! dataFile) {
        error("error opening flshdump.bin");
      }
@@ -209,6 +208,3 @@ void PrintHex(const byte * data, const uint32_t numBytes)
   }
   Serial.println("");
 }
-
-
-

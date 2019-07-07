@@ -24,38 +24,26 @@
 //   the board reset buttton, wait a few seconds, then open the
 //   serial monitor again.
 #include <SPI.h>
+#include <SdFat.h>
 #include <Adafruit_SPIFlash.h>
-#include <Adafruit_SPIFlash_FatFs.h>
 
 // Configuration of the flash chip pins and flash fatfs object.
 // You don't normally need to change these if using a Feather/Metro
 // M0 express board.
-#define FLASH_TYPE     SPIFLASHTYPE_W25Q16BV  // Flash chip type.
-                                              // If you change this be
-                                              // sure to change the fatfs
-                                              // object type below to match.
-
-#if defined(__SAMD51__)
-  // Alternatively you can define and use non-SPI pins, QSPI isnt on a sercom
-  Adafruit_SPIFlash flash(PIN_QSPI_SCK, PIN_QSPI_IO1, PIN_QSPI_IO0, PIN_QSPI_CS);
+#if defined(__SAMD51__) || defined(NRF52840_XXAA)
+  Adafruit_FlashTransport_QSPI flashTransport(PIN_QSPI_SCK, PIN_QSPI_CS, PIN_QSPI_IO0, PIN_QSPI_IO1, PIN_QSPI_IO2, PIN_QSPI_IO3);
 #else
   #if (SPI_INTERFACES_COUNT == 1)
-    #define FLASH_SS       SS                    // Flash chip SS pin.
-    #define FLASH_SPI_PORT SPI                   // What SPI port is Flash on?
+    Adafruit_FlashTransport_SPI flashTransport(SS, &SPI);
   #else
-    #define FLASH_SS       SS1                    // Flash chip SS pin.
-    #define FLASH_SPI_PORT SPI1                   // What SPI port is Flash on?
+    Adafruit_FlashTransport_SPI flashTransport(SS1, &SPI1);
   #endif
-
-Adafruit_SPIFlash flash(FLASH_SS, &FLASH_SPI_PORT);     // Use hardware SPI
 #endif
 
+Adafruit_SPIFlash flash(&flashTransport);
 
-
-// Finally create an Adafruit_M0_Express_CircuitPython object which gives
-// an SD card-like interface to interacting with files stored in CircuitPython's
-// flash filesystem.
-Adafruit_M0_Express_CircuitPython pythonfs(flash);
+// file system object from SdFat
+FatFileSystem fatfs;
 
 
 void setup() {
@@ -67,15 +55,15 @@ void setup() {
   Serial.println("Adafruit M0 Express CircuitPython Flash Example");
 
   // Initialize flash library and check its chip ID.
-  if (!flash.begin(FLASH_TYPE)) {
+  if (!flash.begin()) {
     Serial.println("Error, failed to initialize flash chip!");
     while(1);
   }
-  Serial.print("Flash chip JEDEC ID: 0x"); Serial.println(flash.GetJEDECID(), HEX);
+  Serial.print("Flash chip JEDEC ID: 0x"); Serial.println(flash.getJEDECID(), HEX);
 
   // First call begin to mount the filesystem.  Check that it returns true
   // to make sure the filesystem was mounted.
-  if (!pythonfs.begin()) {
+  if (!fatfs.begin(&flash)) {
     Serial.println("Failed to mount filesystem!");
     Serial.println("Was CircuitPython loaded on the board first to create the filesystem?");
     while(1);
@@ -83,8 +71,8 @@ void setup() {
   Serial.println("Mounted filesystem!");
 
   // Check if a boot.py exists and print it out.
-  if (pythonfs.exists("boot.py")) {
-    Adafruit_SPIFlash_FAT::File bootPy = pythonfs.open("boot.py", FILE_READ);
+  if (fatfs.exists("boot.py")) {
+    File bootPy = fatfs.open("boot.py", FILE_READ);
     Serial.println("Printing boot.py...");
     while (bootPy.available()) {
       char c = bootPy.read();
@@ -97,8 +85,8 @@ void setup() {
   }
 
   // Check if a main.py exists and print it out:
-  if (pythonfs.exists("main.py")) {
-    Adafruit_SPIFlash_FAT::File mainPy = pythonfs.open("main.py", FILE_READ);
+  if (fatfs.exists("main.py")) {
+    File mainPy = fatfs.open("main.py", FILE_READ);
     Serial.println("Printing main.py...");
     while (mainPy.available()) {
       char c = mainPy.read();
@@ -113,7 +101,7 @@ void setup() {
   // Create or append to a data.txt file and add a new line
   // to the end of it.  CircuitPython code can later open and
   // see this file too!
-  Adafruit_SPIFlash_FAT::File data = pythonfs.open("data.txt", FILE_WRITE);
+  File data = fatfs.open("data.txt", FILE_WRITE);
   if (data) {
     // Write a new line to the file:
     data.println("Hello CircuitPython from Arduino!");
