@@ -64,7 +64,7 @@ void setup() {
   // to make sure the filesystem was mounted.
   if (!fatfs.begin(&flash)) {
     Serial.println("Error, failed to mount newly formatted filesystem!");
-    Serial.println("Was the flash chip formatted with the fatfs_format example?");
+    Serial.println("Was the flash chip formatted with the SdFat_format example?");
     while(1);
   }
   Serial.println("Mounted filesystem!");

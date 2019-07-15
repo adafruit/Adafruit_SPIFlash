@@ -68,13 +68,13 @@ void setup() {
   Serial.println("Note you will see stat and other debug output printed repeatedly.");
   Serial.println("Let it run for ~30 seconds until the flash erase is finished.");
   Serial.println("An error or success message will be printed when complete.");
-  delay(10000L);
+
   if (!flash.eraseChip()) {
     Serial.println("Failed to erase chip!");
   }
-  else {
-    Serial.println("Successfully erased chip!");
-  }
+
+  flash.waitUntilReady();
+  Serial.println("Successfully erased chip!");
 }
 
 void loop() {
