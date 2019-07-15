@@ -93,6 +93,7 @@ public:
 
 	uint8_t readStatus(void);
 	uint8_t readStatus2(void);
+	void waitUntilReady(void);
 	bool writeEnable(void);
 
 	uint32_t getJEDECID (void);
@@ -122,11 +123,7 @@ private:
 
 	Adafruit_FlashCache _cache;
 
-	void _wait_for_flash_ready(void)
-	{
-	  // both WIP and WREN bit should be clear
-	  while ( readStatus() & 0x03 ) {}
-	}
+
 };
 
 #endif /* ADAFRUIT_SPIFLASH_H_ */

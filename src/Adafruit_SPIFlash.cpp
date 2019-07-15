@@ -5,6 +5,18 @@
 
 #include "flash_devices.h"
 
+
+#define SPIFLASH_DEBUG 0
+
+#if SPIFLASH_DEBUG
+  #define SPIFLASH_LOG(_sector, _count)   do { \
+        Serial.print(__FUNCTION__); Serial.print(": sector = "); Serial.print(_sector);\
+        Serial.print(" count = "); Serial.println(_count); \
+      } while (0)
+#else
+  #define SPIFLASH_LOG(_sector, _count)
+#endif
+
 /// List of all possible flash devices used by Adafruit boards
 static const external_flash_device possible_devices[] =
 {
@@ -101,7 +113,7 @@ bool Adafruit_SPIFlash::begin(void)
   // Turn off writes in case this is a microcontroller only reset.
   _trans->runCommand(SFLASH_CMD_WRITE_DISABLE);
 
-  _wait_for_flash_ready();
+  waitUntilReady();
 
   return true;
 }
@@ -140,6 +152,12 @@ uint8_t Adafruit_SPIFlash::readStatus2(void)
   return status;
 }
 
+void Adafruit_SPIFlash::waitUntilReady(void)
+{
+  // both WIP and WREN bit should be clear
+  while ( readStatus() & 0x03 ) {}
+}
+
 bool Adafruit_SPIFlash::writeEnable(void)
 {
   return _trans->runCommand(SFLASH_CMD_WRITE_ENABLE);
@@ -150,7 +168,7 @@ bool Adafruit_SPIFlash::eraseSector(uint32_t sectorNumber)
   if (!_flash_dev) return false;
 
   // Before we erase the sector we need to wait for any writes to finish
-  _wait_for_flash_ready();
+  waitUntilReady();
   writeEnable();
 
 	return _trans->eraseCommand(SFLASH_CMD_ERASE_SECTOR, sectorNumber * SFLASH_SECTOR_SIZE);
@@ -161,7 +179,7 @@ bool Adafruit_SPIFlash::eraseBlock (uint32_t blockNumber)
   if (!_flash_dev) return false;
 
   // Before we erase the sector we need to wait for any writes to finish
-  _wait_for_flash_ready();
+  waitUntilReady();
   writeEnable();
 
   return _trans->eraseCommand(SFLASH_CMD_ERASE_BLOCK, blockNumber * SFLASH_BLOCK_SIZE);
@@ -172,7 +190,7 @@ bool Adafruit_SPIFlash::eraseChip  (void)
   if (!_flash_dev) return false;
 
   // We need to wait for any writes to finish
-  _wait_for_flash_ready();
+  waitUntilReady();
 	writeEnable();
 
 	return _trans->runCommand(SFLASH_CMD_ERASE_CHIP);
@@ -181,7 +199,9 @@ bool Adafruit_SPIFlash::eraseChip  (void)
 uint32_t Adafruit_SPIFlash::readBuffer  (uint32_t address, uint8_t *buffer, uint32_t len)
 {
   if (!_flash_dev) return 0;
-  _wait_for_flash_ready();
+  waitUntilReady();
+
+  SPIFLASH_LOG(address/512, len/512);
 
   return _trans->readMemory(address, buffer, len) ? len : 0;
 }
@@ -208,12 +228,14 @@ uint32_t Adafruit_SPIFlash::writeBuffer (uint32_t address, uint8_t const *buffer
 {
   if (!_flash_dev) return 0;
 
+  SPIFLASH_LOG(address/512, len/512);
+
   uint32_t remain = len;
 
 	// write one page at a time
 	while(remain)
 	{
-	  _wait_for_flash_ready();
+	  waitUntilReady();
 	  writeEnable();
 
 	  uint16_t const toWrite = min(remain, SFLASH_PAGE_SIZE);
@@ -234,25 +256,30 @@ uint32_t Adafruit_SPIFlash::writeBuffer (uint32_t address, uint8_t const *buffer
 //--------------------------------------------------------------------+
 bool Adafruit_SPIFlash::readBlock(uint32_t block, uint8_t* dst)
 {
+  SPIFLASH_LOG(block, 1);
   return _cache.read(this, block*512, dst, 512);
 }
 
 bool Adafruit_SPIFlash::syncBlocks()
 {
+  SPIFLASH_LOG(0, 0);
   return _cache.sync(this);
 }
 
 bool Adafruit_SPIFlash::writeBlock(uint32_t block, const uint8_t* src)
 {
+  SPIFLASH_LOG(block, 1);
   return _cache.write(this, block*512, src, 512);
 }
 
 bool Adafruit_SPIFlash::readBlocks(uint32_t block, uint8_t* dst, size_t nb)
 {
+  SPIFLASH_LOG(block, nb);
   return _cache.read(this, block*512, dst, 512*nb);
 }
 
 bool Adafruit_SPIFlash::writeBlocks(uint32_t block, const uint8_t* src, size_t nb)
 {
+  SPIFLASH_LOG(block, nb);
   return _cache.write(this, block*512, src, 512*nb);
 }

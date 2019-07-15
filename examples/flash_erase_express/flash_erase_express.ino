@@ -61,9 +61,12 @@ void setup() {
     // blink red
     blink(2, RED);
   }
+  
   if (!flash.eraseChip()) {
     blink(3, RED);
   }
+
+  flash.waitUntilReady();
   blink(1, GREEN);
 }
 
