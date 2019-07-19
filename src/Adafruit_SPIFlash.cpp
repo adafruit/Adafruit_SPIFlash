@@ -209,19 +209,19 @@ uint32_t Adafruit_SPIFlash::readBuffer  (uint32_t address, uint8_t *buffer, uint
 uint8_t Adafruit_SPIFlash::read8(uint32_t addr)
 {
 	uint8_t ret;
-	return readBuffer(addr, &ret, sizeof(ret)) ? 0xff : ret;
+	return readBuffer(addr, &ret, sizeof(ret)) ? ret : 0xff;
 }
 
 uint16_t Adafruit_SPIFlash::read16(uint32_t addr)
 {
 	uint16_t ret;
-	return readBuffer(addr, (uint8_t*) &ret, sizeof(ret)) ? 0xffff : ret;
+	return readBuffer(addr, (uint8_t*) &ret, sizeof(ret)) ? ret : 0xffff;
 }
 
 uint32_t Adafruit_SPIFlash::read32(uint32_t addr)
 {
 	uint32_t ret;
-	return readBuffer(addr, (uint8_t*) &ret, sizeof(ret)) ? 0xffffffff : ret;
+	return readBuffer(addr, (uint8_t*) &ret, sizeof(ret)) ? ret : 0xffffffff;
 }
 
 uint32_t Adafruit_SPIFlash::writeBuffer (uint32_t address, uint8_t const *buffer, uint32_t len)
