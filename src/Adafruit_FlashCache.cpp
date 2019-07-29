@@ -95,8 +95,8 @@ bool Adafruit_FlashCache::read(Adafruit_SPIFlash* fl, uint32_t addr, uint8_t* bu
        !(addr < cache_addr && addr + count <= cache_addr) &&
        !(addr >= cache_addr + FLASH_CACHE_SIZE) )
   {
-    int dst_off = cache_addr - addr;
-    int src_off = 0;
+    uint32_t dst_off = cache_addr - addr;
+    uint32_t src_off = 0;
 
     if ( dst_off < 0 )
     {
