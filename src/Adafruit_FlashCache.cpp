@@ -24,36 +24,45 @@
 
 #include "Adafruit_SPIFlash.h"
 
+#if SPIFLASH_DEBUG
+  #define SPICACHE_LOG(_new_addr)   do { \
+        Serial.print(__FUNCTION__); Serial.print(": flush sector = "); Serial.print(_addr/512);\
+        Serial.print(", new sector = "); Serial.println(_new_addr/512); \
+      } while (0)
+#else
+  #define SPICACHE_LOG(_new_addr)
+#endif
+
 #define INVALID_ADDR  0xffffffff
 
-static inline uint32_t page_addr_of (uint32_t addr)
+static inline uint32_t sector_of (uint32_t addr)
 {
-  return addr & ~(FLASH_CACHE_SIZE - 1);
+  return addr & ~(SFLASH_SECTOR_SIZE - 1);
 }
 
-static inline uint32_t page_offset_of (uint32_t addr)
+static inline uint32_t offset_of (uint32_t addr)
 {
-  return addr & (FLASH_CACHE_SIZE - 1);
+  return addr & (SFLASH_SECTOR_SIZE - 1);
 }
 
 Adafruit_FlashCache::Adafruit_FlashCache(void)
 {
-  cache_addr = INVALID_ADDR;
+  _addr = INVALID_ADDR;
 }
 
 bool Adafruit_FlashCache::sync(Adafruit_SPIFlash* fl)
 {
-  if ( cache_addr == INVALID_ADDR ) return true;
+  if ( _addr == INVALID_ADDR ) return true;
 
-  fl->eraseSector(cache_addr/FLASH_CACHE_SIZE);
-  fl->writeBuffer(cache_addr, cache_buf, FLASH_CACHE_SIZE);
+  fl->eraseSector(_addr/SFLASH_SECTOR_SIZE);
+  fl->writeBuffer(_addr, _buf, SFLASH_SECTOR_SIZE);
 
-  cache_addr = INVALID_ADDR;
+  _addr = INVALID_ADDR;
 
   return true;
 }
 
-bool Adafruit_FlashCache::write(Adafruit_SPIFlash* fl, uint32_t addr, void const * src, uint32_t len)
+bool Adafruit_FlashCache::write(Adafruit_SPIFlash* fl, uint32_t address, void const * src, uint32_t len)
 {
   uint8_t const * src8 = (uint8_t const *) src;
   uint32_t remain = len;
@@ -61,41 +70,42 @@ bool Adafruit_FlashCache::write(Adafruit_SPIFlash* fl, uint32_t addr, void const
   // Program up to sector boundary each loop
   while ( remain )
   {
-    uint32_t const page_addr = page_addr_of(addr);
-    uint32_t const offset = page_offset_of(addr);
+    uint32_t const sector_addr = sector_of(address);
+    uint32_t const offset = offset_of(address);
 
-    uint32_t wr_bytes = FLASH_CACHE_SIZE - offset;
+    uint32_t wr_bytes = SFLASH_SECTOR_SIZE - offset;
     wr_bytes = min(remain, wr_bytes);
 
     // Page changes, flush old and update new cache
-    if ( page_addr != cache_addr )
+    if ( sector_addr != _addr )
     {
+      SPICACHE_LOG(sector_addr);
       this->sync(fl);
-      cache_addr = page_addr;
+      _addr = sector_addr;
 
       // read a whole page from flash
-      fl->readBuffer(page_addr, cache_buf, FLASH_CACHE_SIZE);
+      fl->readBuffer(sector_addr, _buf, SFLASH_SECTOR_SIZE);
     }
 
-    memcpy(cache_buf + offset, src8, wr_bytes);
+    memcpy(_buf + offset, src8, wr_bytes);
 
     // adjust for next run
     src8 += wr_bytes;
     remain -= wr_bytes;
-    addr += wr_bytes;
+    address += wr_bytes;
   }
 
   return true;
 }
 
-bool Adafruit_FlashCache::read(Adafruit_SPIFlash* fl, uint32_t addr, uint8_t* buffer, uint32_t count)
+bool Adafruit_FlashCache::read(Adafruit_SPIFlash* fl, uint32_t address, uint8_t* buffer, uint32_t count)
 {
   // overwrite with cache value if available
-  if ( (cache_addr != INVALID_ADDR) &&
-       !(addr < cache_addr && addr + count <= cache_addr) &&
-       !(addr >= cache_addr + FLASH_CACHE_SIZE) )
+  if ( (_addr != INVALID_ADDR) &&
+       !(address < _addr && address + count <= _addr) &&
+       !(address >= _addr + SFLASH_SECTOR_SIZE) )
   {
-    int32_t dst_off = cache_addr - addr;
+    int32_t dst_off = _addr - address;
     int32_t src_off = 0;
 
     if ( dst_off < 0 )
@@ -104,21 +114,21 @@ bool Adafruit_FlashCache::read(Adafruit_SPIFlash* fl, uint32_t addr, uint8_t* bu
       dst_off = 0;
     }
 
-    int32_t cache_bytes = min((int32_t) (FLASH_CACHE_SIZE-src_off), (int32_t) (count - dst_off));
+    int32_t cache_bytes = min((int32_t) (SFLASH_SECTOR_SIZE-src_off), (int32_t) (count - dst_off));
 
     // start to cached
-    if ( dst_off ) fl->readBuffer(addr, buffer, dst_off);
+    if ( dst_off ) fl->readBuffer(address, buffer, dst_off);
 
     // cached
-    memcpy(buffer + dst_off, cache_buf + src_off, cache_bytes);
+    memcpy(buffer + dst_off, _buf + src_off, cache_bytes);
 
     // cached to end
     int copied = dst_off + cache_bytes;
-    if ( copied < count ) fl->readBuffer(addr + copied, buffer + copied, count - copied);
+    if ( copied < count ) fl->readBuffer(address + copied, buffer + copied, count - copied);
   }
   else
   {
-    fl->readBuffer(addr, buffer, count);
+    fl->readBuffer(address, buffer, count);
   }
 
   return true;

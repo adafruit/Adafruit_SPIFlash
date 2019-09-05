@@ -28,16 +28,14 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-#define FLASH_CACHE_SIZE          4096        // must be a erasable page size
-
 // forward declaration
 class Adafruit_SPIFlash;
 
 class Adafruit_FlashCache
 {
   private:
-    uint8_t  cache_buf[FLASH_CACHE_SIZE];
-    uint32_t cache_addr;
+    uint8_t  _buf[4096]; // must be sector size
+    uint32_t _addr;
 
   public:
     Adafruit_FlashCache(void);

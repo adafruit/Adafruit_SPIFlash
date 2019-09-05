@@ -5,13 +5,11 @@
 
 #include "flash_devices.h"
 
-
-#define SPIFLASH_DEBUG 0
-
 #if SPIFLASH_DEBUG
-  #define SPIFLASH_LOG(_sector, _count)   do { \
-        Serial.print(__FUNCTION__); Serial.print(": sector = "); Serial.print(_sector);\
-        Serial.print(" count = "); Serial.println(_count); \
+  #define SPIFLASH_LOG(_block, _count)   do { \
+        Serial.print(__FUNCTION__); Serial.print(": lba = "); Serial.print(_block);\
+        if ( _count ) { Serial.print(" count = "); Serial.print(_count); } \
+        Serial.println(); \
       } while (0)
 #else
   #define SPIFLASH_LOG(_sector, _count)
@@ -155,7 +153,7 @@ uint8_t Adafruit_SPIFlash::readStatus2(void)
 void Adafruit_SPIFlash::waitUntilReady(void)
 {
   // both WIP and WREN bit should be clear
-  while ( readStatus() & 0x03 ) {}
+  while ( readStatus() & 0x03 ) yield();
 }
 
 bool Adafruit_SPIFlash::writeEnable(void)
@@ -170,6 +168,8 @@ bool Adafruit_SPIFlash::eraseSector(uint32_t sectorNumber)
   // Before we erase the sector we need to wait for any writes to finish
   waitUntilReady();
   writeEnable();
+
+  SPIFLASH_LOG(sectorNumber*8, 0);
 
 	return _trans->eraseCommand(SFLASH_CMD_ERASE_SECTOR, sectorNumber * SFLASH_SECTOR_SIZE);
 }
@@ -196,9 +196,10 @@ bool Adafruit_SPIFlash::eraseChip  (void)
 	return _trans->runCommand(SFLASH_CMD_ERASE_CHIP);
 }
 
-uint32_t Adafruit_SPIFlash::readBuffer  (uint32_t address, uint8_t *buffer, uint32_t len)
+uint32_t Adafruit_SPIFlash::readBuffer(uint32_t address, uint8_t *buffer, uint32_t len)
 {
   if (!_flash_dev) return 0;
+
   waitUntilReady();
 
   SPIFLASH_LOG(address/512, len/512);
