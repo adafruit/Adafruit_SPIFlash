@@ -122,8 +122,9 @@ private:
 	external_flash_device const * _flash_dev;
 
 	Adafruit_FlashCache _cache;
-
-
 };
+
+// for debugging
+#define SPIFLASH_DEBUG    0
 
 #endif /* ADAFRUIT_SPIFLASH_H_ */
