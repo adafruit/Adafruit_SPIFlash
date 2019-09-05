@@ -66,28 +66,25 @@ void setup() {
     Serial.println("Type OK (all caps) and press enter to continue.");
     Serial.println("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
   }
-  while (!Serial.find("OK"));
+  while ( !Serial.find("OK"));
 
   // Call fatfs begin and passed flash object to initialize file system
-  if ( fatfs.begin(&flash) ){
-    if ( !fatfs.wipe(&Serial) ) {
-      Serial.println("Failed to wipe");
-    }
-  }else {
-    Serial.println("Failed to init filesystem");
-    Serial.println("Creating and formatting FAT filesystem (this takes ~60 seconds)...");
+  Serial.println("Creating and formatting FAT filesystem (this takes ~60 seconds)...");
 
-    // Make filesystem.
-    uint8_t buf[512] = {0};          // Working buffer for f_fdisk function.    
-    FRESULT r = f_mkfs("", FM_FAT | FM_SFD, 0, buf, sizeof(buf));
-    if (r != FR_OK) {
-      Serial.print("Error, f_mkfs failed with error code: "); Serial.println(r, DEC);
-      while(1);
-    }
-    Serial.println("Formatted flash!");
+  // Make filesystem.
+  uint8_t buf[512] = {0};          // Working buffer for f_fdisk function.    
+  FRESULT r = f_mkfs("", FM_FAT | FM_SFD, 0, buf, sizeof(buf));
+  if (r != FR_OK) {
+    Serial.print("Error, f_mkfs failed with error code: "); Serial.println(r, DEC);
+    while(1);
   }
 
-  // Must reinitialize after wipe.
+  // sync to make sure all data is written to flash
+  flash.syncBlocks();
+  
+  Serial.println("Formatted flash!");
+
+  // Check new filesystem
   if (!fatfs.begin(&flash)) {
     Serial.println("Error, failed to mount newly formatted filesystem!");
     while(1) delay(1);
