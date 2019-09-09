@@ -123,7 +123,7 @@ bool Adafruit_FlashCache::read(Adafruit_SPIFlash* fl, uint32_t address, uint8_t*
     memcpy(buffer + dst_off, _buf + src_off, cache_bytes);
 
     // cached to end
-    int copied = dst_off + cache_bytes;
+    uint32_t copied = (uint32_t) (dst_off + cache_bytes);
     if ( copied < count ) fl->readBuffer(address + copied, buffer + copied, count - copied);
   }
   else
