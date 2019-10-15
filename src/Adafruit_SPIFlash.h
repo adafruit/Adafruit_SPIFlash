@@ -80,6 +80,7 @@ enum {
 class Adafruit_SPIFlash : public BaseBlockDriver
 {
 public:
+	Adafruit_SPIFlash();
 	Adafruit_SPIFlash(Adafruit_FlashTransport* transport);
 	~Adafruit_SPIFlash() {}
 

@@ -31,6 +31,12 @@ enum
   EXTERNAL_FLASH_DEVICE_COUNT = sizeof(possible_devices)/sizeof(possible_devices[0])
 };
 
+Adafruit_SPIFlash::Adafruit_SPIFlash()
+  : _cache()
+{
+  _trans = NULL;
+  _flash_dev = NULL;
+}
 
 Adafruit_SPIFlash::Adafruit_SPIFlash(Adafruit_FlashTransport* transport)
   : _cache()
