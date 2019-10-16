@@ -47,6 +47,8 @@ Adafruit_SPIFlash::Adafruit_SPIFlash(Adafruit_FlashTransport* transport)
 
 bool Adafruit_SPIFlash::begin(void)
 {
+  if (_trans == NULL) return false;
+
   _trans->begin();
 
   //------------- flash detection -------------//
