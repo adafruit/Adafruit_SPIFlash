@@ -31,9 +31,9 @@
 class Adafruit_FlashTransport
 {
   public:
-    virtual void begin(void);
+    virtual void begin(void) = 0;
 
-    virtual bool supportQuadMode(void);
+    virtual bool supportQuadMode(void) = 0;
 
     /// Set clock speed in hertz
     /// @param clock_hz clock speed in hertz
