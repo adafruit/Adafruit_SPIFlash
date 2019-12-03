@@ -1,4 +1,4 @@
-/* 
+/*
  * The MIT License (MIT)
  *
  * Copyright (c) 2019 hathach for Adafruit Industries
@@ -23,7 +23,7 @@
  */
 
 
-#include "Adafruit_SPIFlash.h"
+#include "Adafruit_FlashTransport.h"
 
 Adafruit_FlashTransport_SPI::Adafruit_FlashTransport_SPI(uint8_t ss, SPIClass *spiinterface)
 {
