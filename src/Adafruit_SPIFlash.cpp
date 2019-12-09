@@ -247,7 +247,10 @@ uint32_t Adafruit_SPIFlash::writeBuffer (uint32_t address, uint8_t const *buffer
 	  waitUntilReady();
 	  writeEnable();
 
-	  uint16_t const toWrite = min(remain, (uint32_t)SFLASH_PAGE_SIZE);
+    uint32_t const leftOnPage
+      = SFLASH_PAGE_SIZE - (address & (SFLASH_PAGE_SIZE - 1));
+
+    uint32_t const toWrite = min(remain, leftOnPage);
 
 		if ( !_trans->writeMemory(address, buffer, toWrite) ) break;
 
