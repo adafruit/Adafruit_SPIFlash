@@ -27,7 +27,7 @@
 
 #include <Arduino.h>
 #include "wiring_private.h"
-#include "Adafruit_SPIFlash.h"
+#include "Adafruit_FlashTransport.h"
 
 static void _run_instruction (uint8_t command, uint32_t iframe, uint32_t addr, uint8_t *buffer, uint32_t size);
 

@@ -1,4 +1,4 @@
-/* 
+/*
  * The MIT License (MIT)
  *
  * Copyright (c) 2019 hathach for Adafruit Industries
@@ -27,6 +27,33 @@
 
 #include <stdint.h>
 #include <stdbool.h>
+
+enum
+{
+  SFLASH_CMD_READ              = 0x03, // Single Read
+  SFLASH_CMD_QUAD_READ         = 0x6B, // 1 line address, 4 line data
+
+  SFLASH_CMD_READ_JEDEC_ID     = 0x9f,
+
+  SFLASH_CMD_PAGE_PROGRAM      = 0x02,
+  SFLASH_CMD_QUAD_PAGE_PROGRAM = 0x32, // 1 line address, 4 line data
+
+  SFLASH_CMD_READ_STATUS       = 0x05,
+  SFLASH_CMD_READ_STATUS2      = 0x35,
+
+  SFLASH_CMD_WRITE_STATUS      = 0x01,
+  SFLASH_CMD_WRITE_STATUS2     = 0x31,
+
+  SFLASH_CMD_ENABLE_RESET      = 0x66,
+  SFLASH_CMD_RESET             = 0x99,
+
+  SFLASH_CMD_WRITE_ENABLE      = 0x06,
+  SFLASH_CMD_WRITE_DISABLE     = 0x04,
+
+  SFLASH_CMD_ERASE_SECTOR      = 0x20,
+  SFLASH_CMD_ERASE_BLOCK       = 0xD8,
+  SFLASH_CMD_ERASE_CHIP        = 0xC7,
+};
 
 class Adafruit_FlashTransport
 {

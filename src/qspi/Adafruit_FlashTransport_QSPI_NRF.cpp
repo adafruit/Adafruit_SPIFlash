@@ -28,7 +28,7 @@
 
 #include <Arduino.h>
 #include "nrfx_qspi.h"
-#include "Adafruit_SPIFlash.h"
+#include "Adafruit_FlashTransport.h"
 
 Adafruit_FlashTransport_QSPI::Adafruit_FlashTransport_QSPI(void)
     : Adafruit_FlashTransport_QSPI(PIN_QSPI_SCK, PIN_QSPI_CS, PIN_QSPI_IO0, PIN_QSPI_IO1, PIN_QSPI_IO2, PIN_QSPI_IO3)
