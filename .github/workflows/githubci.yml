@@ -10,7 +10,6 @@ jobs:
         arduino-platform: ['metro_m0', 'metro_m4', 'nrf52840', 'cpx', 'cpb']
 
     runs-on: ubuntu-latest
-    
     steps:
     - name: Setup Python
       uses: actions/setup-python@v1
