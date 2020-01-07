@@ -49,7 +49,8 @@ jobs:
       run: bash ci/actions_install.sh
 
     - name: clang
-      run: python3 ci/run-clang-format.py -e "ci/*" -e "bin/*" -r . 
+      # skip clang for fatfs (ff) to make it easier to compare and upgrade
+      run: python3 ci/run-clang-format.py -e "ci/*" -e "bin/*" -e "./examples/SdFat_format/*" -r .
 
     - name: doxygen
       env:
