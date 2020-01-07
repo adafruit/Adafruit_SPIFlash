@@ -1,4 +1,4 @@
-/* 
+/*
  * The MIT License (MIT)
  *
  * Copyright (c) 2019 hathach for Adafruit Industries
@@ -27,29 +27,28 @@
 
 #include "SPI.h"
 
-class Adafruit_FlashTransport_SPI : public Adafruit_FlashTransport
-{
-  private:
-    SPIClass* _spi;
-    uint8_t _ss;
-    SPISettings _setting;
+class Adafruit_FlashTransport_SPI : public Adafruit_FlashTransport {
+private:
+  SPIClass *_spi;
+  uint8_t _ss;
+  SPISettings _setting;
 
-  public:
-    Adafruit_FlashTransport_SPI(uint8_t ss, SPIClass *spiinterface);
+public:
+  Adafruit_FlashTransport_SPI(uint8_t ss, SPIClass *spiinterface);
 
-    virtual void begin(void);
+  virtual void begin(void);
 
-    virtual bool supportQuadMode(void) { return false; }
+  virtual bool supportQuadMode(void) { return false; }
 
-    virtual void setClockSpeed(uint32_t clock_hz);
+  virtual void setClockSpeed(uint32_t clock_hz);
 
-    virtual bool runCommand(uint8_t command);
-    virtual bool readCommand(uint8_t command, uint8_t* response, uint32_t len);
-    virtual bool writeCommand(uint8_t command, uint8_t const* data, uint32_t len);
+  virtual bool runCommand(uint8_t command);
+  virtual bool readCommand(uint8_t command, uint8_t *response, uint32_t len);
+  virtual bool writeCommand(uint8_t command, uint8_t const *data, uint32_t len);
 
-    virtual bool eraseCommand(uint8_t command, uint32_t address);
-    virtual bool readMemory(uint32_t addr, uint8_t *data, uint32_t len);
-    virtual bool writeMemory(uint32_t addr, uint8_t const *data, uint32_t len);
+  virtual bool eraseCommand(uint8_t command, uint32_t address);
+  virtual bool readMemory(uint32_t addr, uint8_t *data, uint32_t len);
+  virtual bool writeMemory(uint32_t addr, uint8_t const *data, uint32_t len);
 };
 
 #endif /* ADAFRUIT_FLASHTRANSPORT_SPI_H_ */

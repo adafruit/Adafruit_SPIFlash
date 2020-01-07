@@ -22,31 +22,27 @@
  * THE SOFTWARE.
  */
 
-
 #include "Adafruit_FlashTransport.h"
 
-Adafruit_FlashTransport_SPI::Adafruit_FlashTransport_SPI(uint8_t ss, SPIClass *spiinterface)
-{
+Adafruit_FlashTransport_SPI::Adafruit_FlashTransport_SPI(
+    uint8_t ss, SPIClass *spiinterface) {
   _ss = ss;
   _spi = spiinterface;
   _setting = SPISettings();
 }
 
-void Adafruit_FlashTransport_SPI::begin(void)
-{
+void Adafruit_FlashTransport_SPI::begin(void) {
   pinMode(_ss, OUTPUT);
   digitalWrite(_ss, HIGH);
 
   _spi->begin();
 }
 
-void Adafruit_FlashTransport_SPI::setClockSpeed(uint32_t clock_hz)
-{
+void Adafruit_FlashTransport_SPI::setClockSpeed(uint32_t clock_hz) {
   _setting = SPISettings(clock_hz, MSBFIRST, SPI_MODE0);
 }
 
-bool Adafruit_FlashTransport_SPI::runCommand(uint8_t command)
-{
+bool Adafruit_FlashTransport_SPI::runCommand(uint8_t command) {
   digitalWrite(_ss, LOW);
   _spi->beginTransaction(_setting);
 
@@ -58,14 +54,13 @@ bool Adafruit_FlashTransport_SPI::runCommand(uint8_t command)
   return true;
 }
 
-bool Adafruit_FlashTransport_SPI::readCommand(uint8_t command, uint8_t* response, uint32_t len)
-{
+bool Adafruit_FlashTransport_SPI::readCommand(uint8_t command,
+                                              uint8_t *response, uint32_t len) {
   digitalWrite(_ss, LOW);
   _spi->beginTransaction(_setting);
 
   _spi->transfer(command);
-  while(len--)
-  {
+  while (len--) {
     *response++ = _spi->transfer(0xFF);
   }
 
@@ -75,15 +70,15 @@ bool Adafruit_FlashTransport_SPI::readCommand(uint8_t command, uint8_t* response
   return true;
 }
 
-bool Adafruit_FlashTransport_SPI::writeCommand(uint8_t command, uint8_t const* data, uint32_t len)
-{
+bool Adafruit_FlashTransport_SPI::writeCommand(uint8_t command,
+                                               uint8_t const *data,
+                                               uint32_t len) {
   digitalWrite(_ss, LOW);
   _spi->beginTransaction(_setting);
 
   _spi->transfer(command);
-  while(len--)
-  {
-    (void) _spi->transfer(*data++);
+  while (len--) {
+    (void)_spi->transfer(*data++);
   }
 
   _spi->endTransaction();
@@ -92,8 +87,8 @@ bool Adafruit_FlashTransport_SPI::writeCommand(uint8_t command, uint8_t const* d
   return true;
 }
 
-bool Adafruit_FlashTransport_SPI::eraseCommand(uint8_t command, uint32_t address)
-{
+bool Adafruit_FlashTransport_SPI::eraseCommand(uint8_t command,
+                                               uint32_t address) {
   digitalWrite(_ss, LOW);
   _spi->beginTransaction(_setting);
 
@@ -110,8 +105,8 @@ bool Adafruit_FlashTransport_SPI::eraseCommand(uint8_t command, uint32_t address
   return true;
 }
 
-bool Adafruit_FlashTransport_SPI::readMemory(uint32_t addr, uint8_t *data, uint32_t len)
-{
+bool Adafruit_FlashTransport_SPI::readMemory(uint32_t addr, uint8_t *data,
+                                             uint32_t len) {
   digitalWrite(_ss, LOW);
   _spi->beginTransaction(_setting);
 
@@ -122,8 +117,7 @@ bool Adafruit_FlashTransport_SPI::readMemory(uint32_t addr, uint8_t *data, uint3
   _spi->transfer((addr >> 8) & 0xFF);
   _spi->transfer(addr & 0xFF);
 
-  while(len--)
-  {
+  while (len--) {
     *data++ = _spi->transfer(0xFF);
   }
 
@@ -133,8 +127,9 @@ bool Adafruit_FlashTransport_SPI::readMemory(uint32_t addr, uint8_t *data, uint3
   return true;
 }
 
-bool Adafruit_FlashTransport_SPI::writeMemory(uint32_t addr, uint8_t const *data, uint32_t len)
-{
+bool Adafruit_FlashTransport_SPI::writeMemory(uint32_t addr,
+                                              uint8_t const *data,
+                                              uint32_t len) {
   digitalWrite(_ss, LOW);
   _spi->beginTransaction(_setting);
 
@@ -145,8 +140,7 @@ bool Adafruit_FlashTransport_SPI::writeMemory(uint32_t addr, uint8_t const *data
   _spi->transfer((addr >> 8) & 0xFF);
   _spi->transfer(addr & 0xFF);
 
-  while(len--)
-  {
+  while (len--) {
     _spi->transfer(*data++);
   }
 

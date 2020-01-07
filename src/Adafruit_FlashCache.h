@@ -1,4 +1,4 @@
-/* 
+/*
  * The MIT License (MIT)
  *
  * Copyright (c) 2019 hathach for Adafruit Industries
@@ -25,24 +25,24 @@
 #ifndef ADAFRUIT_FLASHCACHE_H_
 #define ADAFRUIT_FLASHCACHE_H_
 
-#include <stdint.h>
 #include <stdbool.h>
+#include <stdint.h>
 
 // forward declaration
 class Adafruit_SPIFlash;
 
-class Adafruit_FlashCache
-{
-  private:
-    uint8_t  _buf[4096]; // must be sector size
-    uint32_t _addr;
+class Adafruit_FlashCache {
+private:
+  uint8_t _buf[4096]; // must be sector size
+  uint32_t _addr;
 
-  public:
-    Adafruit_FlashCache(void);
+public:
+  Adafruit_FlashCache(void);
 
-    bool sync (Adafruit_SPIFlash* fl);
-    bool write(Adafruit_SPIFlash* fl, uint32_t dst, void const * src, uint32_t len);
-    bool read (Adafruit_SPIFlash* fl, uint32_t addr, uint8_t* dst, uint32_t count);
+  bool sync(Adafruit_SPIFlash *fl);
+  bool write(Adafruit_SPIFlash *fl, uint32_t dst, void const *src,
+             uint32_t len);
+  bool read(Adafruit_SPIFlash *fl, uint32_t addr, uint8_t *dst, uint32_t count);
 };
 
 #endif /* ADAFRUIT_FLASHCACHE_H_ */
