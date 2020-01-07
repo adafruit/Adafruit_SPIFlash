@@ -35,11 +35,11 @@
 #include "SdFatConfig.h"
 
 #if ENABLE_EXTENDED_TRANSFER_CLASS == 0
-  #error ENABLE_EXTENDED_TRANSFER_CLASS must be set to 1 in SdFat SdFatConfig.h
+#error ENABLE_EXTENDED_TRANSFER_CLASS must be set to 1 in SdFat SdFatConfig.h
 #endif
 
 #if FAT12_SUPPORT == 0
-  #error FAT12_SUPPORT must be set to 1 in SdFat SdFatConfig.h
+#error FAT12_SUPPORT must be set to 1 in SdFat SdFatConfig.h
 #endif
 
 // This class extends Adafruit_SPIFlashBase by adding support for the
@@ -47,22 +47,21 @@
 // FatFileSystem class.
 //
 // Instances of this class will use 4kB of RAM as a block cache.
-class Adafruit_SPIFlash : public BaseBlockDriver, public Adafruit_SPIFlashBase
-{
+class Adafruit_SPIFlash : public BaseBlockDriver, public Adafruit_SPIFlashBase {
 public:
   Adafruit_SPIFlash();
-  Adafruit_SPIFlash(Adafruit_FlashTransport* transport);
+  Adafruit_SPIFlash(Adafruit_FlashTransport *transport);
   ~Adafruit_SPIFlash() {}
 
-	//------------- SdFat BaseBlockDRiver API -------------//
-	virtual bool readBlock(uint32_t block, uint8_t* dst);
-	virtual bool syncBlocks();
-	virtual bool writeBlock(uint32_t block, const uint8_t* src);
-	virtual bool readBlocks(uint32_t block, uint8_t* dst, size_t nb);
-	virtual bool writeBlocks(uint32_t block, const uint8_t* src, size_t nb);
+  //------------- SdFat BaseBlockDRiver API -------------//
+  virtual bool readBlock(uint32_t block, uint8_t *dst);
+  virtual bool syncBlocks();
+  virtual bool writeBlock(uint32_t block, const uint8_t *src);
+  virtual bool readBlocks(uint32_t block, uint8_t *dst, size_t nb);
+  virtual bool writeBlocks(uint32_t block, const uint8_t *src, size_t nb);
 
 private:
-	Adafruit_FlashCache _cache;
+  Adafruit_FlashCache _cache;
 };
 
 #endif /* ADAFRUIT_SPIFLASH_H_ */

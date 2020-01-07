@@ -1,4 +1,4 @@
-/* 
+/*
  * The MIT License (MIT)
  *
  * Copyright (c) 2019 hathach for Adafruit Industries
@@ -25,29 +25,29 @@
 #ifndef ADAFRUIT_FLASHTRANSPORT_QSPI_H_
 #define ADAFRUIT_FLASHTRANSPORT_QSPI_H_
 
-class Adafruit_FlashTransport_QSPI : public Adafruit_FlashTransport
-{
-  private:
-    int8_t _sck, _cs;
-    int8_t _io0, _io1, _io2, _io3;
+class Adafruit_FlashTransport_QSPI : public Adafruit_FlashTransport {
+private:
+  int8_t _sck, _cs;
+  int8_t _io0, _io1, _io2, _io3;
 
-  public:
-    Adafruit_FlashTransport_QSPI(int8_t pinSCK, int8_t pinCS, int8_t pinIO0, int8_t pinIO1, int8_t pinIO2, int8_t pinIO3);
-    Adafruit_FlashTransport_QSPI(void);
+public:
+  Adafruit_FlashTransport_QSPI(int8_t pinSCK, int8_t pinCS, int8_t pinIO0,
+                               int8_t pinIO1, int8_t pinIO2, int8_t pinIO3);
+  Adafruit_FlashTransport_QSPI(void);
 
-    virtual void begin(void);
+  virtual void begin(void);
 
-    virtual bool supportQuadMode(void) { return true; }
+  virtual bool supportQuadMode(void) { return true; }
 
-    virtual void setClockSpeed(uint32_t clock_hz);
+  virtual void setClockSpeed(uint32_t clock_hz);
 
-    virtual bool runCommand(uint8_t command);
-    virtual bool readCommand(uint8_t command, uint8_t* response, uint32_t len);
-    virtual bool writeCommand(uint8_t command, uint8_t const* data, uint32_t len);
+  virtual bool runCommand(uint8_t command);
+  virtual bool readCommand(uint8_t command, uint8_t *response, uint32_t len);
+  virtual bool writeCommand(uint8_t command, uint8_t const *data, uint32_t len);
 
-    virtual bool eraseCommand(uint8_t command, uint32_t address);
-    virtual bool readMemory(uint32_t addr, uint8_t *data, uint32_t len);
-    virtual bool writeMemory(uint32_t addr, uint8_t const *data, uint32_t len);
+  virtual bool eraseCommand(uint8_t command, uint32_t address);
+  virtual bool readMemory(uint32_t addr, uint8_t *data, uint32_t len);
+  virtual bool writeMemory(uint32_t addr, uint8_t const *data, uint32_t len);
 };
 
 #endif /* ADAFRUIT_FLASHTRANSPORT_QSPI_H_ */

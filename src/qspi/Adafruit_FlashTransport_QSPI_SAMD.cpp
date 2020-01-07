@@ -25,34 +25,30 @@
  */
 #ifdef __SAMD51__
 
-#include <Arduino.h>
-#include "wiring_private.h"
 #include "Adafruit_FlashTransport.h"
+#include "wiring_private.h"
+#include <Arduino.h>
 
-static void _run_instruction (uint8_t command, uint32_t iframe, uint32_t addr, uint8_t *buffer, uint32_t size);
+static void _run_instruction(uint8_t command, uint32_t iframe, uint32_t addr,
+                             uint8_t *buffer, uint32_t size);
 
 // Turn off cache and invalidate all data in it.
-static void samd_peripherals_disable_and_clear_cache (void)
-{
+static void samd_peripherals_disable_and_clear_cache(void) {
   CMCC->CTRL.bit.CEN = 0;
-  while ( CMCC->SR.bit.CSTS ) { }
+  while (CMCC->SR.bit.CSTS) {
+  }
   CMCC->MAINT0.bit.INVALL = 1;
 }
 
 // Enable cache
-static void samd_peripherals_enable_cache (void)
-{
-  CMCC->CTRL.bit.CEN = 1;
-}
+static void samd_peripherals_enable_cache(void) { CMCC->CTRL.bit.CEN = 1; }
 
-Adafruit_FlashTransport_QSPI::Adafruit_FlashTransport_QSPI (void)
-    : Adafruit_FlashTransport_QSPI(PIN_QSPI_SCK, PIN_QSPI_CS, PIN_QSPI_IO0, PIN_QSPI_IO1, PIN_QSPI_IO2, PIN_QSPI_IO3)
-{
-}
+Adafruit_FlashTransport_QSPI::Adafruit_FlashTransport_QSPI(void)
+    : Adafruit_FlashTransport_QSPI(PIN_QSPI_SCK, PIN_QSPI_CS, PIN_QSPI_IO0,
+                                   PIN_QSPI_IO1, PIN_QSPI_IO2, PIN_QSPI_IO3) {}
 
-Adafruit_FlashTransport_QSPI::Adafruit_FlashTransport_QSPI (int8_t sck, int8_t cs, int8_t io0, int8_t io1, int8_t io2,
-                                                            int8_t io3)
-{
+Adafruit_FlashTransport_QSPI::Adafruit_FlashTransport_QSPI(
+    int8_t sck, int8_t cs, int8_t io0, int8_t io1, int8_t io2, int8_t io3) {
   _sck = sck;
   _cs = cs;
   _io0 = io0;
@@ -61,15 +57,14 @@ Adafruit_FlashTransport_QSPI::Adafruit_FlashTransport_QSPI (int8_t sck, int8_t c
   _io3 = io3;
 }
 
-void Adafruit_FlashTransport_QSPI::begin (void)
-{
+void Adafruit_FlashTransport_QSPI::begin(void) {
   MCLK->APBCMASK.bit.QSPI_ = true;
   MCLK->AHBMASK.bit.QSPI_ = true;
-  MCLK->AHBMASK.bit.QSPI_2X_ = false;    // Only true if we are doing DDR.
+  MCLK->AHBMASK.bit.QSPI_2X_ = false; // Only true if we are doing DDR.
 
   QSPI->CTRLA.bit.SWRST = 1;
 
-  //set all pins to QSPI periph
+  // set all pins to QSPI periph
   pinPeripheral(_sck, PIO_COM);
   pinPeripheral(_cs, PIO_COM);
   pinPeripheral(_io0, PIO_COM);
@@ -77,26 +72,30 @@ void Adafruit_FlashTransport_QSPI::begin (void)
   pinPeripheral(_io2, PIO_COM);
   pinPeripheral(_io3, PIO_COM);
 
-  QSPI->BAUD.reg = QSPI_BAUD_BAUD(VARIANT_MCK/4000000UL);    // start with low 4Mhz, Mode 0
+  QSPI->BAUD.reg =
+      QSPI_BAUD_BAUD(VARIANT_MCK / 4000000UL); // start with low 4Mhz, Mode 0
   QSPI->CTRLB.reg = QSPI_CTRLB_MODE_MEMORY | QSPI_CTRLB_CSMODE_NORELOAD |
                     QSPI_CTRLB_DATALEN_8BITS | QSPI_CTRLB_CSMODE_LASTXFER;
 
   QSPI->CTRLA.bit.ENABLE = 1;
 }
 
-bool Adafruit_FlashTransport_QSPI::runCommand (uint8_t command)
-{
-  uint32_t iframe = QSPI_INSTRFRAME_WIDTH_SINGLE_BIT_SPI | QSPI_INSTRFRAME_ADDRLEN_24BITS |
+bool Adafruit_FlashTransport_QSPI::runCommand(uint8_t command) {
+  uint32_t iframe = QSPI_INSTRFRAME_WIDTH_SINGLE_BIT_SPI |
+                    QSPI_INSTRFRAME_ADDRLEN_24BITS |
                     QSPI_INSTRFRAME_TFRTYPE_READ | QSPI_INSTRFRAME_INSTREN;
 
   _run_instruction(command, iframe, 0, NULL, 0);
   return true;
 }
 
-bool Adafruit_FlashTransport_QSPI::readCommand (uint8_t command, uint8_t* response, uint32_t len)
-{
-  uint32_t iframe = QSPI_INSTRFRAME_WIDTH_SINGLE_BIT_SPI | QSPI_INSTRFRAME_ADDRLEN_24BITS |
-                    QSPI_INSTRFRAME_TFRTYPE_READ | QSPI_INSTRFRAME_INSTREN | QSPI_INSTRFRAME_DATAEN;
+bool Adafruit_FlashTransport_QSPI::readCommand(uint8_t command,
+                                               uint8_t *response,
+                                               uint32_t len) {
+  uint32_t iframe = QSPI_INSTRFRAME_WIDTH_SINGLE_BIT_SPI |
+                    QSPI_INSTRFRAME_ADDRLEN_24BITS |
+                    QSPI_INSTRFRAME_TFRTYPE_READ | QSPI_INSTRFRAME_INSTREN |
+                    QSPI_INSTRFRAME_DATAEN;
 
   samd_peripherals_disable_and_clear_cache();
   _run_instruction(command, iframe, 0, response, len);
@@ -105,36 +104,42 @@ bool Adafruit_FlashTransport_QSPI::readCommand (uint8_t command, uint8_t* respon
   return true;
 }
 
-bool Adafruit_FlashTransport_QSPI::writeCommand (uint8_t command, uint8_t const* data, uint32_t len)
-{
-  uint32_t iframe = QSPI_INSTRFRAME_WIDTH_SINGLE_BIT_SPI | QSPI_INSTRFRAME_ADDRLEN_24BITS |
+bool Adafruit_FlashTransport_QSPI::writeCommand(uint8_t command,
+                                                uint8_t const *data,
+                                                uint32_t len) {
+  uint32_t iframe = QSPI_INSTRFRAME_WIDTH_SINGLE_BIT_SPI |
+                    QSPI_INSTRFRAME_ADDRLEN_24BITS |
                     QSPI_INSTRFRAME_TFRTYPE_WRITE | QSPI_INSTRFRAME_INSTREN |
                     (data != NULL ? QSPI_INSTRFRAME_DATAEN : 0);
 
   samd_peripherals_disable_and_clear_cache();
-  _run_instruction(command, iframe, 0, (uint8_t*) data, len);
+  _run_instruction(command, iframe, 0, (uint8_t *)data, len);
   samd_peripherals_enable_cache();
 
   return true;
 }
 
-bool Adafruit_FlashTransport_QSPI::eraseCommand (uint8_t command, uint32_t address)
-{
+bool Adafruit_FlashTransport_QSPI::eraseCommand(uint8_t command,
+                                                uint32_t address) {
   // Sector Erase
-  uint32_t iframe = QSPI_INSTRFRAME_WIDTH_SINGLE_BIT_SPI | QSPI_INSTRFRAME_ADDRLEN_24BITS |
-                    QSPI_INSTRFRAME_TFRTYPE_WRITE | QSPI_INSTRFRAME_INSTREN | QSPI_INSTRFRAME_ADDREN;
+  uint32_t iframe = QSPI_INSTRFRAME_WIDTH_SINGLE_BIT_SPI |
+                    QSPI_INSTRFRAME_ADDRLEN_24BITS |
+                    QSPI_INSTRFRAME_TFRTYPE_WRITE | QSPI_INSTRFRAME_INSTREN |
+                    QSPI_INSTRFRAME_ADDREN;
 
   _run_instruction(command, iframe, address, NULL, 0);
   return true;
 }
 
-bool Adafruit_FlashTransport_QSPI::readMemory (uint32_t addr, uint8_t *data, uint32_t len)
-{
+bool Adafruit_FlashTransport_QSPI::readMemory(uint32_t addr, uint8_t *data,
+                                              uint32_t len) {
   // Command 0x6B 1 line address, 4 line Data
   // Quad output mode, read memory type
-  uint32_t iframe = QSPI_INSTRFRAME_WIDTH_QUAD_OUTPUT | QSPI_INSTRFRAME_ADDRLEN_24BITS |
-                    QSPI_INSTRFRAME_TFRTYPE_READMEMORY | QSPI_INSTRFRAME_INSTREN | QSPI_INSTRFRAME_ADDREN | QSPI_INSTRFRAME_DATAEN |
-                    QSPI_INSTRFRAME_DUMMYLEN(8);
+  uint32_t iframe = QSPI_INSTRFRAME_WIDTH_QUAD_OUTPUT |
+                    QSPI_INSTRFRAME_ADDRLEN_24BITS |
+                    QSPI_INSTRFRAME_TFRTYPE_READMEMORY |
+                    QSPI_INSTRFRAME_INSTREN | QSPI_INSTRFRAME_ADDREN |
+                    QSPI_INSTRFRAME_DATAEN | QSPI_INSTRFRAME_DUMMYLEN(8);
 
   samd_peripherals_disable_and_clear_cache();
   _run_instruction(SFLASH_CMD_QUAD_READ, iframe, addr, data, len);
@@ -143,13 +148,17 @@ bool Adafruit_FlashTransport_QSPI::readMemory (uint32_t addr, uint8_t *data, uin
   return true;
 }
 
-bool Adafruit_FlashTransport_QSPI::writeMemory (uint32_t addr, uint8_t const *data, uint32_t len)
-{
-  uint32_t iframe = QSPI_INSTRFRAME_WIDTH_QUAD_OUTPUT | QSPI_INSTRFRAME_ADDRLEN_24BITS |
-                    QSPI_INSTRFRAME_TFRTYPE_WRITEMEMORY | QSPI_INSTRFRAME_INSTREN | QSPI_INSTRFRAME_ADDREN | QSPI_INSTRFRAME_DATAEN;
+bool Adafruit_FlashTransport_QSPI::writeMemory(uint32_t addr,
+                                               uint8_t const *data,
+                                               uint32_t len) {
+  uint32_t iframe =
+      QSPI_INSTRFRAME_WIDTH_QUAD_OUTPUT | QSPI_INSTRFRAME_ADDRLEN_24BITS |
+      QSPI_INSTRFRAME_TFRTYPE_WRITEMEMORY | QSPI_INSTRFRAME_INSTREN |
+      QSPI_INSTRFRAME_ADDREN | QSPI_INSTRFRAME_DATAEN;
 
   samd_peripherals_disable_and_clear_cache();
-  _run_instruction(SFLASH_CMD_QUAD_PAGE_PROGRAM, iframe, addr, (uint8_t*) data, len);
+  _run_instruction(SFLASH_CMD_QUAD_PAGE_PROGRAM, iframe, addr, (uint8_t *)data,
+                   len);
   samd_peripherals_enable_cache();
 
   return true;
@@ -161,8 +170,7 @@ bool Adafruit_FlashTransport_QSPI::writeMemory (uint32_t addr, uint8_t const *da
  @param clock_hz clock speed in hertz
  */
 /**************************************************************************/
-void Adafruit_FlashTransport_QSPI::setClockSpeed (uint32_t clock_hz)
-{
+void Adafruit_FlashTransport_QSPI::setClockSpeed(uint32_t clock_hz) {
   QSPI->BAUD.bit.BAUD = VARIANT_MCK / clock_hz;
 }
 
@@ -170,16 +178,18 @@ void Adafruit_FlashTransport_QSPI::setClockSpeed (uint32_t clock_hz)
 /*!
  @brief Run a single QSPI instruction.
  @param command instruction code
- @param iframe iframe register value (configured by caller according to command code)
- @param addr the address to read or write from. If the instruction doesn't require an address, this parameter is meaningless.
- @param buffer pointer to the data to be written or stored depending on the type is Read or Write
+ @param iframe iframe register value (configured by caller according to command
+ code)
+ @param addr the address to read or write from. If the instruction doesn't
+ require an address, this parameter is meaningless.
+ @param buffer pointer to the data to be written or stored depending on the type
+ is Read or Write
  @param size the number of bytes to read or write.
  */
 /**************************************************************************/
-static void _run_instruction (uint8_t command, uint32_t iframe, uint32_t addr, uint8_t *buffer, uint32_t size)
-{
-  if ( command == SFLASH_CMD_ERASE_SECTOR || command == SFLASH_CMD_ERASE_BLOCK )
-  {
+static void _run_instruction(uint8_t command, uint32_t iframe, uint32_t addr,
+                             uint8_t *buffer, uint32_t size) {
+  if (command == SFLASH_CMD_ERASE_SECTOR || command == SFLASH_CMD_ERASE_BLOCK) {
     QSPI->INSTRADDR.reg = addr;
   }
 
@@ -191,25 +201,21 @@ static void _run_instruction (uint8_t command, uint32_t iframe, uint32_t addr, u
   // and Example 4, page 998, section 37.6.8.5.
   (volatile uint32_t) QSPI->INSTRFRAME.reg;
 
-  if ( buffer && size )
-  {
-    uint8_t *qspi_mem = (uint8_t *) (QSPI_AHB + addr);
+  if (buffer && size) {
+    uint8_t *qspi_mem = (uint8_t *)(QSPI_AHB + addr);
     uint32_t const tfr_type = iframe & QSPI_INSTRFRAME_TFRTYPE_Msk;
 
-    if ( (tfr_type == QSPI_INSTRFRAME_TFRTYPE_READ) || (tfr_type == QSPI_INSTRFRAME_TFRTYPE_READMEMORY) )
-    {
+    if ((tfr_type == QSPI_INSTRFRAME_TFRTYPE_READ) ||
+        (tfr_type == QSPI_INSTRFRAME_TFRTYPE_READMEMORY)) {
       memcpy(buffer, qspi_mem, size);
-    }
-    else
-    {
+    } else {
       memcpy(qspi_mem, buffer, size);
     }
   }
 
   QSPI->CTRLA.reg = QSPI_CTRLA_ENABLE | QSPI_CTRLA_LASTXFER;
 
-  while ( !QSPI->INTFLAG.bit.INSTREND )
-  {
+  while (!QSPI->INTFLAG.bit.INSTREND) {
     yield();
   }
   QSPI->INTFLAG.bit.INSTREND = 1;
