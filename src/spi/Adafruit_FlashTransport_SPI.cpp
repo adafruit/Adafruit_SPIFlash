@@ -31,6 +31,12 @@ Adafruit_FlashTransport_SPI::Adafruit_FlashTransport_SPI(
   _setting = SPISettings();
 }
 
+Adafruit_FlashTransport_SPI::Adafruit_FlashTransport_SPI(uint8_t ss, SPIClass& spiinterface)
+  : Adafruit_FlashTransport_SPI(ss, &spiinterface)
+{
+
+}
+
 void Adafruit_FlashTransport_SPI::begin(void) {
   pinMode(_ss, OUTPUT);
   digitalWrite(_ss, HIGH);
