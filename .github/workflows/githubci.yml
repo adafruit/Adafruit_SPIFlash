@@ -7,7 +7,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        arduino-platform: ['metro_m0', 'metro_m4', 'nrf52840', 'cpx', 'cpb']
+        arduino-platform: ['metro_m0', 'metro_m4', 'nrf52840', 'cpx_ada', 'cpb']
 
     runs-on: ubuntu-latest
     steps:
