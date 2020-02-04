@@ -35,6 +35,7 @@ private:
 
 public:
   Adafruit_FlashTransport_SPI(uint8_t ss, SPIClass *spiinterface);
+  Adafruit_FlashTransport_SPI(uint8_t ss, SPIClass &spiinterface);
 
   virtual void begin(void);
 
