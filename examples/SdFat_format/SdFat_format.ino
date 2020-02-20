@@ -22,10 +22,16 @@
 #include <SdFat.h>
 #include <Adafruit_SPIFlash.h>
 
+// up to 11 characters
+#define DISK_LABEL    "EXT FLASH"
+
 // Since SdFat doesn't fully support FAT12 such as format a new flash
 // We will use Elm Cham's fatfs f_mkfs() to format
 #include "ff.h"
 #include "diskio.h"
+
+FATFS elmchamFatfs;
+uint8_t workbuf[4096]; // Working buffer for f_fdisk function.
 
 // On-board external flash (QSPI or SPI) macros should already
 // defined in your board variant if supported
@@ -45,20 +51,18 @@ Adafruit_SPIFlash flash(&flashTransport);
 
 // file system object from SdFat
 FatFileSystem fatfs;
-
-
+  
 void setup() {
   // Initialize serial port and wait for it to open before continuing.
   Serial.begin(115200);
-  while (!Serial) {
-    delay(100);
-  }
+  while (!Serial) delay(100);
+  
   Serial.println("Adafruit SPI Flash FatFs Format Example");
 
   // Initialize flash library and check its chip ID.
   if (!flash.begin()) {
     Serial.println("Error, failed to initialize flash chip!");
-    while(1);
+    while(1) yield();
   }
   Serial.print("Flash chip JEDEC ID: 0x"); Serial.println(flash.getJEDECID(), HEX);
 
@@ -69,19 +73,35 @@ void setup() {
     Serial.println("This sketch will ERASE ALL DATA on the flash chip and format it with a new filesystem!");
     Serial.println("Type OK (all caps) and press enter to continue.");
     Serial.println("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
-  }
-  while ( !Serial.find("OK"));
+  } while ( !Serial.find("OK"));
 
   // Call fatfs begin and passed flash object to initialize file system
   Serial.println("Creating and formatting FAT filesystem (this takes ~60 seconds)...");
 
   // Make filesystem.
-  uint8_t buf[512] = {0};          // Working buffer for f_fdisk function.    
-  FRESULT r = f_mkfs("", FM_FAT | FM_SFD, 0, buf, sizeof(buf));
+  FRESULT r = f_mkfs("", FM_FAT | FM_SFD, 0, workbuf, sizeof(workbuf));
   if (r != FR_OK) {
     Serial.print("Error, f_mkfs failed with error code: "); Serial.println(r, DEC);
-    while(1);
+    while(1) yield();
   }
+
+  // mount to set disk label
+  r = f_mount(&elmchamFatfs, "0:", 1);
+  if (r != FR_OK) {
+    Serial.print("Error, f_mount failed with error code: "); Serial.println(r, DEC);
+    while(1) yield();
+  }
+
+  // Setting label
+  Serial.println("Setting disk label to: " DISK_LABEL);
+  r = f_setlabel(DISK_LABEL);
+  if (r != FR_OK) {
+    Serial.print("Error, f_setlabel failed with error code: "); Serial.println(r, DEC);
+    while(1) yield();
+  }
+
+  // unmount
+  f_unmount("0:");
 
   // sync to make sure all data is written to flash
   flash.syncBlocks();
