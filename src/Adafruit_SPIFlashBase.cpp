@@ -47,28 +47,32 @@ Adafruit_SPIFlashBase::Adafruit_SPIFlashBase(
   _flash_dev = NULL;
 }
 
-bool Adafruit_SPIFlashBase::begin(void) {
+bool Adafruit_SPIFlashBase::begin(external_flash_device *flash_dev) {
   if (_trans == NULL)
     return false;
 
   _trans->begin();
 
-  //------------- flash detection -------------//
-  uint8_t jedec_ids[3];
-  _trans->readCommand(SFLASH_CMD_READ_JEDEC_ID, jedec_ids, 3);
+  if (flash_dev != NULL) {
+    _flash_dev = flash_dev;
+  } else {
+    //------------- flash detection -------------//
+    uint8_t jedec_ids[3];
+    _trans->readCommand(SFLASH_CMD_READ_JEDEC_ID, jedec_ids, 3);
 
-  for (uint8_t i = 0; i < EXTERNAL_FLASH_DEVICE_COUNT; i++) {
-    const external_flash_device *possible_device = &possible_devices[i];
-    if (jedec_ids[0] == possible_device->manufacturer_id &&
-        jedec_ids[1] == possible_device->memory_type &&
-        jedec_ids[2] == possible_device->capacity) {
-      _flash_dev = possible_device;
-      break;
+    for (uint8_t i = 0; i < EXTERNAL_FLASH_DEVICE_COUNT; i++) {
+      const external_flash_device *possible_device = &possible_devices[i];
+      if (jedec_ids[0] == possible_device->manufacturer_id &&
+          jedec_ids[1] == possible_device->memory_type &&
+          jedec_ids[2] == possible_device->capacity) {
+        _flash_dev = possible_device;
+        break;
+      }
     }
-  }
 
-  if (_flash_dev == NULL)
-    return false;
+    if (_flash_dev == NULL)
+      return false;
+  }
 
   // We don't know what state the flash is in so wait for any remaining writes
   // and then reset.
