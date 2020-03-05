@@ -87,8 +87,8 @@ bool Adafruit_SPIFlashBase::begin(void) {
   // Wait 30us for the reset
   delayMicroseconds(30);
 
-  // Speed up to max device frequency
-  _trans->setClockSpeed(_flash_dev->max_clock_speed_mhz * 1000000UL);
+  // Speed up to max device frequency, or as high as possible
+  _trans->setClockSpeed(min(_flash_dev->max_clock_speed_mhz * 1000000UL, F_CPU));
 
   // Enable Quad Mode if available
   if (_trans->supportQuadMode() && (_flash_dev->quad_enable_bit_mask)) {
