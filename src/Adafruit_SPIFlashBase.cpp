@@ -28,6 +28,9 @@ static const external_flash_device possible_devices[] = {
     W25Q16FW,   W25Q64JV_IQ, // Only a handful of production run
 
     MX25R6435F, // Nordic PCA10056
+
+    // Other common flash devices
+    W25Q16JV_IQ,
 };
 
 /// Flash device list count
