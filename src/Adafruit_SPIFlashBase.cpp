@@ -23,11 +23,18 @@
 
 /// List of all possible flash devices used by Adafruit boards
 static const external_flash_device possible_devices[] = {
-    GD25Q16C,   GD25Q64C, // Main devices current Adafruit
-    S25FL116K,  S25FL216K,
-    W25Q16FW,   W25Q64JV_IQ, // Only a handful of production run
+    // Main devices current Adafruit
+    GD25Q16C,
+    GD25Q64C,
+    S25FL116K,
+    S25FL216K,
 
-    MX25R6435F, // Nordic PCA10056
+    // Only a handful of production run
+    W25Q16FW,
+    W25Q64JV_IQ,
+
+    // Nordic PCA10056
+    MX25R6435F,
 
     // Other common flash devices
     W25Q16JV_IQ,
@@ -91,7 +98,8 @@ bool Adafruit_SPIFlashBase::begin(void) {
   delayMicroseconds(30);
 
   // Speed up to max device frequency, or as high as possible
-  _trans->setClockSpeed(min(_flash_dev->max_clock_speed_mhz * 1000000UL, F_CPU));
+  _trans->setClockSpeed(
+      min(_flash_dev->max_clock_speed_mhz * 1000000UL, F_CPU));
 
   // Enable Quad Mode if available
   if (_trans->supportQuadMode() && (_flash_dev->quad_enable_bit_mask)) {
