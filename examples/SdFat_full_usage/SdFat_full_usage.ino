@@ -34,7 +34,7 @@
   Adafruit_FlashTransport_QSPI flashTransport;
 
 #elif defined(EXTERNAL_FLASH_USE_SPI)
-  Adafruit_FlashTransport_SPI flashTransport(EXTERNAL_FLASH_USE_CS, EXTERNAL_FLASH_USE_SPI);
+  Adafruit_FlashTransport_SPI flashTransport(EXTERNAL_FLASH_USE_CS, &EXTERNAL_FLASH_USE_SPI);
 
 #else
   #error No QSPI/SPI flash are defined on your board variant.h !
