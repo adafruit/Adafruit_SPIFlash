@@ -22,7 +22,7 @@
 #endif
 
 /// List of all possible flash devices used by Adafruit boards
-static const external_flash_device possible_devices[] = {
+static const SPIFlash_Device_t possible_devices[] = {
     // Main devices current Adafruit
     GD25Q16C,
     GD25Q64C,
@@ -57,7 +57,7 @@ Adafruit_SPIFlashBase::Adafruit_SPIFlashBase(
   _flash_dev = NULL;
 }
 
-bool Adafruit_SPIFlashBase::begin(external_flash_device *flash_dev) {
+bool Adafruit_SPIFlashBase::begin(SPIFlash_Device_t const *flash_dev) {
   if (_trans == NULL)
     return false;
 
@@ -71,7 +71,7 @@ bool Adafruit_SPIFlashBase::begin(external_flash_device *flash_dev) {
     _trans->readCommand(SFLASH_CMD_READ_JEDEC_ID, jedec_ids, 3);
 
     for (uint8_t i = 0; i < EXTERNAL_FLASH_DEVICE_COUNT; i++) {
-      const external_flash_device *possible_device = &possible_devices[i];
+      const SPIFlash_Device_t *possible_device = &possible_devices[i];
       if (jedec_ids[0] == possible_device->manufacturer_id &&
           jedec_ids[1] == possible_device->memory_type &&
           jedec_ids[2] == possible_device->capacity) {
