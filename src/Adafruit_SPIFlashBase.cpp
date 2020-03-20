@@ -23,7 +23,7 @@
 
 /// List of all possible flash devices used by Adafruit boards
 static const SPIFlash_Device_t possible_devices[] = {
-    // Main devices current Adafruit
+    // Main devices used in current Adafruit products
     GD25Q16C,
     GD25Q64C,
     S25FL116K,
