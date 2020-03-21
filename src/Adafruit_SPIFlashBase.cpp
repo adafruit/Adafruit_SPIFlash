@@ -22,12 +22,22 @@
 #endif
 
 /// List of all possible flash devices used by Adafruit boards
-static const external_flash_device possible_devices[] = {
-    GD25Q16C,   GD25Q64C, // Main devices current Adafruit
-    S25FL116K,  S25FL216K,
-    W25Q16FW,   W25Q64JV_IQ, // Only a handful of production run
+static const SPIFlash_Device_t possible_devices[] = {
+    // Main devices used in current Adafruit products
+    GD25Q16C,
+    GD25Q64C,
+    S25FL116K,
+    S25FL216K,
 
-    MX25R6435F, // Nordic PCA10056
+    // Only a handful of production run
+    W25Q16FW,
+    W25Q64JV_IQ,
+
+    // Nordic PCA10056
+    MX25R6435F,
+
+    // Other common flash devices
+    W25Q16JV_IQ,
 };
 
 /// Flash device list count
@@ -47,28 +57,32 @@ Adafruit_SPIFlashBase::Adafruit_SPIFlashBase(
   _flash_dev = NULL;
 }
 
-bool Adafruit_SPIFlashBase::begin(void) {
+bool Adafruit_SPIFlashBase::begin(SPIFlash_Device_t const *flash_dev) {
   if (_trans == NULL)
     return false;
 
   _trans->begin();
 
-  //------------- flash detection -------------//
-  uint8_t jedec_ids[3];
-  _trans->readCommand(SFLASH_CMD_READ_JEDEC_ID, jedec_ids, 3);
+  if (flash_dev != NULL) {
+    _flash_dev = flash_dev;
+  } else {
+    //------------- flash detection -------------//
+    uint8_t jedec_ids[3];
+    _trans->readCommand(SFLASH_CMD_READ_JEDEC_ID, jedec_ids, 3);
 
-  for (uint8_t i = 0; i < EXTERNAL_FLASH_DEVICE_COUNT; i++) {
-    const external_flash_device *possible_device = &possible_devices[i];
-    if (jedec_ids[0] == possible_device->manufacturer_id &&
-        jedec_ids[1] == possible_device->memory_type &&
-        jedec_ids[2] == possible_device->capacity) {
-      _flash_dev = possible_device;
-      break;
+    for (uint8_t i = 0; i < EXTERNAL_FLASH_DEVICE_COUNT; i++) {
+      const SPIFlash_Device_t *possible_device = &possible_devices[i];
+      if (jedec_ids[0] == possible_device->manufacturer_id &&
+          jedec_ids[1] == possible_device->memory_type &&
+          jedec_ids[2] == possible_device->capacity) {
+        _flash_dev = possible_device;
+        break;
+      }
     }
-  }
 
-  if (_flash_dev == NULL)
-    return false;
+    if (_flash_dev == NULL)
+      return false;
+  }
 
   // We don't know what state the flash is in so wait for any remaining writes
   // and then reset.
@@ -87,8 +101,9 @@ bool Adafruit_SPIFlashBase::begin(void) {
   // Wait 30us for the reset
   delayMicroseconds(30);
 
-  // Speed up to max device frequency
-  _trans->setClockSpeed(_flash_dev->max_clock_speed_mhz * 1000000UL);
+  // Speed up to max device frequency, or as high as possible
+  _trans->setClockSpeed(
+      min(_flash_dev->max_clock_speed_mhz * 1000000UL, F_CPU));
 
   // Enable Quad Mode if available
   if (_trans->supportQuadMode() && (_flash_dev->quad_enable_bit_mask)) {

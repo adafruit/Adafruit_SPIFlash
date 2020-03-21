@@ -65,7 +65,7 @@ typedef struct {
   // Enable bit is in the first byte and the Read Status Register 2 command
   // (0x35) is unsupported.
   bool single_status_byte : 1;
-} external_flash_device;
+} SPIFlash_Device_t;
 
 // Settings for the Adesto Tech AT25DF081A 1MiB SPI flash. Its on the SAMD21
 // Xplained board.
