@@ -57,32 +57,48 @@ Adafruit_SPIFlashBase::Adafruit_SPIFlashBase(
   _flash_dev = NULL;
 }
 
-bool Adafruit_SPIFlashBase::begin(SPIFlash_Device_t const *flash_dev) {
+static SPIFlash_Device_t const *findDevice(SPIFlash_Device_t const *device_list,
+                                           int count,
+                                           uint8_t const (&jedec_ids)[3]) {
+  for (uint8_t i = 0; i < count; i++) {
+    const SPIFlash_Device_t *possible_device = &device_list[i];
+    if (jedec_ids[0] == possible_device->manufacturer_id &&
+        jedec_ids[1] == possible_device->memory_type &&
+        jedec_ids[2] == possible_device->capacity) {
+      return possible_device;
+    }
+  }
+  return NULL;
+}
+
+bool Adafruit_SPIFlashBase::begin(SPIFlash_Device_t const *flash_devs,
+                                  int count) {
   if (_trans == NULL)
     return false;
 
   _trans->begin();
 
-  if (flash_dev != NULL) {
-    _flash_dev = flash_dev;
-  } else {
-    //------------- flash detection -------------//
-    uint8_t jedec_ids[3];
-    _trans->readCommand(SFLASH_CMD_READ_JEDEC_ID, jedec_ids, 3);
+  //------------- flash detection -------------//
+  uint8_t jedec_ids[3];
+  _trans->readCommand(SFLASH_CMD_READ_JEDEC_ID, jedec_ids, 3);
 
-    for (uint8_t i = 0; i < EXTERNAL_FLASH_DEVICE_COUNT; i++) {
-      const SPIFlash_Device_t *possible_device = &possible_devices[i];
-      if (jedec_ids[0] == possible_device->manufacturer_id &&
-          jedec_ids[1] == possible_device->memory_type &&
-          jedec_ids[2] == possible_device->capacity) {
-        _flash_dev = possible_device;
-        break;
-      }
-    }
-
-    if (_flash_dev == NULL)
-      return false;
+  // Check for device in supplied list, if any.
+  if (flash_devs != NULL) {
+    _flash_dev = findDevice(flash_devs, count, jedec_ids);
   }
+  // If not found, check for device in standard list.
+  if (_flash_dev == NULL) {
+    _flash_dev =
+        findDevice(possible_devices, EXTERNAL_FLASH_DEVICE_COUNT, jedec_ids);
+  }
+  // If still not found, use the first supplied deivce, if any (backward
+  // compatible behaviour).
+  if (_flash_dev == NULL && flash_devs) {
+    _flash_dev = flash_devs;
+  }
+
+  if (_flash_dev == NULL)
+    return false;
 
   // We don't know what state the flash is in so wait for any remaining writes
   // and then reset.
