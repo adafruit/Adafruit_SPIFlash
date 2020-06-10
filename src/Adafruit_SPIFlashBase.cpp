@@ -61,18 +61,18 @@ static SPIFlash_Device_t const *findDevice(SPIFlash_Device_t const *device_list,
                                            int count,
                                            uint8_t const (&jedec_ids)[3]) {
   for (uint8_t i = 0; i < count; i++) {
-    const SPIFlash_Device_t *possible_device = &device_list[i];
-    if (jedec_ids[0] == possible_device->manufacturer_id &&
-        jedec_ids[1] == possible_device->memory_type &&
-        jedec_ids[2] == possible_device->capacity) {
-      return possible_device;
+    const SPIFlash_Device_t *dev = &device_list[i];
+    if (jedec_ids[0] == dev->manufacturer_id &&
+        jedec_ids[1] == dev->memory_type &&
+        jedec_ids[2] == dev->capacity) {
+      return dev;
     }
   }
   return NULL;
 }
 
 bool Adafruit_SPIFlashBase::begin(SPIFlash_Device_t const *flash_devs,
-                                  int count) {
+                                  size_t count) {
   if (_trans == NULL)
     return false;
 
@@ -90,11 +90,6 @@ bool Adafruit_SPIFlashBase::begin(SPIFlash_Device_t const *flash_devs,
   if (_flash_dev == NULL) {
     _flash_dev =
         findDevice(possible_devices, EXTERNAL_FLASH_DEVICE_COUNT, jedec_ids);
-  }
-  // If still not found, use the first supplied deivce, if any (backward
-  // compatible behaviour).
-  if (_flash_dev == NULL && flash_devs) {
-    _flash_dev = flash_devs;
   }
 
   if (_flash_dev == NULL)

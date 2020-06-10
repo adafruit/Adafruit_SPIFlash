@@ -47,7 +47,7 @@ public:
   Adafruit_SPIFlashBase(Adafruit_FlashTransport *transport);
   ~Adafruit_SPIFlashBase() {}
 
-  bool begin(SPIFlash_Device_t const *flash_devs = NULL, int count = 1);
+  bool begin(SPIFlash_Device_t const *flash_devs = NULL, size_t count = 1);
   bool end(void);
 
   uint16_t numPages(void);
