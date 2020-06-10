@@ -63,7 +63,7 @@ static SPIFlash_Device_t const *findDevice(SPIFlash_Device_t const *device_list,
   for (uint8_t i = 0; i < count; i++) {
     const SPIFlash_Device_t *dev = &device_list[i];
     if (jedec_ids[0] == dev->manufacturer_id &&
-        jedec_ids[1] == dev->memory_type &&
+        jedec_ids[1] == dev->memory_type && // comment to appease format check
         jedec_ids[2] == dev->capacity) {
       return dev;
     }
