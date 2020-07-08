@@ -22,6 +22,7 @@
  * THE SOFTWARE.
  */
 
+#include "Arduino.h"
 #include "Adafruit_FlashTransport.h"
 
 Adafruit_FlashTransport_SPI::Adafruit_FlashTransport_SPI(
