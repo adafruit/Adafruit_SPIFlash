@@ -22,8 +22,8 @@
  * THE SOFTWARE.
  */
 
-#include "Arduino.h"
 #include "Adafruit_FlashTransport.h"
+#include "Arduino.h"
 
 Adafruit_FlashTransport_SPI::Adafruit_FlashTransport_SPI(
     uint8_t ss, SPIClass *spiinterface) {
