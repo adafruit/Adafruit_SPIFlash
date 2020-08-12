@@ -129,11 +129,14 @@ bool Adafruit_SPIFlashBase::begin(SPIFlash_Device_t const *flash_devs,
   }
 
   // Speed up to max device frequency, or as high as possible
-  _trans->setClockSpeed(min(
-      (uint32_t)(_flash_dev->max_clock_speed_mhz * 1000000U), (uint32_t)F_CPU));
+  uint32_t clock_speed = min((uint32_t)(_flash_dev->max_clock_speed_mhz * 1000000U), (uint32_t) F_CPU);
+  //PRINT_INT(clock_speed);
+
+  _trans->setClockSpeed(clock_speed);
+
 
   // Enable Quad Mode if available
-  if (_trans->supportQuadMode() && (_flash_dev->supports_qspi)) {
+  if (_trans->supportQuadMode() && _flash_dev->supports_qspi) {
     // Verify that QSPI mode is enabled.
     uint8_t status =
         _flash_dev->single_status_byte ? readStatus() : readStatus2();
@@ -151,6 +154,11 @@ bool Adafruit_SPIFlashBase::begin(SPIFlash_Device_t const *flash_devs,
       } else {
         _trans->writeCommand(SFLASH_CMD_WRITE_STATUS, full_status, 2);
       }
+    }
+  }else {
+    // Single mode, use fast read if supported
+    if ( _flash_dev->supports_fast_read ) {
+      _trans->setReadCommand(SFLASH_CMD_FAST_READ);
     }
   }
 

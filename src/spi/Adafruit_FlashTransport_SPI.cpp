@@ -27,6 +27,7 @@
 
 Adafruit_FlashTransport_SPI::Adafruit_FlashTransport_SPI(
     uint8_t ss, SPIClass *spiinterface) {
+  _cmd_read = SFLASH_CMD_READ;
   _ss = ss;
   _spi = spiinterface;
   _setting = SPISettings();
@@ -97,12 +98,9 @@ bool Adafruit_FlashTransport_SPI::eraseCommand(uint8_t command,
   digitalWrite(_ss, LOW);
   _spi->beginTransaction(_setting);
 
-  _spi->transfer(command);
+  uint8_t cmd_with_addr[] = { command, (address >> 16) & 0xFF, (address >> 8) & 0xFF, address & 0xFF };
 
-  // 24-bit address MSB first
-  _spi->transfer((address >> 16) & 0xFF);
-  _spi->transfer((address >> 8) & 0xFF);
-  _spi->transfer(address & 0xFF);
+  _spi->transfer(cmd_with_addr, 4);
 
   _spi->endTransaction();
   digitalWrite(_ss, HIGH);
@@ -115,16 +113,18 @@ bool Adafruit_FlashTransport_SPI::readMemory(uint32_t addr, uint8_t *data,
   digitalWrite(_ss, LOW);
   _spi->beginTransaction(_setting);
 
-  _spi->transfer(SFLASH_CMD_READ);
+  uint8_t cmd_with_addr[5] = { _cmd_read, (addr >> 16) & 0xFF, (addr >> 8) & 0xFF, addr & 0xFF, 0xFF };
 
-  // 24-bit address MSB first
-  _spi->transfer((addr >> 16) & 0xFF);
-  _spi->transfer((addr >> 8) & 0xFF);
-  _spi->transfer(addr & 0xFF);
+  // Fast Read has 1 extra dummy byte
+  _spi->transfer(cmd_with_addr, SFLASH_CMD_FAST_READ == _cmd_read ? 5 : 4);
 
+#if defined(ARDUINO_NRF52_ADAFRUIT) && defined(NRF52840_XXAA) // SPIM DMA performs best with bulk transfer
+  _spi->transfer(NULL, data, len);
+#else
   while (len--) {
     *data++ = _spi->transfer(0xFF);
   }
+#endif
 
   _spi->endTransaction();
   digitalWrite(_ss, HIGH);
@@ -138,16 +138,17 @@ bool Adafruit_FlashTransport_SPI::writeMemory(uint32_t addr,
   digitalWrite(_ss, LOW);
   _spi->beginTransaction(_setting);
 
-  _spi->transfer(SFLASH_CMD_PAGE_PROGRAM);
+  uint8_t cmd_with_addr[] = { SFLASH_CMD_PAGE_PROGRAM, (addr >> 16) & 0xFF, (addr >> 8) & 0xFF, addr & 0xFF };
 
-  // 24-bit address MSB first
-  _spi->transfer((addr >> 16) & 0xFF);
-  _spi->transfer((addr >> 8) & 0xFF);
-  _spi->transfer(addr & 0xFF);
+  _spi->transfer(cmd_with_addr, 4);
 
+#if defined(ARDUINO_NRF52_ADAFRUIT) && defined(NRF52840_XXAA) // SPIM DMA performs best with bulk transfer
+  _spi->transfer(data, NULL, len);
+#else
   while (len--) {
     _spi->transfer(*data++);
   }
+#endif
 
   _spi->endTransaction();
   digitalWrite(_ss, HIGH);
