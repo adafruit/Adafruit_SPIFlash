@@ -103,27 +103,30 @@ bool Adafruit_SPIFlashBase::begin(SPIFlash_Device_t const *flash_devs,
         findDevice(possible_devices, EXTERNAL_FLASH_DEVICE_COUNT, jedec_ids);
   }
 
-  if (_flash_dev == NULL)
+  if (_flash_dev == NULL) {
     return false;
+  }
 
   // We don't know what state the flash is in so wait for any remaining writes
-  // and then reset.
+  // and then reset. Skip this procedure for FRAM since it does not support Reset command
+  if ( !_flash_dev->is_fram ) {
 
-  // The write in progress bit should be low.
-  while (readStatus() & 0x01) {
-  }
-
-  // The suspended write/erase bit should be low.
-  if ( !_flash_dev->single_status_byte ) {
-    while ( readStatus2() & 0x80 ) {
+    // The write in progress bit should be low.
+    while (readStatus() & 0x01) {
     }
+
+    // The suspended write/erase bit should be low.
+    if ( !_flash_dev->single_status_byte ) {
+      while ( readStatus2() & 0x80 ) {
+      }
+    }
+
+    _trans->runCommand(SFLASH_CMD_ENABLE_RESET);
+    _trans->runCommand(SFLASH_CMD_RESET);
+
+    // Wait 30us for the reset
+    delayMicroseconds(30);
   }
-
-  _trans->runCommand(SFLASH_CMD_ENABLE_RESET);
-  _trans->runCommand(SFLASH_CMD_RESET);
-
-  // Wait 30us for the reset
-  delayMicroseconds(30);
 
   // Speed up to max device frequency, or as high as possible
   _trans->setClockSpeed(min(
