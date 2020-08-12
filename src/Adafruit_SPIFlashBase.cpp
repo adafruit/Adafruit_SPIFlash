@@ -6,19 +6,21 @@
 #include "flash_devices.h"
 
 #if SPIFLASH_DEBUG
-#define SPIFLASH_LOG(_address, _count)                                         \
-  do {                                                                         \
-    Serial.print(__FUNCTION__);                                                \
-    Serial.print(": adddress = ");                                             \
-    Serial.print(_address, HEX);                                               \
-    if (_count) {                                                              \
-      Serial.print(" count = ");                                               \
-      Serial.print(_count);                                                    \
-    }                                                                          \
-    Serial.println();                                                          \
-  } while (0)
+  #define SPIFLASH_LOG(_address, _count)                                         \
+    do {                                                                         \
+      Serial.print(__FUNCTION__);                                                \
+      Serial.print(": adddress = ");                                             \
+      Serial.print(_address, HEX);                                               \
+      if (_count) {                                                              \
+        Serial.print(" count = ");                                               \
+        Serial.print(_count);                                                    \
+      }                                                                          \
+      Serial.println();                                                          \
+    } while (0)
+
 #else
-#define SPIFLASH_LOG(_sector, _count)
+  #define SPIFLASH_LOG(_sector, _count)
+
 #endif
 
 /// List of all possible flash devices used by Adafruit boards
@@ -32,6 +34,9 @@ static const SPIFlash_Device_t possible_devices[] = {
     // Only a handful of production run
     W25Q16FW,
     W25Q64JV_IQ,
+
+    // Fujitsu FRAM
+    MB85RS2MTA,
 
     // Nordic PCA10056
     MX25R6435F,
@@ -82,6 +87,8 @@ bool Adafruit_SPIFlashBase::begin(SPIFlash_Device_t const *flash_devs,
   uint8_t jedec_ids[3];
   _trans->readCommand(SFLASH_CMD_READ_JEDEC_ID, jedec_ids, 3);
 
+  // PRINTF("jedec_ids = %02X-%02X-%02X\r\n", jedec_ids[0], jedec_ids[1], jedec_ids[2]); delay(10);
+
   // Check for device in supplied list, if any.
   if (flash_devs != NULL) {
     _flash_dev = findDevice(flash_devs, count, jedec_ids);
@@ -103,7 +110,9 @@ bool Adafruit_SPIFlashBase::begin(SPIFlash_Device_t const *flash_devs,
   }
 
   // The suspended write/erase bit should be low.
-  while (readStatus2() & 0x80) {
+  if ( !_flash_dev->single_status_byte ) {
+    while ( readStatus2() & 0x80 ) {
+    }
   }
 
   _trans->runCommand(SFLASH_CMD_ENABLE_RESET);
@@ -117,7 +126,7 @@ bool Adafruit_SPIFlashBase::begin(SPIFlash_Device_t const *flash_devs,
       (uint32_t)(_flash_dev->max_clock_speed_mhz * 1000000U), (uint32_t)F_CPU));
 
   // Enable Quad Mode if available
-  if (_trans->supportQuadMode() && (_flash_dev->quad_enable_bit_mask)) {
+  if (_trans->supportQuadMode() && (_flash_dev->supports_qspi)) {
     // Verify that QSPI mode is enabled.
     uint8_t status =
         _flash_dev->single_status_byte ? readStatus() : readStatus2();
@@ -166,8 +175,12 @@ uint16_t Adafruit_SPIFlashBase::numPages(void) {
 uint16_t Adafruit_SPIFlashBase::pageSize(void) { return SFLASH_PAGE_SIZE; }
 
 uint32_t Adafruit_SPIFlashBase::getJEDECID(void) {
-  return (_flash_dev->manufacturer_id << 16) | (_flash_dev->memory_type << 8) |
-         _flash_dev->capacity;
+  if (!_flash_dev) {
+    return 0xFFFFFF;
+  }else {
+    return (_flash_dev->manufacturer_id << 16) | (_flash_dev->memory_type << 8) |
+        _flash_dev->capacity;
+  }
 }
 
 uint8_t Adafruit_SPIFlashBase::readStatus() {
