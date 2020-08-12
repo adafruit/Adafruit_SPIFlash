@@ -50,6 +50,8 @@ public:
   bool begin(SPIFlash_Device_t const *flash_devs = NULL, size_t count = 1);
   bool end(void);
 
+  void setIndicator(int pin, bool state_on = true);
+
   uint16_t numPages(void);
   uint16_t pageSize(void);
 
@@ -59,6 +61,7 @@ public:
   uint8_t readStatus2(void);
   void waitUntilReady(void);
   bool writeEnable(void);
+  bool writeDisable(void);
 
   uint32_t getJEDECID(void);
 
@@ -77,6 +80,21 @@ public:
 private:
   Adafruit_FlashTransport *_trans;
   SPIFlash_Device_t const *_flash_dev;
+
+  int  _ind_pin;
+  bool _ind_active;
+
+  void _indicator_on(void) {
+    if (_ind_pin >= 0 ) {
+      digitalWrite(_ind_pin, _ind_active ? HIGH : LOW);
+    }
+  }
+
+  void _indicator_off(void) {
+    if (_ind_pin >= 0 ) {
+      digitalWrite(_ind_pin, _ind_active ? LOW : HIGH);
+    }
+  }
 };
 
 // for debugging

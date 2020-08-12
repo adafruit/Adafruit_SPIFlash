@@ -54,12 +54,16 @@ enum {
 Adafruit_SPIFlashBase::Adafruit_SPIFlashBase() {
   _trans = NULL;
   _flash_dev = NULL;
+  _ind_pin = -1;
+  _ind_active = true;
 }
 
 Adafruit_SPIFlashBase::Adafruit_SPIFlashBase(
     Adafruit_FlashTransport *transport) {
   _trans = transport;
   _flash_dev = NULL;
+  _ind_pin = -1;
+  _ind_active = true;
 }
 
 static SPIFlash_Device_t const *findDevice(SPIFlash_Device_t const *device_list,
@@ -87,7 +91,7 @@ bool Adafruit_SPIFlashBase::begin(SPIFlash_Device_t const *flash_devs,
   uint8_t jedec_ids[3];
   _trans->readCommand(SFLASH_CMD_READ_JEDEC_ID, jedec_ids, 3);
 
-  // PRINTF("jedec_ids = %02X-%02X-%02X\r\n", jedec_ids[0], jedec_ids[1], jedec_ids[2]); delay(10);
+  //PRINTF("jedec_ids = %02X-%02X-%02X\r\n", jedec_ids[0], jedec_ids[1], jedec_ids[2]); delay(10);
 
   // Check for device in supplied list, if any.
   if (flash_devs != NULL) {
@@ -157,11 +161,17 @@ bool Adafruit_SPIFlashBase::begin(SPIFlash_Device_t const *flash_devs,
   //  }
 
   // Turn off writes in case this is a microcontroller only reset.
-  _trans->runCommand(SFLASH_CMD_WRITE_DISABLE);
+  writeDisable();
 
   waitUntilReady();
 
   return true;
+}
+
+void Adafruit_SPIFlashBase::setIndicator(int pin, bool state_on)
+{
+  _ind_pin = pin;
+  _ind_active = state_on;
 }
 
 uint32_t Adafruit_SPIFlashBase::size(void) {
@@ -205,9 +215,21 @@ bool Adafruit_SPIFlashBase::writeEnable(void) {
   return _trans->runCommand(SFLASH_CMD_WRITE_ENABLE);
 }
 
+bool Adafruit_SPIFlashBase::writeDisable(void) {
+  return _trans->runCommand(SFLASH_CMD_WRITE_DISABLE);
+}
+
 bool Adafruit_SPIFlashBase::eraseSector(uint32_t sectorNumber) {
-  if (!_flash_dev)
+  if (!_flash_dev) {
     return false;
+  }
+
+  // skip erase for FRAM
+  if (_flash_dev->is_fram) {
+    return true;
+  }
+
+  _indicator_on();
 
   // Before we erase the sector we need to wait for any writes to finish
   waitUntilReady();
@@ -215,31 +237,56 @@ bool Adafruit_SPIFlashBase::eraseSector(uint32_t sectorNumber) {
 
   SPIFLASH_LOG(sectorNumber * SFLASH_SECTOR_SIZE, 0);
 
-  return _trans->eraseCommand(SFLASH_CMD_ERASE_SECTOR,
+  bool const ret =  _trans->eraseCommand(SFLASH_CMD_ERASE_SECTOR,
                               sectorNumber * SFLASH_SECTOR_SIZE);
+
+  _indicator_off();
+
+  return ret;
 }
 
 bool Adafruit_SPIFlashBase::eraseBlock(uint32_t blockNumber) {
   if (!_flash_dev)
     return false;
 
+  // skip erase for fram
+  if (_flash_dev->is_fram) {
+    return true;
+  }
+
+  _indicator_on();
+
   // Before we erase the sector we need to wait for any writes to finish
   waitUntilReady();
   writeEnable();
 
-  return _trans->eraseCommand(SFLASH_CMD_ERASE_BLOCK,
-                              blockNumber * SFLASH_BLOCK_SIZE);
+  bool const ret =  _trans->eraseCommand(SFLASH_CMD_ERASE_BLOCK, blockNumber * SFLASH_BLOCK_SIZE);
+
+  _indicator_off();
+
+  return ret;
 }
 
 bool Adafruit_SPIFlashBase::eraseChip(void) {
   if (!_flash_dev)
     return false;
 
+  // skip erase for fram
+  if (_flash_dev->is_fram) {
+    return true;
+  }
+
+  _indicator_on();
+
   // We need to wait for any writes to finish
   waitUntilReady();
   writeEnable();
 
-  return _trans->runCommand(SFLASH_CMD_ERASE_CHIP);
+  bool const ret = _trans->runCommand(SFLASH_CMD_ERASE_CHIP);
+
+  _indicator_off();
+
+  return ret;
 }
 
 uint32_t Adafruit_SPIFlashBase::readBuffer(uint32_t address, uint8_t *buffer,
@@ -247,11 +294,15 @@ uint32_t Adafruit_SPIFlashBase::readBuffer(uint32_t address, uint8_t *buffer,
   if (!_flash_dev)
     return 0;
 
+  _indicator_on();
+
   waitUntilReady();
-
   SPIFLASH_LOG(address, len);
+  bool const rc = _trans->readMemory(address, buffer, len);
 
-  return _trans->readMemory(address, buffer, len) ? len : 0;
+  _indicator_off();
+
+  return rc ? len : 0;
 }
 
 uint8_t Adafruit_SPIFlashBase::read8(uint32_t addr) {
@@ -279,10 +330,21 @@ uint32_t Adafruit_SPIFlashBase::writeBuffer(uint32_t address,
 
   uint32_t remain = len;
 
+  _indicator_on();
+
+  // FRAM can continuously be written without waiting for
+  // waitUntilReady() and re-enable WriteEnable after each page.
+  // In fact its status won't clear the WriteEnable
+  if (_flash_dev->is_fram) {
+    writeEnable();
+  }
+
   // write one page at a time
   while (remain) {
-    waitUntilReady();
-    writeEnable();
+    if (!_flash_dev->is_fram) {
+      waitUntilReady();
+      writeEnable();
+    }
 
     uint32_t const leftOnPage =
         SFLASH_PAGE_SIZE - (address & (SFLASH_PAGE_SIZE - 1));
@@ -296,6 +358,12 @@ uint32_t Adafruit_SPIFlashBase::writeBuffer(uint32_t address,
     buffer += toWrite;
     address += toWrite;
   }
+
+  if (_flash_dev->is_fram) {
+    writeDisable();
+  }
+
+  _indicator_off();
 
   return len - remain;
 }
