@@ -49,29 +49,29 @@ void Adafruit_FlashTransport_SPI::setClockSpeed(uint32_t clock_hz) {
 }
 
 bool Adafruit_FlashTransport_SPI::runCommand(uint8_t command) {
-  digitalWrite(_ss, LOW);
   _spi->beginTransaction(_setting);
+  digitalWrite(_ss, LOW);
 
   _spi->transfer(command);
 
-  _spi->endTransaction();
   digitalWrite(_ss, HIGH);
+  _spi->endTransaction();
 
   return true;
 }
 
 bool Adafruit_FlashTransport_SPI::readCommand(uint8_t command,
                                               uint8_t *response, uint32_t len) {
-  digitalWrite(_ss, LOW);
   _spi->beginTransaction(_setting);
+  digitalWrite(_ss, LOW);
 
   _spi->transfer(command);
   while (len--) {
     *response++ = _spi->transfer(0xFF);
   }
 
-  _spi->endTransaction();
   digitalWrite(_ss, HIGH);
+  _spi->endTransaction();
 
   return true;
 }
@@ -79,39 +79,40 @@ bool Adafruit_FlashTransport_SPI::readCommand(uint8_t command,
 bool Adafruit_FlashTransport_SPI::writeCommand(uint8_t command,
                                                uint8_t const *data,
                                                uint32_t len) {
-  digitalWrite(_ss, LOW);
   _spi->beginTransaction(_setting);
+  digitalWrite(_ss, LOW);
 
   _spi->transfer(command);
   while (len--) {
     (void)_spi->transfer(*data++);
   }
 
-  _spi->endTransaction();
   digitalWrite(_ss, HIGH);
+  _spi->endTransaction();
 
   return true;
 }
 
 bool Adafruit_FlashTransport_SPI::eraseCommand(uint8_t command,
                                                uint32_t address) {
-  digitalWrite(_ss, LOW);
   _spi->beginTransaction(_setting);
+  digitalWrite(_ss, LOW);
 
   uint8_t cmd_with_addr[] = { command, (address >> 16) & 0xFF, (address >> 8) & 0xFF, address & 0xFF };
 
+  Serial.printf("Erase command = 0x%02X, address = %d\n", command, address);
   _spi->transfer(cmd_with_addr, 4);
 
-  _spi->endTransaction();
   digitalWrite(_ss, HIGH);
+  _spi->endTransaction();
 
   return true;
 }
 
 bool Adafruit_FlashTransport_SPI::readMemory(uint32_t addr, uint8_t *data,
                                              uint32_t len) {
-  digitalWrite(_ss, LOW);
   _spi->beginTransaction(_setting);
+  digitalWrite(_ss, LOW);
 
   uint8_t cmd_with_addr[5] = { _cmd_read, (addr >> 16) & 0xFF, (addr >> 8) & 0xFF, addr & 0xFF, 0xFF };
 
@@ -121,16 +122,17 @@ bool Adafruit_FlashTransport_SPI::readMemory(uint32_t addr, uint8_t *data,
   // Use SPI DMA if available for best performance
 #if defined(ARDUINO_NRF52_ADAFRUIT) && defined(NRF52840_XXAA)
   _spi->transfer(NULL, data, len);
-#elif defined(ARDUINO_ARCH_SAMD) && defined(_ADAFRUIT_ZERODMA_H_)
-  _spi->transfer(NULL, data, len, true);
+//#elif defined(ARDUINO_ARCH_SAMD) && defined(_ADAFRUIT_ZERODMA_H_)
+//  TODO Could only got the 1st SPI read work, 2nd will failed, maybe we didn't clear thing !!!
+//  _spi->transfer(NULL, data, len, true);
 #else
   while (len--) {
     *data++ = _spi->transfer(0xFF);
   }
 #endif
 
-  _spi->endTransaction();
   digitalWrite(_ss, HIGH);
+  _spi->endTransaction();
 
   return true;
 }
@@ -138,8 +140,8 @@ bool Adafruit_FlashTransport_SPI::readMemory(uint32_t addr, uint8_t *data,
 bool Adafruit_FlashTransport_SPI::writeMemory(uint32_t addr,
                                               uint8_t const *data,
                                               uint32_t len) {
-  digitalWrite(_ss, LOW);
   _spi->beginTransaction(_setting);
+  digitalWrite(_ss, LOW);
 
   uint8_t cmd_with_addr[] = { SFLASH_CMD_PAGE_PROGRAM, (addr >> 16) & 0xFF, (addr >> 8) & 0xFF, addr & 0xFF };
 
@@ -148,17 +150,17 @@ bool Adafruit_FlashTransport_SPI::writeMemory(uint32_t addr,
   // Use SPI DMA if available for best performance
 #if defined(ARDUINO_NRF52_ADAFRUIT) && defined(NRF52840_XXAA)
   _spi->transfer(data, NULL, len);
-#elif defined(ARDUINO_ARCH_SAMD) && defined(_ADAFRUIT_ZERODMA_H_) && !defined(ADAFRUIT_FEATHER_M0_EXPRESS)
-  // TODO Out of all M0 boards, Feather M0 seems to have issue with SPI DMA writing, other M0 board seems to be fine
-  _spi->transfer(data, NULL, len, true);
+//#elif defined(ARDUINO_ARCH_SAMD) && defined(_ADAFRUIT_ZERODMA_H_) && !defined(ADAFRUIT_FEATHER_M0_EXPRESS)
+//  // TODO Out of all M0 boards, Feather M0 seems to have issue with SPI DMA writing, other M0 board seems to be fine
+//  _spi->transfer(data, NULL, len, true);
 #else
   while (len--) {
     _spi->transfer(*data++);
   }
 #endif
 
-  _spi->endTransaction();
   digitalWrite(_ss, HIGH);
+  _spi->endTransaction();
 
   return true;
 }
