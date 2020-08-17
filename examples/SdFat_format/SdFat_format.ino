@@ -22,35 +22,45 @@
 #include <SdFat.h>
 #include <Adafruit_SPIFlash.h>
 
-// up to 11 characters
-#define DISK_LABEL    "EXT FLASH"
-
 // Since SdFat doesn't fully support FAT12 such as format a new flash
 // We will use Elm Cham's fatfs f_mkfs() to format
 #include "ff.h"
 #include "diskio.h"
 
-FATFS elmchamFatfs;
-uint8_t workbuf[4096]; // Working buffer for f_fdisk function.
+// up to 11 characters
+#define DISK_LABEL    "EXT FLASH"
 
-// On-board external flash (QSPI or SPI) macros should already
-// defined in your board variant if supported
-// - EXTERNAL_FLASH_USE_QSPI
-// - EXTERNAL_FLASH_USE_CS/EXTERNAL_FLASH_USE_SPI
-#if defined(EXTERNAL_FLASH_USE_QSPI)
-  Adafruit_FlashTransport_QSPI flashTransport;
+// Uncomment to run example with FRAM
+// #define FRAM_CS   A5
+// #define FRAM_SPI  SPI
 
-#elif defined(EXTERNAL_FLASH_USE_SPI)
-  Adafruit_FlashTransport_SPI flashTransport(EXTERNAL_FLASH_USE_CS, EXTERNAL_FLASH_USE_SPI);
+#if defined(FRAM_CS) && defined(FRAM_SPI)
+  Adafruit_FlashTransport_SPI flashTransport(FRAM_CS, FRAM_SPI);
 
 #else
-  #error No QSPI/SPI flash are defined on your board variant.h !
+  // On-board external flash (QSPI or SPI) macros should already
+  // defined in your board variant if supported
+  // - EXTERNAL_FLASH_USE_QSPI
+  // - EXTERNAL_FLASH_USE_CS/EXTERNAL_FLASH_USE_SPI
+  #if defined(EXTERNAL_FLASH_USE_QSPI)
+    Adafruit_FlashTransport_QSPI flashTransport;
+
+  #elif defined(EXTERNAL_FLASH_USE_SPI)
+    Adafruit_FlashTransport_SPI flashTransport(EXTERNAL_FLASH_USE_CS, EXTERNAL_FLASH_USE_SPI);
+
+  #else
+    #error No QSPI/SPI flash are defined on your board variant.h !
+  #endif
 #endif
 
 Adafruit_SPIFlash flash(&flashTransport);
 
 // file system object from SdFat
 FatFileSystem fatfs;
+
+// Elm Cham's fatfs objects
+FATFS elmchamFatfs;
+uint8_t workbuf[4096]; // Working buffer for f_fdisk function.
   
 void setup() {
   // Initialize serial port and wait for it to open before continuing.
@@ -65,6 +75,8 @@ void setup() {
     while(1) yield();
   }
   Serial.print("Flash chip JEDEC ID: 0x"); Serial.println(flash.getJEDECID(), HEX);
+
+  flash.setIndicator(LED_BUILTIN, true);
 
   // Wait for user to send OK to continue.
   Serial.setTimeout(30000);  // Increase timeout to print message less frequently.
