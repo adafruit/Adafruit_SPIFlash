@@ -4,24 +4,27 @@
 #include "SdFat.h"
 #include "Adafruit_SPIFlash.h"
 
-#if 1
-// On-board external flash (QSPI or SPI) macros should already
-// defined in your board variant if supported
-// - EXTERNAL_FLASH_USE_QSPI
-// - EXTERNAL_FLASH_USE_CS/EXTERNAL_FLASH_USE_SPI
-#if defined(EXTERNAL_FLASH_USE_QSPI)
-  Adafruit_FlashTransport_QSPI flashTransport;
+// Uncomment to run example with FRAM
+// #define FRAM_CS   A5
+// #define FRAM_SPI  SPI
 
-#elif defined(EXTERNAL_FLASH_USE_SPI)
-  Adafruit_FlashTransport_SPI flashTransport(EXTERNAL_FLASH_USE_CS, EXTERNAL_FLASH_USE_SPI);
+#if defined(FRAM_CS) && defined(FRAM_SPI)
+  Adafruit_FlashTransport_SPI flashTransport(FRAM_CS, FRAM_SPI);
 
 #else
-  #error No QSPI/SPI flash are defined on your board variant.h !
-#endif
+  // On-board external flash (QSPI or SPI) macros should already
+  // defined in your board variant if supported
+  // - EXTERNAL_FLASH_USE_QSPI
+  // - EXTERNAL_FLASH_USE_CS/EXTERNAL_FLASH_USE_SPI
+  #if defined(EXTERNAL_FLASH_USE_QSPI)
+    Adafruit_FlashTransport_QSPI flashTransport;
 
-#else
-  Adafruit_FlashTransport_SPI flashTransport(5, SPI);
+  #elif defined(EXTERNAL_FLASH_USE_SPI)
+    Adafruit_FlashTransport_SPI flashTransport(EXTERNAL_FLASH_USE_CS, EXTERNAL_FLASH_USE_SPI);
 
+  #else
+    #error No QSPI/SPI flash are defined on your board variant.h !
+  #endif
 #endif
 
 Adafruit_SPIFlash flash(&flashTransport);
@@ -42,13 +45,16 @@ void setup()
   pinMode(LED_BUILTIN, OUTPUT);
   flash.setIndicator(LED_BUILTIN, true);
 
-  Serial.println("Adafruit Serial Flash Info example");
+  Serial.println("Adafruit Serial Flash Speed Test example");
   Serial.print("JEDEC ID: "); Serial.println(flash.getJEDECID(), HEX);
   Serial.print("Flash size: "); Serial.println(flash.size());
+  Serial.flush();
 
   write_and_compare(0xAA);
+  write_and_compare(0x55);
 
   Serial.println("Speed test is completed.");
+  Serial.flush();
 }
 
 void print_speed(const char* text, uint32_t count, uint32_t ms)
@@ -81,6 +87,8 @@ bool write_and_compare(uint8_t pattern)
   flash.eraseSector(0);
 #endif
 
+  flash.waitUntilReady();
+
   // write all
   memset(bufwrite, (int) pattern, sizeof(bufwrite));
   Serial.printf("Write flash with 0x%02X\n", pattern);
@@ -102,6 +110,7 @@ bool write_and_compare(uint8_t pattern)
   uint32_t ms_read = 0;
   for(uint32_t addr = 0; addr < flash_sz; addr += sizeof(bufread))
   {
+    memset(bufread, 0, sizeof(bufread));
     ms = millis();
     flash.readBuffer(addr, bufread, sizeof(bufread));
     ms_read += millis() - ms;

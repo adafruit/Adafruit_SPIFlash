@@ -127,9 +127,27 @@ bool Adafruit_SPIFlashBase::begin(SPIFlash_Device_t const *flash_devs,
   }
 
   // Speed up to max device frequency, or as high as possible
-  uint32_t clock_speed = min((uint32_t)(_flash_dev->max_clock_speed_mhz * 1000000U), (uint32_t) F_CPU);
-//  clock_speed = 12000000;
-  PRINT_INT(clock_speed);
+  uint32_t clock_speed = _flash_dev->max_clock_speed_mhz * 1000000U;
+  uint32_t max_speed = F_CPU;
+
+  if (_flash_dev->is_fram) {
+    // Initial testing on breadboard, max clock speed to work reliably with FRAM is slower than supported specs
+    // - nRF52840: 16 Mhz  with DMA write/read ~ 2000 KB/s
+    // - SAMD M4 : 24 Mhz, no   DMA write/read ~ 1300 KB/s
+    // - SAMD M0 : 12 Mhz, no   DMA write/read ~  500 KB/s
+#if defined ARDUINO_NRF52_ADAFRUIT
+    max_speed = 16000000;
+#elif defined ARDUINO_ARCH_SAMD
+  #ifdef __SAMD51__
+    max_speed = 24000000;
+  #else
+    max_speed = 12000000;
+  #endif
+#endif
+  }
+
+  clock_speed = min(clock_speed, max_speed);
+  //PRINT_INT(clock_speed);
   _trans->setClockSpeed(clock_speed);
 
   // Enable Quad Mode if available
