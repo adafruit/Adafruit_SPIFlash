@@ -128,7 +128,8 @@ bool Adafruit_SPIFlashBase::begin(SPIFlash_Device_t const *flash_devs,
 
   // Speed up to max device frequency, or as high as possible
   uint32_t clock_speed = min((uint32_t)(_flash_dev->max_clock_speed_mhz * 1000000U), (uint32_t) F_CPU);
-//  PRINT_INT(clock_speed);
+//  clock_speed = 12000000;
+  PRINT_INT(clock_speed);
   _trans->setClockSpeed(clock_speed);
 
   // Enable Quad Mode if available
@@ -167,9 +168,7 @@ bool Adafruit_SPIFlashBase::begin(SPIFlash_Device_t const *flash_devs,
   //    QSPI0.writeCommand(QSPI_CMD_WRITE_STATUS, data, 1);
   //  }
 
-  // Turn off writes in case this is a microcontroller only reset.
   writeDisable();
-
   waitUntilReady();
 
   return true;
@@ -213,9 +212,15 @@ uint8_t Adafruit_SPIFlashBase::readStatus2(void) {
 }
 
 void Adafruit_SPIFlashBase::waitUntilReady(void) {
+  // FRAM has no need to wait for either read or write operation
+  if (_flash_dev->is_fram) {
+    return;
+  }
+
   // both WIP and WREN bit should be clear
-  while (readStatus() & 0x03)
+  while (readStatus() & 0x03) {
     yield();
+  }
 }
 
 bool Adafruit_SPIFlashBase::writeEnable(void) {
@@ -335,42 +340,40 @@ uint32_t Adafruit_SPIFlashBase::writeBuffer(uint32_t address,
 
   SPIFLASH_LOG(address, len);
 
-  uint32_t remain = len;
-
   _indicator_on();
 
-  // FRAM can continuously be written without waiting for
-  // waitUntilReady() and re-enable WriteEnable after each page.
-  // In fact its status won't clear the WriteEnable
+  // FRAM: the whole chip can be written in one pass without waiting.
+  // Also we need to explicitly disable WREN
   if (_flash_dev->is_fram) {
     writeEnable();
-  }
 
-  // write one page at a time
-  while (remain) {
-    if (!_flash_dev->is_fram) {
+    _trans->writeMemory(address, buffer, len);
+
+    writeDisable();
+  }else{
+    uint32_t remain = len;
+
+    // write one page (256 bytes) at a time and
+    // must not go over page boundary
+    while (remain) {
       waitUntilReady();
       writeEnable();
+
+      uint32_t const leftOnPage = SFLASH_PAGE_SIZE - (address & (SFLASH_PAGE_SIZE - 1));
+      uint32_t const toWrite = min(remain, leftOnPage);
+
+      if (!_trans->writeMemory(address, buffer, toWrite))
+        break;
+
+      remain -= toWrite;
+      buffer += toWrite;
+      address += toWrite;
     }
 
-    uint32_t const leftOnPage =
-        SFLASH_PAGE_SIZE - (address & (SFLASH_PAGE_SIZE - 1));
-
-    uint32_t const toWrite = min(remain, leftOnPage);
-
-    if (!_trans->writeMemory(address, buffer, toWrite))
-      break;
-
-    remain -= toWrite;
-    buffer += toWrite;
-    address += toWrite;
-  }
-
-  if (_flash_dev->is_fram) {
-    writeDisable();
+    len -= remain;
   }
 
   _indicator_off();
 
-  return len - remain;
+  return len;
 }
