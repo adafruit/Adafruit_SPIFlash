@@ -20,7 +20,7 @@
 #endif
 
 #else
-  Adafruit_FlashTransport_SPI flashTransport(A5, SPI);
+  Adafruit_FlashTransport_SPI flashTransport(5, SPI);
 
 #endif
 
@@ -39,11 +39,16 @@ void setup()
 
   flash.begin();
 
+  pinMode(LED_BUILTIN, OUTPUT);
+  flash.setIndicator(LED_BUILTIN, true);
+
   Serial.println("Adafruit Serial Flash Info example");
   Serial.print("JEDEC ID: "); Serial.println(flash.getJEDECID(), HEX);
   Serial.print("Flash size: "); Serial.println(flash.size());
 
   write_and_compare(0xAA);
+
+  Serial.println("Speed test is completed.");
 }
 
 void print_speed(const char* text, uint32_t count, uint32_t ms)
@@ -62,11 +67,19 @@ void print_speed(const char* text, uint32_t count, uint32_t ms)
 bool write_and_compare(uint8_t pattern)
 {
   uint32_t ms;
-  uint32_t const flash_sz = flash.size();
 
   Serial.println("Erase chip");
   Serial.flush();
+
+#define TEST_WHOLE_CHIP
+
+#ifdef TEST_WHOLE_CHIP
+  uint32_t const flash_sz = flash.size();
   flash.eraseChip();
+#else
+  uint32_t const flash_sz = 4096;
+  flash.eraseSector(0);
+#endif
 
   // write all
   memset(bufwrite, (int) pattern, sizeof(bufwrite));
@@ -86,19 +99,33 @@ bool write_and_compare(uint8_t pattern)
   // read and compare
   Serial.println("Read flash and compare");
   Serial.flush();
-  ms = millis();
+  uint32_t ms_read = 0;
   for(uint32_t addr = 0; addr < flash_sz; addr += sizeof(bufread))
   {
+    ms = millis();
     flash.readBuffer(addr, bufread, sizeof(bufread));
+    ms_read += millis() - ms;
 
     if ( memcmp(bufwrite, bufread, BUFSIZE) )
     {
-      Serial.printf("Error: flash contents mismatched at address 0x08X!!!", addr);
+      Serial.printf("Error: flash contents mismatched at address 0x%08X!!!", addr);
+      for(uint32_t i=0; i<sizeof(bufread); i++)
+      {
+        if ( i != 0 ) Serial.print(' ');
+        if ( (i%16 == 0) )
+        {
+          Serial.println();
+          Serial.printf("%03X: ", i);
+        }
+
+        Serial.printf("%02X", bufread[i]);
+      }
+
+      Serial.println();
       return false;
     }
   }
 
-  uint32_t ms_read = millis() - ms;
   print_speed("Read  ", flash_sz, ms_read);
   Serial.flush();
 

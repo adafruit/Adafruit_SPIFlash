@@ -91,8 +91,6 @@ bool Adafruit_SPIFlashBase::begin(SPIFlash_Device_t const *flash_devs,
   uint8_t jedec_ids[3];
   _trans->readCommand(SFLASH_CMD_READ_JEDEC_ID, jedec_ids, 3);
 
-  //PRINTF("jedec_ids = %02X-%02X-%02X\r\n", jedec_ids[0], jedec_ids[1], jedec_ids[2]); delay(10);
-
   // Check for device in supplied list, if any.
   if (flash_devs != NULL) {
     _flash_dev = findDevice(flash_devs, count, jedec_ids);
@@ -130,10 +128,8 @@ bool Adafruit_SPIFlashBase::begin(SPIFlash_Device_t const *flash_devs,
 
   // Speed up to max device frequency, or as high as possible
   uint32_t clock_speed = min((uint32_t)(_flash_dev->max_clock_speed_mhz * 1000000U), (uint32_t) F_CPU);
-  //PRINT_INT(clock_speed);
-
+  PRINT_INT(clock_speed);
   _trans->setClockSpeed(clock_speed);
-
 
   // Enable Quad Mode if available
   if (_trans->supportQuadMode() && _flash_dev->supports_qspi) {
