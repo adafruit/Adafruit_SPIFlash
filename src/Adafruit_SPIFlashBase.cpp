@@ -35,8 +35,10 @@ static const SPIFlash_Device_t possible_devices[] = {
     W25Q16FW,
     W25Q64JV_IQ,
 
-    // Fujitsu FRAM
+    // Fujitsu FRAM 128/256/512 KBs
+    MB85RS1MT,
     MB85RS2MTA,
+    MB85RS4MT,
 
     // Nordic PCA10056
     MX25R6435F,
@@ -95,6 +97,7 @@ bool Adafruit_SPIFlashBase::begin(SPIFlash_Device_t const *flash_devs,
   if (flash_devs != NULL) {
     _flash_dev = findDevice(flash_devs, count, jedec_ids);
   }
+
   // If not found, check for device in standard list.
   if (_flash_dev == NULL) {
     _flash_dev =
@@ -102,6 +105,8 @@ bool Adafruit_SPIFlashBase::begin(SPIFlash_Device_t const *flash_devs,
   }
 
   if (_flash_dev == NULL) {
+    Serial.print("Unknown flash device 0x");
+    Serial.println(jedec_ids[0] << 16 | jedec_ids[1] << 8 | jedec_ids[2], HEX);
     return false;
   }
 

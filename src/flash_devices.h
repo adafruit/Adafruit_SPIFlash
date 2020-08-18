@@ -117,7 +117,17 @@ typedef struct {
   }
 
 // https://www.fujitsu.com/uk/Images/MB85RS1MT.pdf
-#define MB85RS1MT
+#define MB85RS1MT                                                              \
+  {                                                                            \
+    .total_size = (1 << 17), /* 128 KiB */                                     \
+        .start_up_time_us = 5000, .manufacturer_id = 0x04,                     \
+    .memory_type = 0x7F, .capacity = 0x27,                                     \
+    .max_clock_speed_mhz = 40,                                                 \
+        .quad_enable_bit_mask = 0x00, .has_sector_protection = false,          \
+    .supports_fast_read = true, .supports_qspi = false,                        \
+    .supports_qspi_writes = true, .write_status_register_split = false,        \
+    .single_status_byte = true, .is_fram = true,                               \
+  }
 
 // https://www.fujitsu.com/uk/Images/MB85RS2MTA.pdf
 #define MB85RS2MTA                                                             \
@@ -132,6 +142,18 @@ typedef struct {
     .single_status_byte = true, .is_fram = true,                               \
   }
 
+// https://www.fujitsu.com/uk/Images/MB85RS4MT.pdf
+#define MB85RS4MT                                                              \
+  {                                                                            \
+    .total_size = (1 << 19), /* 512 KiB */                                     \
+        .start_up_time_us = 5000, .manufacturer_id = 0x04,                     \
+    .memory_type = 0x7F, .capacity = 0x49,                                     \
+    .max_clock_speed_mhz = 40,                                                 \
+        .quad_enable_bit_mask = 0x00, .has_sector_protection = false,          \
+    .supports_fast_read = true, .supports_qspi = false,                        \
+    .supports_qspi_writes = true, .write_status_register_split = false,        \
+    .single_status_byte = true, .is_fram = true,                               \
+  }
 
 // Settings for the Cypress (was Spansion) S25FL064L 8MiB SPI flash.
 // Datasheet: http://www.cypress.com/file/316661/download
