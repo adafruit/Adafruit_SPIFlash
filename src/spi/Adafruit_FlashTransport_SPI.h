@@ -33,8 +33,8 @@ private:
   uint8_t _ss;
 
   // SAMD21 M0 can write up to 24 Mhz, but can only read reliably with 12 MHz
-  SPISettings _setting_write;
-  SPISettings _setting_read;
+  uint32_t _clock_wr;
+  uint32_t _clock_rd;
 
 public:
   Adafruit_FlashTransport_SPI(uint8_t ss, SPIClass *spiinterface);
@@ -55,8 +55,8 @@ public:
   virtual bool writeMemory(uint32_t addr, uint8_t const *data, uint32_t len);
 
 private:
-  void beginTransaction(SPISettings settings) {
-    _spi->beginTransaction(settings);
+  void beginTransaction(uint32_t clock_hz) {
+    _spi->beginTransaction(SPISettings(clock_hz, MSBFIRST, SPI_MODE0));
     digitalWrite(_ss, LOW);
   }
 

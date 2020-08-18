@@ -30,8 +30,7 @@ Adafruit_FlashTransport_SPI::Adafruit_FlashTransport_SPI(
   _cmd_read = SFLASH_CMD_READ;
   _ss = ss;
   _spi = spiinterface;
-  _setting_write = SPISettings();
-  _setting_read = SPISettings();
+  _clock_wr = _clock_rd = 4000000;
 }
 
 Adafruit_FlashTransport_SPI::Adafruit_FlashTransport_SPI(uint8_t ss,
@@ -46,12 +45,12 @@ void Adafruit_FlashTransport_SPI::begin(void) {
 }
 
 void Adafruit_FlashTransport_SPI::setClockSpeed(uint32_t write_hz, uint32_t read_hz) {
-  _setting_write = SPISettings(write_hz, MSBFIRST, SPI_MODE0);
-  _setting_read = SPISettings(read_hz, MSBFIRST, SPI_MODE0);
+  _clock_wr = write_hz;
+  _clock_rd = read_hz;
 }
 
 bool Adafruit_FlashTransport_SPI::runCommand(uint8_t command) {
-  beginTransaction(_setting_write);
+  beginTransaction(_clock_wr);
 
   _spi->transfer(command);
 
@@ -62,7 +61,7 @@ bool Adafruit_FlashTransport_SPI::runCommand(uint8_t command) {
 
 bool Adafruit_FlashTransport_SPI::readCommand(uint8_t command,
                                               uint8_t *response, uint32_t len) {
-  beginTransaction(_setting_read);
+  beginTransaction(_clock_rd);
 
   _spi->transfer(command);
   while (len--) {
@@ -77,7 +76,7 @@ bool Adafruit_FlashTransport_SPI::readCommand(uint8_t command,
 bool Adafruit_FlashTransport_SPI::writeCommand(uint8_t command,
                                                uint8_t const *data,
                                                uint32_t len) {
-  beginTransaction(_setting_write);
+  beginTransaction(_clock_wr);
 
   _spi->transfer(command);
   while (len--) {
@@ -91,7 +90,7 @@ bool Adafruit_FlashTransport_SPI::writeCommand(uint8_t command,
 
 bool Adafruit_FlashTransport_SPI::eraseCommand(uint8_t command,
                                                uint32_t address) {
-  beginTransaction(_setting_write);
+  beginTransaction(_clock_wr);
 
   uint8_t cmd_with_addr[] = { command, (address >> 16) & 0xFF, (address >> 8) & 0xFF, address & 0xFF };
 
@@ -104,7 +103,7 @@ bool Adafruit_FlashTransport_SPI::eraseCommand(uint8_t command,
 
 bool Adafruit_FlashTransport_SPI::readMemory(uint32_t addr, uint8_t *data,
                                              uint32_t len) {
-  beginTransaction(_setting_read);
+  beginTransaction(_clock_rd);
 
   uint8_t cmd_with_addr[5] = { _cmd_read, (addr >> 16) & 0xFF, (addr >> 8) & 0xFF, addr & 0xFF, 0xFF };
 
@@ -131,7 +130,7 @@ bool Adafruit_FlashTransport_SPI::readMemory(uint32_t addr, uint8_t *data,
 bool Adafruit_FlashTransport_SPI::writeMemory(uint32_t addr,
                                               uint8_t const *data,
                                               uint32_t len) {
-  beginTransaction(_setting_write);
+  beginTransaction(_clock_wr);
 
   uint8_t cmd_with_addr[] = { SFLASH_CMD_PAGE_PROGRAM, (addr >> 16) & 0xFF, (addr >> 8) & 0xFF, addr & 0xFF };
 
