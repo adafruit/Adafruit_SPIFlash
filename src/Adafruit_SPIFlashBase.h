@@ -77,7 +77,7 @@ public:
   uint16_t read16(uint32_t addr);
   uint32_t read32(uint32_t addr);
 
-private:
+protected:
   Adafruit_FlashTransport *_trans;
   SPIFlash_Device_t const *_flash_dev;
 
