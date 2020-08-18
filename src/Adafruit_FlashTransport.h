@@ -62,8 +62,9 @@ public:
   virtual bool supportQuadMode(void) = 0;
 
   /// Set clock speed in hertz
-  /// @param clock_hz clock speed in hertz
-  virtual void setClockSpeed(uint32_t clock_hz) = 0;
+  /// @param write_hz Write clock speed in hertz
+  /// @param read_hz  Read  clock speed in hertz
+  virtual void setClockSpeed(uint32_t write_hz, uint32_t read_hz) = 0;
 
   /// Execute a single byte command e.g Reset, Write Enable
   /// @param command command code

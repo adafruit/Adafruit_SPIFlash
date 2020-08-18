@@ -171,7 +171,8 @@ bool Adafruit_FlashTransport_QSPI::writeMemory(uint32_t addr,
  @param clock_hz clock speed in hertz
  */
 /**************************************************************************/
-void Adafruit_FlashTransport_QSPI::setClockSpeed(uint32_t clock_hz) {
+void Adafruit_FlashTransport_QSPI::setClockSpeed(uint32_t clock_hz, uint32_t read_hz) {
+  (void) read_hz;
   QSPI->BAUD.bit.BAUD = VARIANT_MCK / clock_hz;
 }
 

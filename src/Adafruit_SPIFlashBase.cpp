@@ -132,28 +132,19 @@ bool Adafruit_SPIFlashBase::begin(SPIFlash_Device_t const *flash_devs,
   }
 
   // Speed up to max device frequency, or as high as possible
-  uint32_t clock_speed = _flash_dev->max_clock_speed_mhz * 1000000U;
-  uint32_t max_speed = F_CPU;
+  uint32_t const wr_clock_speed = min( (uint32_t) _flash_dev->max_clock_speed_mhz * 1000000U, (uint32_t) F_CPU );
+  uint32_t rd_clock_speed = wr_clock_speed;
 
+#if defined(ARDUINO_ARCH_SAMD) && !defined(__SAMD51__)
+  // Hand-on testing show that SAMD21 M0 can write up to 24 Mhz, but can only read reliably at 12 Mhz with FRAM
   if (_flash_dev->is_fram) {
-    // Initial testing on breadboard, max clock speed to work reliably with FRAM is slower than supported specs
-    // - nRF52840: 16 Mhz  with DMA write/read ~ 2000 KB/s
-    // - SAMD M4 : 24 Mhz, DMA write ~ 3000 KB/s, no DMA read ~ 1300 KB/s
-    // - SAMD M0 : 12 Mhz, DMA write ~1400 KB/s, no DMA read ~ 500 KB/s
-#if defined ARDUINO_NRF52_ADAFRUIT
-    max_speed = 16000000;
-#elif defined ARDUINO_ARCH_SAMD
-  #ifdef __SAMD51__
-    max_speed = 24000000;
-  #else
-    max_speed = 12000000;
-  #endif
-#endif
+    rd_clock_speed = min(12000000, rd_clock_speed);
   }
+#endif
 
-  clock_speed = min(clock_speed, max_speed);
-  //PRINT_INT(clock_speed);
-  _trans->setClockSpeed(clock_speed);
+//  PRINT_INT(wr_clock_speed);
+//  PRINT_INT(rd_clock_speed);
+  _trans->setClockSpeed(wr_clock_speed, rd_clock_speed);
 
   // Enable Quad Mode if available
   if (_trans->supportQuadMode() && _flash_dev->supports_qspi) {

@@ -39,7 +39,7 @@ public:
 
   virtual bool supportQuadMode(void) { return true; }
 
-  virtual void setClockSpeed(uint32_t clock_hz);
+  virtual void setClockSpeed(uint32_t write_hz, uint32_t read_hz);
 
   virtual bool runCommand(uint8_t command);
   virtual bool readCommand(uint8_t command, uint8_t *response, uint32_t len);

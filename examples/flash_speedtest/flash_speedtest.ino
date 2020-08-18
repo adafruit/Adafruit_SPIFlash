@@ -111,6 +111,7 @@ bool write_and_compare(uint8_t pattern)
   for(uint32_t addr = 0; addr < flash_sz; addr += sizeof(bufread))
   {
     memset(bufread, 0, sizeof(bufread));
+
     ms = millis();
     flash.readBuffer(addr, bufread, sizeof(bufread));
     ms_read += millis() - ms;
