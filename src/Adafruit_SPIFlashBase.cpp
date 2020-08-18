@@ -138,8 +138,8 @@ bool Adafruit_SPIFlashBase::begin(SPIFlash_Device_t const *flash_devs,
   if (_flash_dev->is_fram) {
     // Initial testing on breadboard, max clock speed to work reliably with FRAM is slower than supported specs
     // - nRF52840: 16 Mhz  with DMA write/read ~ 2000 KB/s
-    // - SAMD M4 : 24 Mhz, no   DMA write/read ~ 1300 KB/s
-    // - SAMD M0 : 12 Mhz, no   DMA write/read ~  500 KB/s
+    // - SAMD M4 : 24 Mhz, DMA write ~ 3000 KB/s, no DMA read ~ 1300 KB/s
+    // - SAMD M0 : 12 Mhz, DMA write ~1400 KB/s, no DMA read ~ 500 KB/s
 #if defined ARDUINO_NRF52_ADAFRUIT
     max_speed = 16000000;
 #elif defined ARDUINO_ARCH_SAMD

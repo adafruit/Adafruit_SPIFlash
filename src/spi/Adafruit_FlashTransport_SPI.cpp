@@ -150,9 +150,8 @@ bool Adafruit_FlashTransport_SPI::writeMemory(uint32_t addr,
   // Use SPI DMA if available for best performance
 #if defined(ARDUINO_NRF52_ADAFRUIT) && defined(NRF52840_XXAA)
   _spi->transfer(data, NULL, len);
-//#elif defined(ARDUINO_ARCH_SAMD) && defined(_ADAFRUIT_ZERODMA_H_) && !defined(ADAFRUIT_FEATHER_M0_EXPRESS)
-//  // TODO Out of all M0 boards, Feather M0 seems to have issue with SPI DMA writing, other M0 board seems to be fine
-//  _spi->transfer(data, NULL, len, true);
+#elif defined(ARDUINO_ARCH_SAMD) && defined(_ADAFRUIT_ZERODMA_H_)
+  _spi->transfer(data, NULL, len, true);
 #else
   while (len--) {
     _spi->transfer(*data++);
