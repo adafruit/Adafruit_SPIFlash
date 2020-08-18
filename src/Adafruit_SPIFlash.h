@@ -53,6 +53,8 @@ public:
   Adafruit_SPIFlash(Adafruit_FlashTransport *transport);
   ~Adafruit_SPIFlash() {}
 
+  bool begin(SPIFlash_Device_t const *flash_devs = NULL, size_t count = 1);
+
   //------------- SdFat BaseBlockDRiver API -------------//
   virtual bool readBlock(uint32_t block, uint8_t *dst);
   virtual bool syncBlocks();
@@ -61,7 +63,7 @@ public:
   virtual bool writeBlocks(uint32_t block, const uint8_t *src, size_t nb);
 
 private:
-  Adafruit_FlashCache _cache;
+  Adafruit_FlashCache* _cache;
 };
 
 #endif /* ADAFRUIT_SPIFLASH_H_ */
