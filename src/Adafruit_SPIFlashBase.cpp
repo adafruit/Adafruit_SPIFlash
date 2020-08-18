@@ -6,20 +6,20 @@
 #include "flash_devices.h"
 
 #if SPIFLASH_DEBUG
-  #define SPIFLASH_LOG(_address, _count)                                         \
-    do {                                                                         \
-      Serial.print(__FUNCTION__);                                                \
-      Serial.print(": adddress = ");                                             \
-      Serial.print(_address, HEX);                                               \
-      if (_count) {                                                              \
-        Serial.print(" count = ");                                               \
-        Serial.print(_count);                                                    \
-      }                                                                          \
-      Serial.println();                                                          \
-    } while (0)
+#define SPIFLASH_LOG(_address, _count)                                         \
+  do {                                                                         \
+    Serial.print(__FUNCTION__);                                                \
+    Serial.print(": adddress = ");                                             \
+    Serial.print(_address, HEX);                                               \
+    if (_count) {                                                              \
+      Serial.print(" count = ");                                               \
+      Serial.print(_count);                                                    \
+    }                                                                          \
+    Serial.println();                                                          \
+  } while (0)
 
 #else
-  #define SPIFLASH_LOG(_sector, _count)
+#define SPIFLASH_LOG(_sector, _count)
 
 #endif
 
@@ -111,16 +111,16 @@ bool Adafruit_SPIFlashBase::begin(SPIFlash_Device_t const *flash_devs,
   }
 
   // We don't know what state the flash is in so wait for any remaining writes
-  // and then reset. Skip this procedure for FRAM since it does not support Reset command
-  if ( !_flash_dev->is_fram ) {
+  // and then reset (Skip this procedure for FRAM)
+  if (!_flash_dev->is_fram) {
 
     // The write in progress bit should be low.
     while (readStatus() & 0x01) {
     }
 
     // The suspended write/erase bit should be low.
-    if ( !_flash_dev->single_status_byte ) {
-      while ( readStatus2() & 0x80 ) {
+    if (!_flash_dev->single_status_byte) {
+      while (readStatus2() & 0x80) {
       }
     }
 
@@ -132,18 +132,20 @@ bool Adafruit_SPIFlashBase::begin(SPIFlash_Device_t const *flash_devs,
   }
 
   // Speed up to max device frequency, or as high as possible
-  uint32_t const wr_clock_speed = min( (uint32_t) _flash_dev->max_clock_speed_mhz * 1000000U, (uint32_t) F_CPU );
+  uint32_t const wr_clock_speed = min(
+      (uint32_t)_flash_dev->max_clock_speed_mhz * 1000000U, (uint32_t)F_CPU);
   uint32_t rd_clock_speed = wr_clock_speed;
 
 #if defined(ARDUINO_ARCH_SAMD) && !defined(__SAMD51__)
-  // Hand-on testing show that SAMD21 M0 can write up to 24 Mhz, but can only read reliably at 12 Mhz with FRAM
+  // Hand-on testing show that SAMD21 M0 can write up to 24 Mhz, but can only
+  // read reliably at 12 Mhz with FRAM
   if (_flash_dev->is_fram) {
     rd_clock_speed = min(12000000, rd_clock_speed);
   }
 #endif
 
-//  PRINT_INT(wr_clock_speed);
-//  PRINT_INT(rd_clock_speed);
+  // Serial.printf("Clock speed: Write = %d, Read = %d\n", wr_clock_speed,
+  //              rd_clock_speed);
   _trans->setClockSpeed(wr_clock_speed, rd_clock_speed);
 
   // Enable Quad Mode if available
@@ -166,9 +168,9 @@ bool Adafruit_SPIFlashBase::begin(SPIFlash_Device_t const *flash_devs,
         _trans->writeCommand(SFLASH_CMD_WRITE_STATUS, full_status, 2);
       }
     }
-  }else {
+  } else {
     // Single mode, use fast read if supported
-    if ( _flash_dev->supports_fast_read ) {
+    if (_flash_dev->supports_fast_read) {
       _trans->setReadCommand(SFLASH_CMD_FAST_READ);
     }
   }
@@ -188,8 +190,7 @@ bool Adafruit_SPIFlashBase::begin(SPIFlash_Device_t const *flash_devs,
   return true;
 }
 
-void Adafruit_SPIFlashBase::setIndicator(int pin, bool state_on)
-{
+void Adafruit_SPIFlashBase::setIndicator(int pin, bool state_on) {
   _ind_pin = pin;
   _ind_active = state_on;
 }
@@ -207,9 +208,9 @@ uint16_t Adafruit_SPIFlashBase::pageSize(void) { return SFLASH_PAGE_SIZE; }
 uint32_t Adafruit_SPIFlashBase::getJEDECID(void) {
   if (!_flash_dev) {
     return 0xFFFFFF;
-  }else {
-    return (_flash_dev->manufacturer_id << 16) | (_flash_dev->memory_type << 8) |
-        _flash_dev->capacity;
+  } else {
+    return (_flash_dev->manufacturer_id << 16) |
+           (_flash_dev->memory_type << 8) | _flash_dev->capacity;
   }
 }
 
@@ -263,8 +264,8 @@ bool Adafruit_SPIFlashBase::eraseSector(uint32_t sectorNumber) {
 
   SPIFLASH_LOG(sectorNumber * SFLASH_SECTOR_SIZE, 0);
 
-  bool const ret =  _trans->eraseCommand(SFLASH_CMD_ERASE_SECTOR,
-                              sectorNumber * SFLASH_SECTOR_SIZE);
+  bool const ret = _trans->eraseCommand(SFLASH_CMD_ERASE_SECTOR,
+                                        sectorNumber * SFLASH_SECTOR_SIZE);
 
   _indicator_off();
 
@@ -286,7 +287,8 @@ bool Adafruit_SPIFlashBase::eraseBlock(uint32_t blockNumber) {
   waitUntilReady();
   writeEnable();
 
-  bool const ret =  _trans->eraseCommand(SFLASH_CMD_ERASE_BLOCK, blockNumber * SFLASH_BLOCK_SIZE);
+  bool const ret = _trans->eraseCommand(SFLASH_CMD_ERASE_BLOCK,
+                                        blockNumber * SFLASH_BLOCK_SIZE);
 
   _indicator_off();
 
@@ -364,7 +366,7 @@ uint32_t Adafruit_SPIFlashBase::writeBuffer(uint32_t address,
     _trans->writeMemory(address, buffer, len);
 
     writeDisable();
-  }else{
+  } else {
     uint32_t remain = len;
 
     // write one page (256 bytes) at a time and
@@ -373,7 +375,8 @@ uint32_t Adafruit_SPIFlashBase::writeBuffer(uint32_t address,
       waitUntilReady();
       writeEnable();
 
-      uint32_t const leftOnPage = SFLASH_PAGE_SIZE - (address & (SFLASH_PAGE_SIZE - 1));
+      uint32_t const leftOnPage =
+          SFLASH_PAGE_SIZE - (address & (SFLASH_PAGE_SIZE - 1));
       uint32_t const toWrite = min(remain, leftOnPage);
 
       if (!_trans->writeMemory(address, buffer, toWrite))

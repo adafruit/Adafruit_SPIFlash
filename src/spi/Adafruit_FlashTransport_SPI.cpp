@@ -44,7 +44,8 @@ void Adafruit_FlashTransport_SPI::begin(void) {
   _spi->begin();
 }
 
-void Adafruit_FlashTransport_SPI::setClockSpeed(uint32_t write_hz, uint32_t read_hz) {
+void Adafruit_FlashTransport_SPI::setClockSpeed(uint32_t write_hz,
+                                                uint32_t read_hz) {
   _clock_wr = write_hz;
   _clock_rd = read_hz;
 }
@@ -92,7 +93,8 @@ bool Adafruit_FlashTransport_SPI::eraseCommand(uint8_t command,
                                                uint32_t address) {
   beginTransaction(_clock_wr);
 
-  uint8_t cmd_with_addr[] = { command, (address >> 16) & 0xFF, (address >> 8) & 0xFF, address & 0xFF };
+  uint8_t cmd_with_addr[] = {command, (address >> 16) & 0xFF,
+                             (address >> 8) & 0xFF, address & 0xFF};
 
   _spi->transfer(cmd_with_addr, 4);
 
@@ -105,7 +107,8 @@ bool Adafruit_FlashTransport_SPI::readMemory(uint32_t addr, uint8_t *data,
                                              uint32_t len) {
   beginTransaction(_clock_rd);
 
-  uint8_t cmd_with_addr[5] = { _cmd_read, (addr >> 16) & 0xFF, (addr >> 8) & 0xFF, addr & 0xFF, 0xFF };
+  uint8_t cmd_with_addr[5] = {_cmd_read, (addr >> 16) & 0xFF,
+                              (addr >> 8) & 0xFF, addr & 0xFF, 0xFF};
 
   // Fast Read has 1 extra dummy byte
   _spi->transfer(cmd_with_addr, SFLASH_CMD_FAST_READ == _cmd_read ? 5 : 4);
@@ -114,8 +117,8 @@ bool Adafruit_FlashTransport_SPI::readMemory(uint32_t addr, uint8_t *data,
 #if defined(ARDUINO_NRF52_ADAFRUIT) && defined(NRF52840_XXAA)
   _spi->transfer(NULL, data, len);
 //#elif defined(ARDUINO_ARCH_SAMD) && defined(_ADAFRUIT_ZERODMA_H_)
-//  // TODO Could only got the 1st SPI read work, 2nd will failed, maybe we didn't clear thing !!!
-//  _spi->transfer(NULL, data, len, true);
+//  // TODO Could only got the 1st SPI read work, 2nd will failed, maybe we
+//  didn't clear thing !!! _spi->transfer(NULL, data, len, true);
 #else
   while (len--) {
     *data++ = _spi->transfer(0xFF);
@@ -132,7 +135,8 @@ bool Adafruit_FlashTransport_SPI::writeMemory(uint32_t addr,
                                               uint32_t len) {
   beginTransaction(_clock_wr);
 
-  uint8_t cmd_with_addr[] = { SFLASH_CMD_PAGE_PROGRAM, (addr >> 16) & 0xFF, (addr >> 8) & 0xFF, addr & 0xFF };
+  uint8_t cmd_with_addr[] = {SFLASH_CMD_PAGE_PROGRAM, (addr >> 16) & 0xFF,
+                             (addr >> 8) & 0xFF, addr & 0xFF};
 
   _spi->transfer(cmd_with_addr, 4);
 

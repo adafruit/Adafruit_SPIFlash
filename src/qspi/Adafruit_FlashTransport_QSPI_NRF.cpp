@@ -75,8 +75,9 @@ void Adafruit_FlashTransport_QSPI::begin(void) {
   nrfx_qspi_init(&qspi_cfg, NULL, NULL);
 }
 
-void Adafruit_FlashTransport_QSPI::setClockSpeed(uint32_t clock_hz, uint32_t read_hz) {
-  (void) read_hz;
+void Adafruit_FlashTransport_QSPI::setClockSpeed(uint32_t clock_hz,
+                                                 uint32_t read_hz) {
+  (void)read_hz;
   // Start at 16 MHz and go down.
   // At 32 MHz nRF52840 doesn't work reliably !!!
   // clkdiv = 0 is 32 Mhz

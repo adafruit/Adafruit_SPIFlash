@@ -63,7 +63,7 @@ public:
   virtual bool writeBlocks(uint32_t block, const uint8_t *src, size_t nb);
 
 private:
-  Adafruit_FlashCache* _cache;
+  Adafruit_FlashCache *_cache;
 };
 
 #endif /* ADAFRUIT_SPIFLASH_H_ */

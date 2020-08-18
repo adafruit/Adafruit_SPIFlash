@@ -25,14 +25,14 @@ Adafruit_SPIFlash::Adafruit_SPIFlash(Adafruit_FlashTransport *transport)
   _cache = NULL;
 }
 
-bool Adafruit_SPIFlash::begin(SPIFlash_Device_t const *flash_devs, size_t count)
-{
+bool Adafruit_SPIFlash::begin(SPIFlash_Device_t const *flash_devs,
+                              size_t count) {
   bool ret = Adafruit_SPIFlashBase::begin(flash_devs, count);
 
   // Use cache if not FRAM
   if (!_flash_dev->is_fram) {
     // new cache object if not already
-    if ( !_cache ) {
+    if (!_cache) {
       _cache = new Adafruit_FlashCache();
     }
   }
@@ -50,7 +50,7 @@ bool Adafruit_SPIFlash::readBlock(uint32_t block, uint8_t *dst) {
   if (_flash_dev->is_fram) {
     // FRAM does not need caching
     return this->readBuffer(block * 512, dst, 512) > 0;
-  }else {
+  } else {
     return _cache->read(this, block * 512, dst, 512);
   }
 }
@@ -60,7 +60,7 @@ bool Adafruit_SPIFlash::syncBlocks() {
 
   if (_flash_dev->is_fram) {
     return true;
-  }else{
+  } else {
     return _cache->sync(this);
   }
 }
@@ -70,7 +70,7 @@ bool Adafruit_SPIFlash::writeBlock(uint32_t block, const uint8_t *src) {
 
   if (_flash_dev->is_fram) {
     return this->writeBuffer(block * 512, src, 512) > 0;
-  }else{
+  } else {
     return _cache->write(this, block * 512, src, 512);
   }
 }
@@ -80,7 +80,7 @@ bool Adafruit_SPIFlash::readBlocks(uint32_t block, uint8_t *dst, size_t nb) {
 
   if (_flash_dev->is_fram) {
     return this->readBuffer(block * 512, dst, 512 * nb) > 0;
-  }else{
+  } else {
     return _cache->read(this, block * 512, dst, 512 * nb);
   }
 }
@@ -90,7 +90,7 @@ bool Adafruit_SPIFlash::writeBlocks(uint32_t block, const uint8_t *src,
   SPIFLASH_LOG(block, nb);
   if (_flash_dev->is_fram) {
     return this->writeBuffer(block * 512, src, 512 * nb) > 0;
-  }else{
+  } else {
     return _cache->write(this, block * 512, src, 512 * nb);
   }
 }

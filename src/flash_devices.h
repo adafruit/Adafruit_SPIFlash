@@ -121,9 +121,8 @@ typedef struct {
   {                                                                            \
     .total_size = (1 << 17), /* 128 KiB */                                     \
         .start_up_time_us = 5000, .manufacturer_id = 0x04,                     \
-    .memory_type = 0x7F, .capacity = 0x27,                                     \
-    .max_clock_speed_mhz = 40,                                                 \
-        .quad_enable_bit_mask = 0x00, .has_sector_protection = false,          \
+    .memory_type = 0x7F, .capacity = 0x27, .max_clock_speed_mhz = 40,          \
+    .quad_enable_bit_mask = 0x00, .has_sector_protection = false,              \
     .supports_fast_read = true, .supports_qspi = false,                        \
     .supports_qspi_writes = true, .write_status_register_split = false,        \
     .single_status_byte = true, .is_fram = true,                               \
@@ -134,9 +133,8 @@ typedef struct {
   {                                                                            \
     .total_size = (1 << 18), /* 256 KiB */                                     \
         .start_up_time_us = 5000, .manufacturer_id = 0x04,                     \
-    .memory_type = 0x7F, .capacity = 0x48,                                     \
-    .max_clock_speed_mhz = 40,                                                 \
-        .quad_enable_bit_mask = 0x00, .has_sector_protection = false,          \
+    .memory_type = 0x7F, .capacity = 0x48, .max_clock_speed_mhz = 40,          \
+    .quad_enable_bit_mask = 0x00, .has_sector_protection = false,              \
     .supports_fast_read = true, .supports_qspi = false,                        \
     .supports_qspi_writes = true, .write_status_register_split = false,        \
     .single_status_byte = true, .is_fram = true,                               \
@@ -147,9 +145,8 @@ typedef struct {
   {                                                                            \
     .total_size = (1 << 19), /* 512 KiB */                                     \
         .start_up_time_us = 5000, .manufacturer_id = 0x04,                     \
-    .memory_type = 0x7F, .capacity = 0x49,                                     \
-    .max_clock_speed_mhz = 40,                                                 \
-        .quad_enable_bit_mask = 0x00, .has_sector_protection = false,          \
+    .memory_type = 0x7F, .capacity = 0x49, .max_clock_speed_mhz = 40,          \
+    .quad_enable_bit_mask = 0x00, .has_sector_protection = false,              \
     .supports_fast_read = true, .supports_qspi = false,                        \
     .supports_qspi_writes = true, .write_status_register_split = false,        \
     .single_status_byte = true, .is_fram = true,                               \

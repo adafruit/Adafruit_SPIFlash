@@ -81,17 +81,17 @@ protected:
   Adafruit_FlashTransport *_trans;
   SPIFlash_Device_t const *_flash_dev;
 
-  int  _ind_pin;
+  int _ind_pin;
   bool _ind_active;
 
   void _indicator_on(void) {
-    if (_ind_pin >= 0 ) {
+    if (_ind_pin >= 0) {
       digitalWrite(_ind_pin, _ind_active ? HIGH : LOW);
     }
   }
 
   void _indicator_off(void) {
-    if (_ind_pin >= 0 ) {
+    if (_ind_pin >= 0) {
       digitalWrite(_ind_pin, _ind_active ? LOW : HIGH);
     }
   }
