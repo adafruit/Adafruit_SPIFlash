@@ -65,6 +65,10 @@ typedef struct {
   // Enable bit is in the first byte and the Read Status Register 2 command
   // (0x35) is unsupported.
   bool single_status_byte : 1;
+
+  // Fram does not need/support erase and has much simpler WRITE operation
+  bool is_fram : 1;
+
 } SPIFlash_Device_t;
 
 // Settings for the Adesto Tech AT25DF081A 1MiB SPI flash. Its on the SAMD21
@@ -78,7 +82,7 @@ typedef struct {
     .quad_enable_bit_mask = 0x00, .has_sector_protection = true,               \
     .supports_fast_read = true, .supports_qspi = false,                        \
     .supports_qspi_writes = false, .write_status_register_split = false,       \
-    .single_status_byte = false,                                               \
+    .single_status_byte = false, .is_fram = false,                             \
   }
 
 // Settings for the Gigadevice GD25Q16C 2MiB SPI flash.
@@ -93,7 +97,7 @@ typedef struct {
         .quad_enable_bit_mask = 0x02, .has_sector_protection = false,          \
     .supports_fast_read = true, .supports_qspi = true,                         \
     .supports_qspi_writes = true, .write_status_register_split = false,        \
-    .single_status_byte = false,                                               \
+    .single_status_byte = false, .is_fram = false,                             \
   }
 
 // Settings for the Gigadevice GD25Q64C 8MiB SPI flash.
@@ -109,7 +113,43 @@ typedef struct {
         .quad_enable_bit_mask = 0x02, .has_sector_protection = false,          \
     .supports_fast_read = true, .supports_qspi = true,                         \
     .supports_qspi_writes = true, .write_status_register_split = true,         \
-    .single_status_byte = false,                                               \
+    .single_status_byte = false, .is_fram = false,                             \
+  }
+
+// https://www.fujitsu.com/uk/Images/MB85RS1MT.pdf
+#define MB85RS1MT                                                              \
+  {                                                                            \
+    .total_size = (1 << 17), /* 128 KiB */                                     \
+        .start_up_time_us = 5000, .manufacturer_id = 0x04,                     \
+    .memory_type = 0x7F, .capacity = 0x27, .max_clock_speed_mhz = 40,          \
+    .quad_enable_bit_mask = 0x00, .has_sector_protection = false,              \
+    .supports_fast_read = true, .supports_qspi = false,                        \
+    .supports_qspi_writes = true, .write_status_register_split = false,        \
+    .single_status_byte = true, .is_fram = true,                               \
+  }
+
+// https://www.fujitsu.com/uk/Images/MB85RS2MTA.pdf
+#define MB85RS2MTA                                                             \
+  {                                                                            \
+    .total_size = (1 << 18), /* 256 KiB */                                     \
+        .start_up_time_us = 5000, .manufacturer_id = 0x04,                     \
+    .memory_type = 0x7F, .capacity = 0x48, .max_clock_speed_mhz = 40,          \
+    .quad_enable_bit_mask = 0x00, .has_sector_protection = false,              \
+    .supports_fast_read = true, .supports_qspi = false,                        \
+    .supports_qspi_writes = true, .write_status_register_split = false,        \
+    .single_status_byte = true, .is_fram = true,                               \
+  }
+
+// https://www.fujitsu.com/uk/Images/MB85RS4MT.pdf
+#define MB85RS4MT                                                              \
+  {                                                                            \
+    .total_size = (1 << 19), /* 512 KiB */                                     \
+        .start_up_time_us = 5000, .manufacturer_id = 0x04,                     \
+    .memory_type = 0x7F, .capacity = 0x49, .max_clock_speed_mhz = 40,          \
+    .quad_enable_bit_mask = 0x00, .has_sector_protection = false,              \
+    .supports_fast_read = true, .supports_qspi = false,                        \
+    .supports_qspi_writes = true, .write_status_register_split = false,        \
+    .single_status_byte = true, .is_fram = true,                               \
   }
 
 // Settings for the Cypress (was Spansion) S25FL064L 8MiB SPI flash.
@@ -122,7 +162,7 @@ typedef struct {
     .quad_enable_bit_mask = 0x02, .has_sector_protection = false,              \
     .supports_fast_read = true, .supports_qspi = true,                         \
     .supports_qspi_writes = true, .write_status_register_split = false,        \
-    .single_status_byte = false,                                               \
+    .single_status_byte = false, .is_fram = false,                             \
   }
 
 // Settings for the Cypress (was Spansion) S25FL116K 2MiB SPI flash.
@@ -135,7 +175,7 @@ typedef struct {
     .quad_enable_bit_mask = 0x02, .has_sector_protection = false,              \
     .supports_fast_read = true, .supports_qspi = true,                         \
     .supports_qspi_writes = false, .write_status_register_split = false,       \
-    .single_status_byte = false,                                               \
+    .single_status_byte = false, .is_fram = false,                             \
   }
 
 // Settings for the Cypress (was Spansion) S25FL216K 2MiB SPI flash.
@@ -148,7 +188,7 @@ typedef struct {
     .quad_enable_bit_mask = 0x02, .has_sector_protection = false,              \
     .supports_fast_read = true, .supports_qspi = false,                        \
     .supports_qspi_writes = false, .write_status_register_split = false,       \
-    .single_status_byte = false,                                               \
+    .single_status_byte = false, .is_fram = false,                             \
   }
 
 // Settings for the Winbond W25Q16FW 2MiB SPI flash.
@@ -162,7 +202,7 @@ typedef struct {
     .quad_enable_bit_mask = 0x02, .has_sector_protection = false,              \
     .supports_fast_read = true, .supports_qspi = true,                         \
     .supports_qspi_writes = true, .write_status_register_split = false,        \
-    .single_status_byte = false,                                               \
+    .single_status_byte = false, .is_fram = false,                             \
   }
 
 // Settings for the Winbond W25Q16JV-IQ 2MiB SPI flash. Note that JV-IM has a
@@ -176,7 +216,7 @@ typedef struct {
     .quad_enable_bit_mask = 0x02, .has_sector_protection = false,              \
     .supports_fast_read = true, .supports_qspi = true,                         \
     .supports_qspi_writes = true, .write_status_register_split = false,        \
-    .single_status_byte = false,                                               \
+    .single_status_byte = false, .is_fram = false,                             \
   }
 
 // Settings for the Winbond W25Q16JV-IM 2MiB SPI flash. Note that JV-IQ has a
@@ -203,7 +243,7 @@ typedef struct {
     .quad_enable_bit_mask = 0x02, .has_sector_protection = false,              \
     .supports_fast_read = true, .supports_qspi = true,                         \
     .supports_qspi_writes = false, .write_status_register_split = false,       \
-    .single_status_byte = false,                                               \
+    .single_status_byte = false, .is_fram = false,                             \
   }
 // Settings for the Winbond W25Q32JV-IM 4MiB SPI flash.
 // Datasheet:
@@ -229,7 +269,7 @@ typedef struct {
     .quad_enable_bit_mask = 0x02, .has_sector_protection = false,              \
     .supports_fast_read = true, .supports_qspi = true,                         \
     .supports_qspi_writes = true, .write_status_register_split = false,        \
-    .single_status_byte = false,                                               \
+    .single_status_byte = false, .is_fram = false,                             \
   }
 
 // Settings for the Winbond W25Q64JV-IQ 8MiB SPI flash. Note that JV-IM has a
@@ -243,7 +283,7 @@ typedef struct {
     .quad_enable_bit_mask = 0x02, .has_sector_protection = false,              \
     .supports_fast_read = true, .supports_qspi = true,                         \
     .supports_qspi_writes = true, .write_status_register_split = false,        \
-    .single_status_byte = false,                                               \
+    .single_status_byte = false, .is_fram = false,                             \
   }
 
 // Settings for the Winbond W25Q80DL 1MiB SPI flash.
@@ -257,7 +297,7 @@ typedef struct {
     .quad_enable_bit_mask = 0x02, .has_sector_protection = false,              \
     .supports_fast_read = true, .supports_qspi = true,                         \
     .supports_qspi_writes = false, .write_status_register_split = false,       \
-    .single_status_byte = false,                                               \
+    .single_status_byte = false, .is_fram = false,                             \
   }
 
 // Settings for the Winbond W25Q128JV-SQ 16MiB SPI flash. Note that JV-IM has a
@@ -271,7 +311,7 @@ typedef struct {
     .quad_enable_bit_mask = 0x02, .has_sector_protection = false,              \
     .supports_fast_read = true, .supports_qspi = true,                         \
     .supports_qspi_writes = true, .write_status_register_split = false,        \
-    .single_status_byte = false,                                               \
+    .single_status_byte = false, .is_fram = false,                             \
   }
 
 // Settings for the Macronix MX25L1606 2MiB SPI flash.
@@ -284,7 +324,7 @@ typedef struct {
     .quad_enable_bit_mask = 0x40, .has_sector_protection = false,              \
     .supports_fast_read = true, .supports_qspi = true,                         \
     .supports_qspi_writes = true, .write_status_register_split = false,        \
-    .single_status_byte = true,                                                \
+    .single_status_byte = true, .is_fram = false,                              \
   }
 
 // Settings for the Macronix MX25L3233F 4MiB SPI flash.
@@ -298,7 +338,7 @@ typedef struct {
     .quad_enable_bit_mask = 0x40, .has_sector_protection = false,              \
     .supports_fast_read = true, .supports_qspi = true,                         \
     .supports_qspi_writes = true, .write_status_register_split = false,        \
-    .single_status_byte = true,                                                \
+    .single_status_byte = true, .is_fram = false,                              \
   }
 
 // Settings for the Macronix MX25R6435F 8MiB SPI flash.
@@ -314,7 +354,7 @@ typedef struct {
     .quad_enable_bit_mask = 0x40, .has_sector_protection = false,              \
     .supports_fast_read = true, .supports_qspi = true,                         \
     .supports_qspi_writes = true, .write_status_register_split = false,        \
-    .single_status_byte = true,                                                \
+    .single_status_byte = true, .is_fram = false,                              \
   }
 
 // Settings for the Winbond W25Q128JV-PM 16MiB SPI flash. Note that JV-IM has a
@@ -340,6 +380,6 @@ typedef struct {
     .quad_enable_bit_mask = 0x00, .has_sector_protection = false,              \
     .supports_fast_read = true, .supports_qspi = false,                        \
     .supports_qspi_writes = false, .write_status_register_split = false,       \
-    .single_status_byte = false,                                               \
+    .single_status_byte = false, .is_fram = false,                             \
   }
 #endif // MICROPY_INCLUDED_ATMEL_SAMD_EXTERNAL_FLASH_DEVICES_H

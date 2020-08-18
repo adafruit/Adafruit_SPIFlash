@@ -49,6 +49,7 @@ Adafruit_FlashTransport_QSPI::Adafruit_FlashTransport_QSPI(void)
 
 Adafruit_FlashTransport_QSPI::Adafruit_FlashTransport_QSPI(
     int8_t sck, int8_t cs, int8_t io0, int8_t io1, int8_t io2, int8_t io3) {
+  _cmd_read = SFLASH_CMD_QUAD_READ;
   _sck = sck;
   _cs = cs;
   _io0 = io0;
@@ -170,7 +171,9 @@ bool Adafruit_FlashTransport_QSPI::writeMemory(uint32_t addr,
  @param clock_hz clock speed in hertz
  */
 /**************************************************************************/
-void Adafruit_FlashTransport_QSPI::setClockSpeed(uint32_t clock_hz) {
+void Adafruit_FlashTransport_QSPI::setClockSpeed(uint32_t clock_hz,
+                                                 uint32_t read_hz) {
+  (void)read_hz;
   QSPI->BAUD.bit.BAUD = VARIANT_MCK / clock_hz;
 }
 

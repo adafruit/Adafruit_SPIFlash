@@ -30,6 +30,7 @@
 
 enum {
   SFLASH_CMD_READ = 0x03,      // Single Read
+  SFLASH_CMD_FAST_READ = 0x0B, // Fast Read
   SFLASH_CMD_QUAD_READ = 0x6B, // 1 line address, 4 line data
 
   SFLASH_CMD_READ_JEDEC_ID = 0x9f,
@@ -61,8 +62,9 @@ public:
   virtual bool supportQuadMode(void) = 0;
 
   /// Set clock speed in hertz
-  /// @param clock_hz clock speed in hertz
-  virtual void setClockSpeed(uint32_t clock_hz) = 0;
+  /// @param write_hz Write clock speed in hertz
+  /// @param read_hz  Read  clock speed in hertz
+  virtual void setClockSpeed(uint32_t write_hz, uint32_t read_hz) = 0;
 
   /// Execute a single byte command e.g Reset, Write Enable
   /// @param command command code
@@ -107,6 +109,12 @@ public:
   /// @return true if success
   virtual bool writeMemory(uint32_t addr, uint8_t const *data,
                            uint32_t len) = 0;
+
+  void setReadCommand(uint8_t cmd_read) { _cmd_read = cmd_read; }
+
+protected:
+  // Command use for read operation
+  uint8_t _cmd_read;
 };
 
 #include "qspi/Adafruit_FlashTransport_QSPI.h"

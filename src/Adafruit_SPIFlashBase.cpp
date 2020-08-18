@@ -17,8 +17,10 @@
     }                                                                          \
     Serial.println();                                                          \
   } while (0)
+
 #else
 #define SPIFLASH_LOG(_sector, _count)
+
 #endif
 
 /// List of all possible flash devices used by Adafruit boards
@@ -32,6 +34,11 @@ static const SPIFlash_Device_t possible_devices[] = {
     // Only a handful of production run
     W25Q16FW,
     W25Q64JV_IQ,
+
+    // Fujitsu FRAM 128/256/512 KBs
+    MB85RS1MT,
+    MB85RS2MTA,
+    MB85RS4MT,
 
     // Nordic PCA10056
     MX25R6435F,
@@ -49,12 +56,16 @@ enum {
 Adafruit_SPIFlashBase::Adafruit_SPIFlashBase() {
   _trans = NULL;
   _flash_dev = NULL;
+  _ind_pin = -1;
+  _ind_active = true;
 }
 
 Adafruit_SPIFlashBase::Adafruit_SPIFlashBase(
     Adafruit_FlashTransport *transport) {
   _trans = transport;
   _flash_dev = NULL;
+  _ind_pin = -1;
+  _ind_active = true;
 }
 
 static SPIFlash_Device_t const *findDevice(SPIFlash_Device_t const *device_list,
@@ -86,38 +97,59 @@ bool Adafruit_SPIFlashBase::begin(SPIFlash_Device_t const *flash_devs,
   if (flash_devs != NULL) {
     _flash_dev = findDevice(flash_devs, count, jedec_ids);
   }
+
   // If not found, check for device in standard list.
   if (_flash_dev == NULL) {
     _flash_dev =
         findDevice(possible_devices, EXTERNAL_FLASH_DEVICE_COUNT, jedec_ids);
   }
 
-  if (_flash_dev == NULL)
+  if (_flash_dev == NULL) {
+    Serial.print("Unknown flash device 0x");
+    Serial.println(jedec_ids[0] << 16 | jedec_ids[1] << 8 | jedec_ids[2], HEX);
     return false;
+  }
 
   // We don't know what state the flash is in so wait for any remaining writes
-  // and then reset.
+  // and then reset (Skip this procedure for FRAM)
+  if (!_flash_dev->is_fram) {
 
-  // The write in progress bit should be low.
-  while (readStatus() & 0x01) {
+    // The write in progress bit should be low.
+    while (readStatus() & 0x01) {
+    }
+
+    // The suspended write/erase bit should be low.
+    if (!_flash_dev->single_status_byte) {
+      while (readStatus2() & 0x80) {
+      }
+    }
+
+    _trans->runCommand(SFLASH_CMD_ENABLE_RESET);
+    _trans->runCommand(SFLASH_CMD_RESET);
+
+    // Wait 30us for the reset
+    delayMicroseconds(30);
   }
-
-  // The suspended write/erase bit should be low.
-  while (readStatus2() & 0x80) {
-  }
-
-  _trans->runCommand(SFLASH_CMD_ENABLE_RESET);
-  _trans->runCommand(SFLASH_CMD_RESET);
-
-  // Wait 30us for the reset
-  delayMicroseconds(30);
 
   // Speed up to max device frequency, or as high as possible
-  _trans->setClockSpeed(min(
-      (uint32_t)(_flash_dev->max_clock_speed_mhz * 1000000U), (uint32_t)F_CPU));
+  uint32_t const wr_clock_speed = min(
+      (uint32_t)_flash_dev->max_clock_speed_mhz * 1000000U, (uint32_t)F_CPU);
+  uint32_t rd_clock_speed = wr_clock_speed;
+
+#if defined(ARDUINO_ARCH_SAMD) && !defined(__SAMD51__)
+  // Hand-on testing show that SAMD21 M0 can write up to 24 Mhz, but can only
+  // read reliably at 12 Mhz with FRAM
+  if (_flash_dev->is_fram) {
+    rd_clock_speed = min(12000000, rd_clock_speed);
+  }
+#endif
+
+  // Serial.printf("Clock speed: Write = %d, Read = %d\n", wr_clock_speed,
+  //              rd_clock_speed);
+  _trans->setClockSpeed(wr_clock_speed, rd_clock_speed);
 
   // Enable Quad Mode if available
-  if (_trans->supportQuadMode() && (_flash_dev->quad_enable_bit_mask)) {
+  if (_trans->supportQuadMode() && _flash_dev->supports_qspi) {
     // Verify that QSPI mode is enabled.
     uint8_t status =
         _flash_dev->single_status_byte ? readStatus() : readStatus2();
@@ -136,6 +168,11 @@ bool Adafruit_SPIFlashBase::begin(SPIFlash_Device_t const *flash_devs,
         _trans->writeCommand(SFLASH_CMD_WRITE_STATUS, full_status, 2);
       }
     }
+  } else {
+    // Single mode, use fast read if supported
+    if (_flash_dev->supports_fast_read) {
+      _trans->setReadCommand(SFLASH_CMD_FAST_READ);
+    }
   }
 
   // Turn off sector protection if needed
@@ -147,12 +184,15 @@ bool Adafruit_SPIFlashBase::begin(SPIFlash_Device_t const *flash_devs,
   //    QSPI0.writeCommand(QSPI_CMD_WRITE_STATUS, data, 1);
   //  }
 
-  // Turn off writes in case this is a microcontroller only reset.
-  _trans->runCommand(SFLASH_CMD_WRITE_DISABLE);
-
+  writeDisable();
   waitUntilReady();
 
   return true;
+}
+
+void Adafruit_SPIFlashBase::setIndicator(int pin, bool state_on) {
+  _ind_pin = pin;
+  _ind_active = state_on;
 }
 
 uint32_t Adafruit_SPIFlashBase::size(void) {
@@ -166,8 +206,12 @@ uint16_t Adafruit_SPIFlashBase::numPages(void) {
 uint16_t Adafruit_SPIFlashBase::pageSize(void) { return SFLASH_PAGE_SIZE; }
 
 uint32_t Adafruit_SPIFlashBase::getJEDECID(void) {
-  return (_flash_dev->manufacturer_id << 16) | (_flash_dev->memory_type << 8) |
-         _flash_dev->capacity;
+  if (!_flash_dev) {
+    return 0xFFFFFF;
+  } else {
+    return (_flash_dev->manufacturer_id << 16) |
+           (_flash_dev->memory_type << 8) | _flash_dev->capacity;
+  }
 }
 
 uint8_t Adafruit_SPIFlashBase::readStatus() {
@@ -183,18 +227,36 @@ uint8_t Adafruit_SPIFlashBase::readStatus2(void) {
 }
 
 void Adafruit_SPIFlashBase::waitUntilReady(void) {
+  // FRAM has no need to wait for either read or write operation
+  if (_flash_dev->is_fram) {
+    return;
+  }
+
   // both WIP and WREN bit should be clear
-  while (readStatus() & 0x03)
+  while (readStatus() & 0x03) {
     yield();
+  }
 }
 
 bool Adafruit_SPIFlashBase::writeEnable(void) {
   return _trans->runCommand(SFLASH_CMD_WRITE_ENABLE);
 }
 
+bool Adafruit_SPIFlashBase::writeDisable(void) {
+  return _trans->runCommand(SFLASH_CMD_WRITE_DISABLE);
+}
+
 bool Adafruit_SPIFlashBase::eraseSector(uint32_t sectorNumber) {
-  if (!_flash_dev)
+  if (!_flash_dev) {
     return false;
+  }
+
+  // skip erase for FRAM
+  if (_flash_dev->is_fram) {
+    return true;
+  }
+
+  _indicator_on();
 
   // Before we erase the sector we need to wait for any writes to finish
   waitUntilReady();
@@ -202,31 +264,57 @@ bool Adafruit_SPIFlashBase::eraseSector(uint32_t sectorNumber) {
 
   SPIFLASH_LOG(sectorNumber * SFLASH_SECTOR_SIZE, 0);
 
-  return _trans->eraseCommand(SFLASH_CMD_ERASE_SECTOR,
-                              sectorNumber * SFLASH_SECTOR_SIZE);
+  bool const ret = _trans->eraseCommand(SFLASH_CMD_ERASE_SECTOR,
+                                        sectorNumber * SFLASH_SECTOR_SIZE);
+
+  _indicator_off();
+
+  return ret;
 }
 
 bool Adafruit_SPIFlashBase::eraseBlock(uint32_t blockNumber) {
   if (!_flash_dev)
     return false;
 
+  // skip erase for fram
+  if (_flash_dev->is_fram) {
+    return true;
+  }
+
+  _indicator_on();
+
   // Before we erase the sector we need to wait for any writes to finish
   waitUntilReady();
   writeEnable();
 
-  return _trans->eraseCommand(SFLASH_CMD_ERASE_BLOCK,
-                              blockNumber * SFLASH_BLOCK_SIZE);
+  bool const ret = _trans->eraseCommand(SFLASH_CMD_ERASE_BLOCK,
+                                        blockNumber * SFLASH_BLOCK_SIZE);
+
+  _indicator_off();
+
+  return ret;
 }
 
 bool Adafruit_SPIFlashBase::eraseChip(void) {
   if (!_flash_dev)
     return false;
 
+  // skip erase for fram
+  if (_flash_dev->is_fram) {
+    return true;
+  }
+
+  _indicator_on();
+
   // We need to wait for any writes to finish
   waitUntilReady();
   writeEnable();
 
-  return _trans->runCommand(SFLASH_CMD_ERASE_CHIP);
+  bool const ret = _trans->runCommand(SFLASH_CMD_ERASE_CHIP);
+
+  _indicator_off();
+
+  return ret;
 }
 
 uint32_t Adafruit_SPIFlashBase::readBuffer(uint32_t address, uint8_t *buffer,
@@ -234,11 +322,15 @@ uint32_t Adafruit_SPIFlashBase::readBuffer(uint32_t address, uint8_t *buffer,
   if (!_flash_dev)
     return 0;
 
+  _indicator_on();
+
   waitUntilReady();
-
   SPIFLASH_LOG(address, len);
+  bool const rc = _trans->readMemory(address, buffer, len);
 
-  return _trans->readMemory(address, buffer, len) ? len : 0;
+  _indicator_off();
+
+  return rc ? len : 0;
 }
 
 uint8_t Adafruit_SPIFlashBase::read8(uint32_t addr) {
@@ -264,25 +356,41 @@ uint32_t Adafruit_SPIFlashBase::writeBuffer(uint32_t address,
 
   SPIFLASH_LOG(address, len);
 
-  uint32_t remain = len;
+  _indicator_on();
 
-  // write one page at a time
-  while (remain) {
-    waitUntilReady();
+  // FRAM: the whole chip can be written in one pass without waiting.
+  // Also we need to explicitly disable WREN
+  if (_flash_dev->is_fram) {
     writeEnable();
 
-    uint32_t const leftOnPage =
-        SFLASH_PAGE_SIZE - (address & (SFLASH_PAGE_SIZE - 1));
+    _trans->writeMemory(address, buffer, len);
 
-    uint32_t const toWrite = min(remain, leftOnPage);
+    writeDisable();
+  } else {
+    uint32_t remain = len;
 
-    if (!_trans->writeMemory(address, buffer, toWrite))
-      break;
+    // write one page (256 bytes) at a time and
+    // must not go over page boundary
+    while (remain) {
+      waitUntilReady();
+      writeEnable();
 
-    remain -= toWrite;
-    buffer += toWrite;
-    address += toWrite;
+      uint32_t const leftOnPage =
+          SFLASH_PAGE_SIZE - (address & (SFLASH_PAGE_SIZE - 1));
+      uint32_t const toWrite = min(remain, leftOnPage);
+
+      if (!_trans->writeMemory(address, buffer, toWrite))
+        break;
+
+      remain -= toWrite;
+      buffer += toWrite;
+      address += toWrite;
+    }
+
+    len -= remain;
   }
 
-  return len - remain;
+  _indicator_off();
+
+  return len;
 }

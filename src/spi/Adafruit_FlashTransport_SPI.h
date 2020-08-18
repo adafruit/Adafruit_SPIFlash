@@ -31,7 +31,10 @@ class Adafruit_FlashTransport_SPI : public Adafruit_FlashTransport {
 private:
   SPIClass *_spi;
   uint8_t _ss;
-  SPISettings _setting;
+
+  // SAMD21 M0 can write up to 24 Mhz, but can only read reliably with 12 MHz
+  uint32_t _clock_wr;
+  uint32_t _clock_rd;
 
 public:
   Adafruit_FlashTransport_SPI(uint8_t ss, SPIClass *spiinterface);
@@ -41,7 +44,7 @@ public:
 
   virtual bool supportQuadMode(void) { return false; }
 
-  virtual void setClockSpeed(uint32_t clock_hz);
+  virtual void setClockSpeed(uint32_t write_hz, uint32_t read_hz);
 
   virtual bool runCommand(uint8_t command);
   virtual bool readCommand(uint8_t command, uint8_t *response, uint32_t len);
@@ -50,6 +53,17 @@ public:
   virtual bool eraseCommand(uint8_t command, uint32_t address);
   virtual bool readMemory(uint32_t addr, uint8_t *data, uint32_t len);
   virtual bool writeMemory(uint32_t addr, uint8_t const *data, uint32_t len);
+
+private:
+  void beginTransaction(uint32_t clock_hz) {
+    _spi->beginTransaction(SPISettings(clock_hz, MSBFIRST, SPI_MODE0));
+    digitalWrite(_ss, LOW);
+  }
+
+  void endTransaction(void) {
+    digitalWrite(_ss, HIGH);
+    _spi->endTransaction();
+  }
 };
 
 #endif /* ADAFRUIT_FLASHTRANSPORT_SPI_H_ */
