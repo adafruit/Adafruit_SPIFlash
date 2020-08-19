@@ -116,6 +116,18 @@ typedef struct {
     .single_status_byte = false, .is_fram = false,                             \
   }
 
+// https://www.fujitsu.com/uk/Images/MB85RS64V.pdf
+#define MB85RS64V                                                              \
+  {                                                                            \
+    .total_size = 8*1024, /* 8 KiB */                                          \
+        .start_up_time_us = 5000, .manufacturer_id = 0x04,                     \
+    .memory_type = 0x7F, .capacity = 0x03, .max_clock_speed_mhz = 20,          \
+    .quad_enable_bit_mask = 0x00, .has_sector_protection = false,              \
+    .supports_fast_read = true, .supports_qspi = false,                        \
+    .supports_qspi_writes = true, .write_status_register_split = false,        \
+    .single_status_byte = true, .is_fram = true,                               \
+  }
+
 // https://www.fujitsu.com/uk/Images/MB85RS1MT.pdf
 #define MB85RS1MT                                                              \
   {                                                                            \
