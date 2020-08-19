@@ -35,7 +35,8 @@ static const SPIFlash_Device_t possible_devices[] = {
     W25Q16FW,
     W25Q64JV_IQ,
 
-    // Fujitsu FRAM 128/256/512 KBs
+    // Fujitsu FRAM
+    MB85RS64V,
     MB85RS1MT,
     MB85RS2MTA,
     MB85RS4MT,
