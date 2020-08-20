@@ -33,7 +33,7 @@ class Adafruit_SPIFlash;
 
 class Adafruit_FlashCache {
 private:
-  uint8_t _buf[4096]; // must be sector size
+  uint8_t _buf[4096] __attribute__((aligned(4))); // must be sector size
   uint32_t _addr;
 
 public:

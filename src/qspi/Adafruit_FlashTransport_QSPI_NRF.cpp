@@ -152,15 +152,88 @@ bool Adafruit_FlashTransport_QSPI::eraseCommand(uint8_t command,
   return NRFX_SUCCESS == nrfx_qspi_erase(erase_len, address);
 }
 
+//--------------------------------------------------------------------+
+// Read & Write
+//--------------------------------------------------------------------+
+static uint32_t read_write_odd(bool read_op, uint32_t addr, uint8_t *data,
+                               uint32_t len) {
+  uint8_t buf4[4] __attribute__((aligned(4)));
+  uint32_t count = 4 - (((uint32_t)data) & 0x03);
+  count = min(count, len);
+
+  if (read_op) {
+    if (NRFX_SUCCESS != nrfx_qspi_read(buf4, 4, addr)) {
+      return 0;
+    }
+
+    memcpy(data, buf4, count);
+  } else {
+    memset(buf4, 0xff, 4);
+    memcpy(buf4, data, count);
+
+    if (NRFX_SUCCESS != nrfx_qspi_write(buf4, 4, addr)) {
+      return 0;
+    }
+  }
+
+  return count;
+}
+
+static bool read_write_memory(bool read_op, uint32_t addr, uint8_t *data,
+                              uint32_t len) {
+  // buffer is not 4-byte aligned
+  if (((uint32_t)data) & 3) {
+    uint32_t const count = read_write_odd(read_op, addr, data, len);
+    if (!count) {
+      return false;
+    }
+
+    data += count;
+    addr += count;
+    len -= count;
+  }
+
+  // nrfx_qspi_read works in 4 byte increments, though it doesn't
+  // signal an error if sz is not a multiple of 4.  Read (directly into data)
+  // all but the last 1, 2, or 3 bytes depending on the (remaining) length.
+  if (len > 3) {
+    uint32_t const len4 = len & ~(uint32_t)3;
+
+    if (read_op) {
+      if (NRFX_SUCCESS != nrfx_qspi_read(data, len4, addr)) {
+        return 0;
+      }
+    } else {
+      if (NRFX_SUCCESS != nrfx_qspi_write(data, len4, addr)) {
+        return 0;
+      }
+    }
+
+    data += len4;
+    addr += len4;
+    len -= len4;
+  }
+
+  // Now, if we have any bytes left over, we must do a final read of 4
+  // bytes and copy 1, 2, or 3 bytes to data.
+  if (len) {
+    if (!read_write_odd(read_op, addr, data, len)) {
+      return false;
+    }
+  }
+
+  return true;
+}
+
 bool Adafruit_FlashTransport_QSPI::readMemory(uint32_t addr, uint8_t *data,
                                               uint32_t len) {
-  return NRFX_SUCCESS == nrfx_qspi_read(data, len, addr);
+  return read_write_memory(true, addr, data, len);
 }
 
 bool Adafruit_FlashTransport_QSPI::writeMemory(uint32_t addr,
                                                uint8_t const *data,
                                                uint32_t len) {
-  return NRFX_SUCCESS == nrfx_qspi_write(data, len, addr);
+  return read_write_memory(false, addr, (uint8_t *)data, len);
 }
 
 #endif
