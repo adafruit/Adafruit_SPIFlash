@@ -116,9 +116,8 @@ bool Adafruit_FlashTransport_SPI::readMemory(uint32_t addr, uint8_t *data,
   // Use SPI DMA if available for best performance
 #if defined(ARDUINO_NRF52_ADAFRUIT) && defined(NRF52840_XXAA)
   _spi->transfer(NULL, data, len);
-//#elif defined(ARDUINO_ARCH_SAMD) && defined(_ADAFRUIT_ZERODMA_H_)
-//  // TODO Could only got the 1st SPI read work, 2nd will failed, maybe we
-//  didn't clear thing !!! _spi->transfer(NULL, data, len, true);
+#elif defined(ARDUINO_ARCH_SAMD) && defined(_ADAFRUIT_ZERODMA_H_)
+  _spi->transfer(NULL, data, len, true);
 #else
   while (len--) {
     *data++ = _spi->transfer(0xFF);
