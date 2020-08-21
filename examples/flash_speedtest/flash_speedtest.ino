@@ -31,8 +31,9 @@ Adafruit_SPIFlash flash(&flashTransport);
 
 #define BUFSIZE   4096
 
-uint8_t bufwrite[BUFSIZE];
-uint8_t bufread[BUFSIZE];
+// 4 byte aligned buffer has best result with nRF QSPI
+uint8_t bufwrite[BUFSIZE] __attribute__ ((aligned(4)));
+uint8_t bufread[BUFSIZE] __attribute__ ((aligned(4)));
 
 // the setup function runs once when you press reset or power the board
 void setup()
