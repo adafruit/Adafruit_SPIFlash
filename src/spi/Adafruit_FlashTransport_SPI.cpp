@@ -104,34 +104,33 @@ bool Adafruit_FlashTransport_SPI::eraseCommand(uint8_t command,
   return true;
 }
 
-void Adafruit_FlashTransport_SPI::fillAddress(uint8_t* buf, uint32_t addr) {
-  switch (_addr_len)
-  {
-    case 4:
-      *buf++ = (addr >> 24) & 0xFF;
-      __attribute__ ((fallthrough));
+void Adafruit_FlashTransport_SPI::fillAddress(uint8_t *buf, uint32_t addr) {
+  switch (_addr_len) {
+  case 4:
+    *buf++ = (addr >> 24) & 0xFF;
+    __attribute__((fallthrough));
 
-    case 3:
-      *buf++ = (addr >> 16) & 0xFF;
-      __attribute__ ((fallthrough));
+  case 3:
+    *buf++ = (addr >> 16) & 0xFF;
+    __attribute__((fallthrough));
 
-    case 2:
-    default:
-      *buf++ = (addr >> 8) & 0xFF;
-      *buf++ = addr & 0xFF;
+  case 2:
+  default:
+    *buf++ = (addr >> 8) & 0xFF;
+    *buf++ = addr & 0xFF;
   }
 }
-
 
 bool Adafruit_FlashTransport_SPI::readMemory(uint32_t addr, uint8_t *data,
                                              uint32_t len) {
   beginTransaction(_clock_rd);
 
-  uint8_t cmd_with_addr[6] = { _cmd_read };
-  fillAddress(cmd_with_addr+1, addr);
+  uint8_t cmd_with_addr[6] = {_cmd_read};
+  fillAddress(cmd_with_addr + 1, addr);
 
   // Fast Read has 1 extra dummy byte
-  uint8_t const cmd_len = 1 + _addr_len + (SFLASH_CMD_FAST_READ == _cmd_read ? 1 : 0);
+  uint8_t const cmd_len =
+      1 + _addr_len + (SFLASH_CMD_FAST_READ == _cmd_read ? 1 : 0);
 
   _spi->transfer(cmd_with_addr, cmd_len);
 
@@ -156,8 +155,8 @@ bool Adafruit_FlashTransport_SPI::writeMemory(uint32_t addr,
                                               uint32_t len) {
   beginTransaction(_clock_wr);
 
-  uint8_t cmd_with_addr[] = {SFLASH_CMD_PAGE_PROGRAM };
-  fillAddress(cmd_with_addr+1, addr);
+  uint8_t cmd_with_addr[] = {SFLASH_CMD_PAGE_PROGRAM};
+  fillAddress(cmd_with_addr + 1, addr);
 
   _spi->transfer(cmd_with_addr, 1 + _addr_len);
 

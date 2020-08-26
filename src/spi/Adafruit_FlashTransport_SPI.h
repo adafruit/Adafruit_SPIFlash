@@ -55,7 +55,7 @@ public:
   virtual bool writeMemory(uint32_t addr, uint8_t const *data, uint32_t len);
 
 private:
-  void fillAddress(uint8_t* buf, uint32_t addr);
+  void fillAddress(uint8_t *buf, uint32_t addr);
 
   void beginTransaction(uint32_t clock_hz) {
     _spi->beginTransaction(SPISettings(clock_hz, MSBFIRST, SPI_MODE0));

@@ -113,11 +113,11 @@ bool Adafruit_SPIFlashBase::begin(SPIFlash_Device_t const *flash_devs,
 
   // Addressing byte depends on total size
   uint8_t addr_byte;
-  if ( _flash_dev->total_size < 64 * 1024) {
+  if (_flash_dev->total_size < 64 * 1024) {
     addr_byte = 2;
-  }else if (_flash_dev->total_size < 16 * 1024 * 1024 ) {
+  } else if (_flash_dev->total_size < 16 * 1024 * 1024) {
     addr_byte = 3;
-  }else {
+  } else {
     addr_byte = 4;
   }
 
