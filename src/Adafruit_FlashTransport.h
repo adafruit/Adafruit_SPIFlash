@@ -110,9 +110,13 @@ public:
   virtual bool writeMemory(uint32_t addr, uint8_t const *data,
                            uint32_t len) = 0;
 
+  void setAddressLength(uint8_t addr_len) { _addr_len = addr_len; }
   void setReadCommand(uint8_t cmd_read) { _cmd_read = cmd_read; }
 
 protected:
+  // Number of bytes for address
+  uint8_t _addr_len;
+
   // Command use for read operation
   uint8_t _cmd_read;
 };
