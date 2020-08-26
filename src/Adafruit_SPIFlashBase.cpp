@@ -200,7 +200,7 @@ uint32_t Adafruit_SPIFlashBase::size(void) {
   return _flash_dev ? _flash_dev->total_size : 0;
 }
 
-uint16_t Adafruit_SPIFlashBase::numPages(void) {
+uint32_t Adafruit_SPIFlashBase::numPages(void) {
   return _flash_dev ? _flash_dev->total_size / pageSize() : 0;
 }
 
