@@ -52,7 +52,7 @@ public:
 
   void setIndicator(int pin, bool state_on = true);
 
-  uint16_t numPages(void);
+  uint32_t numPages(void);
   uint16_t pageSize(void);
 
   uint32_t size(void);

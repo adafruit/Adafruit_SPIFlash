@@ -111,6 +111,18 @@ bool Adafruit_SPIFlashBase::begin(SPIFlash_Device_t const *flash_devs,
     return false;
   }
 
+  // Addressing byte depends on total size
+  uint8_t addr_byte;
+  if (_flash_dev->total_size < 64 * 1024) {
+    addr_byte = 2;
+  } else if (_flash_dev->total_size < 16 * 1024 * 1024) {
+    addr_byte = 3;
+  } else {
+    addr_byte = 4;
+  }
+
+  _trans->setAddressLength(addr_byte);
+
   // We don't know what state the flash is in so wait for any remaining writes
   // and then reset (Skip this procedure for FRAM)
   if (!_flash_dev->is_fram) {
@@ -145,8 +157,6 @@ bool Adafruit_SPIFlashBase::begin(SPIFlash_Device_t const *flash_devs,
   }
 #endif
 
-  // Serial.printf("Clock speed: Write = %d, Read = %d\n", wr_clock_speed,
-  //              rd_clock_speed);
   _trans->setClockSpeed(wr_clock_speed, rd_clock_speed);
 
   // Enable Quad Mode if available
@@ -200,7 +210,7 @@ uint32_t Adafruit_SPIFlashBase::size(void) {
   return _flash_dev ? _flash_dev->total_size : 0;
 }
 
-uint16_t Adafruit_SPIFlashBase::numPages(void) {
+uint32_t Adafruit_SPIFlashBase::numPages(void) {
   return _flash_dev ? _flash_dev->total_size / pageSize() : 0;
 }
 

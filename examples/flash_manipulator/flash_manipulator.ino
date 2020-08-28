@@ -79,7 +79,7 @@ void loop(void)
      }
     
     Serial.println("Dumping FLASH to disk");
-    for (int32_t page=0; page < flash.numPages() ; page++)  {
+    for (uint32_t page=0; page < flash.numPages() ; page++)  {
       memset(buffer, 0, pagesize);
       Serial.print("// Reading page ");
       Serial.println(page);
@@ -101,7 +101,7 @@ void loop(void)
        error("error opening flshdump.bin");
      }
     Serial.println("Verifying FLASH from disk");
-    for (int32_t page=0; page < flash.numPages() ; page++)  {
+    for (uint32_t page=0; page < flash.numPages() ; page++)  {
       memset(buffer, 0, pagesize);
       memset(buffer2, 0, pagesize);
       
@@ -134,7 +134,7 @@ void loop(void)
      }
 
     Serial.println("Writing FLASH from disk");
-    for (int32_t page=0; page < flash.numPages() ; page++)  {
+    for (uint32_t page=0; page < flash.numPages() ; page++)  {
       memset(buffer, 0, pagesize);
       
       int16_t r = dataFile.read(buffer, pagesize);
