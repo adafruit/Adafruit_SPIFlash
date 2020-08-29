@@ -91,13 +91,13 @@ bool Adafruit_FlashTransport_SPI::writeCommand(uint8_t command,
 }
 
 bool Adafruit_FlashTransport_SPI::eraseCommand(uint8_t command,
-                                               uint32_t address) {
+                                               uint32_t addr) {
   beginTransaction(_clock_wr);
 
-  uint8_t cmd_with_addr[] = {command, (address >> 16) & 0xFF,
-                             (address >> 8) & 0xFF, address & 0xFF};
+  uint8_t cmd_with_addr[5] = {command};
+  fillAddress(cmd_with_addr + 1, addr);
 
-  _spi->transfer(cmd_with_addr, 4);
+  _spi->transfer(cmd_with_addr, 1 + _addr_len);
 
   endTransaction();
 
@@ -108,11 +108,9 @@ void Adafruit_FlashTransport_SPI::fillAddress(uint8_t *buf, uint32_t addr) {
   switch (_addr_len) {
   case 4:
     *buf++ = (addr >> 24) & 0xFF;
-    __attribute__((fallthrough));
 
   case 3:
     *buf++ = (addr >> 16) & 0xFF;
-    __attribute__((fallthrough));
 
   case 2:
   default:
@@ -140,9 +138,7 @@ bool Adafruit_FlashTransport_SPI::readMemory(uint32_t addr, uint8_t *data,
 #elif defined(ARDUINO_ARCH_SAMD) && defined(_ADAFRUIT_ZERODMA_H_)
   _spi->transfer(NULL, data, len, true);
 #else
-  while (len--) {
-    *data++ = _spi->transfer(0xFF);
-  }
+  _spi->transfer(data, len);
 #endif
 
   endTransaction();
@@ -155,7 +151,7 @@ bool Adafruit_FlashTransport_SPI::writeMemory(uint32_t addr,
                                               uint32_t len) {
   beginTransaction(_clock_wr);
 
-  uint8_t cmd_with_addr[] = {SFLASH_CMD_PAGE_PROGRAM};
+  uint8_t cmd_with_addr[5] = {SFLASH_CMD_PAGE_PROGRAM};
   fillAddress(cmd_with_addr + 1, addr);
 
   _spi->transfer(cmd_with_addr, 1 + _addr_len);

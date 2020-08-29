@@ -1,6 +1,5 @@
 #include "Adafruit_SPIFlashBase.h"
 #include "pins_arduino.h"
-#include "wiring_private.h"
 #include <SPI.h>
 
 #include "flash_devices.h"
@@ -111,18 +110,6 @@ bool Adafruit_SPIFlashBase::begin(SPIFlash_Device_t const *flash_devs,
     return false;
   }
 
-  // Addressing byte depends on total size
-  uint8_t addr_byte;
-  if (_flash_dev->total_size < 64 * 1024) {
-    addr_byte = 2;
-  } else if (_flash_dev->total_size < 16 * 1024 * 1024) {
-    addr_byte = 3;
-  } else {
-    addr_byte = 4;
-  }
-
-  _trans->setAddressLength(addr_byte);
-
   // We don't know what state the flash is in so wait for any remaining writes
   // and then reset (Skip this procedure for FRAM)
   if (!_flash_dev->is_fram) {
@@ -185,6 +172,21 @@ bool Adafruit_SPIFlashBase::begin(SPIFlash_Device_t const *flash_devs,
       _trans->setReadCommand(SFLASH_CMD_FAST_READ);
     }
   }
+
+  // Addressing byte depends on total size
+  uint8_t addr_byte;
+  if (_flash_dev->total_size < 64 * 1024) {
+    addr_byte = 2;
+  } else if (_flash_dev->total_size < 16 * 1024 * 1024) {
+    addr_byte = 3;
+  } else {
+    addr_byte = 4;
+
+    // Enable 4-Byte address mode (This has to be done after the reset above)
+    _trans->runCommand(SFLASH_CMD_4_BYTE_ADDR);
+  }
+
+  _trans->setAddressLength(addr_byte);
 
   // Turn off sector protection if needed
   //  if (_flash_dev->has_sector_protection)
