@@ -53,6 +53,9 @@ enum {
   SFLASH_CMD_ERASE_SECTOR = 0x20,
   SFLASH_CMD_ERASE_BLOCK = 0xD8,
   SFLASH_CMD_ERASE_CHIP = 0xC7,
+
+  SFLASH_CMD_4_BYTE_ADDR = 0xB7,
+  SFLASH_CMD_3_BYTE_ADDR = 0xE9,
 };
 
 class Adafruit_FlashTransport {
