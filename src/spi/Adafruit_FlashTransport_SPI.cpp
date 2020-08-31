@@ -90,8 +90,7 @@ bool Adafruit_FlashTransport_SPI::writeCommand(uint8_t command,
   return true;
 }
 
-bool Adafruit_FlashTransport_SPI::eraseCommand(uint8_t command,
-                                               uint32_t addr) {
+bool Adafruit_FlashTransport_SPI::eraseCommand(uint8_t command, uint32_t addr) {
   beginTransaction(_clock_wr);
 
   uint8_t cmd_with_addr[5] = {command};
@@ -108,9 +107,11 @@ void Adafruit_FlashTransport_SPI::fillAddress(uint8_t *buf, uint32_t addr) {
   switch (_addr_len) {
   case 4:
     *buf++ = (addr >> 24) & 0xFF;
+    __attribute__((fallthrough));
 
   case 3:
     *buf++ = (addr >> 16) & 0xFF;
+    __attribute__((fallthrough));
 
   case 2:
   default:

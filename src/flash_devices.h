@@ -392,7 +392,7 @@ typedef struct {
     .quad_enable_bit_mask = 0x02, .has_sector_protection = false,              \
     .supports_fast_read = true, .supports_qspi = true,                         \
     .supports_qspi_writes = true, .write_status_register_split = false,        \
-    .single_status_byte = false, .is_fram = false,                              \
+    .single_status_byte = false, .is_fram = false,                             \
   }
 
 // Settings for the Winbond W25Q256JV 32MiB SPI flash.
@@ -405,7 +405,7 @@ typedef struct {
     .quad_enable_bit_mask = 0x02, .has_sector_protection = false,              \
     .supports_fast_read = true, .supports_qspi = true,                         \
     .supports_qspi_writes = true, .write_status_register_split = false,        \
-    .single_status_byte = false, .is_fram = false,                              \
+    .single_status_byte = false, .is_fram = false,                             \
   }
 
 #endif // MICROPY_INCLUDED_ATMEL_SAMD_EXTERNAL_FLASH_DEVICES_H
