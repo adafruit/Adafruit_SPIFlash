@@ -179,9 +179,9 @@ bool Adafruit_SPIFlashBase::begin(SPIFlash_Device_t const *flash_devs,
     addr_byte = 4;
     // Enable 4-Byte address mode (This has to be done after the reset above)
     _trans->runCommand(SFLASH_CMD_4_BYTE_ADDR);
-  }else if (_flash_dev->total_size > 64 * 1024) {
+  } else if (_flash_dev->total_size > 64 * 1024) {
     addr_byte = 3;
-  }else {
+  } else {
     addr_byte = 2;
   }
 
