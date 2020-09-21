@@ -23,7 +23,6 @@
  */
 
 #include "Adafruit_FlashTransport.h"
-#include "Arduino.h"
 
 Adafruit_FlashTransport_SPI::Adafruit_FlashTransport_SPI(
     uint8_t ss, SPIClass *spiinterface) {
@@ -107,11 +106,13 @@ void Adafruit_FlashTransport_SPI::fillAddress(uint8_t *buf, uint32_t addr) {
   switch (_addr_len) {
   case 4:
     *buf++ = (addr >> 24) & 0xFF;
-    __attribute__((fallthrough));
+    //__attribute__((fallthrough)); ESP32 doesn't support this attribute yet
+    // fall through
 
   case 3:
     *buf++ = (addr >> 16) & 0xFF;
-    __attribute__((fallthrough));
+    //__attribute__((fallthrough)); ESP32 doesn't support this attribute yet
+    // fall through
 
   case 2:
   default:
