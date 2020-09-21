@@ -25,6 +25,7 @@
 #ifndef ADAFRUIT_FLASHTRANSPORT_SPI_H_
 #define ADAFRUIT_FLASHTRANSPORT_SPI_H_
 
+#include "Arduino.h"
 #include "SPI.h"
 
 class Adafruit_FlashTransport_SPI : public Adafruit_FlashTransport {
