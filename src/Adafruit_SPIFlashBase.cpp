@@ -45,6 +45,24 @@ static const SPIFlash_Device_t possible_devices[] = {
 
     // Other common flash devices
     W25Q16JV_IQ,
+    AT25DF081A,
+    MB85RS64V,                                                         
+    MB85RS1MT,                                                         
+    MB85RS2MTA,                                                   
+    MB85RS4MT,                                                         
+    MX25L1606,                                                       
+    MX25L3233F,                                                         
+    MX25R6435F,                                                         
+    S25FL064L,                                                          
+    W25Q80DL,                                                      
+    W25Q16JV_IQ,                                                         
+    W25Q16JV_IM,                                                         
+    W25Q32BV,                                                            
+    W25Q32FV,                                                            
+    W25Q32JV_IM,                                                         
+    W25Q64JV_IM,                                                                                                                     
+    W25Q128JV_SQ,                                                        
+    W25Q128JV_PM 
 };
 
 /// Flash device list count
