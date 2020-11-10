@@ -23,11 +23,14 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-#if defined(__SAMD51__) && defined(EXTERNAL_FLASH_USE_QSPI)
+#ifdef __SAMD51__
 
 #include "Adafruit_FlashTransport.h"
 #include "wiring_private.h"
 #include <Arduino.h>
+#include "variant.h"
+
+#ifdef EXTERNAL_FLASH_USE_QSPI
 
 static void _run_instruction(uint8_t command, uint32_t iframe, uint32_t addr,
                              uint8_t *buffer, uint32_t size);
@@ -225,4 +228,5 @@ static void _run_instruction(uint8_t command, uint32_t iframe, uint32_t addr,
   QSPI->INTFLAG.bit.INSTREND = 1;
 }
 
+#endif
 #endif

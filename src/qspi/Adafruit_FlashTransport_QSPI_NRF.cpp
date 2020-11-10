@@ -24,11 +24,14 @@
  * THE SOFTWARE.
  */
 
-#if defined(NRF52840_XXAA) && defined(EXTERNAL_FLASH_USE_QSPI)
+#ifdef NRF52840_XXAA
 
 #include "Adafruit_FlashTransport.h"
 #include "nrfx_qspi.h"
 #include <Arduino.h>
+#include "variant.h"
+
+#ifdef EXTERNAL_FLASH_USE_QSPI
 
 Adafruit_FlashTransport_QSPI::Adafruit_FlashTransport_QSPI(void)
     : Adafruit_FlashTransport_QSPI(PIN_QSPI_SCK, PIN_QSPI_CS, PIN_QSPI_IO0,
@@ -237,4 +240,5 @@ bool Adafruit_FlashTransport_QSPI::writeMemory(uint32_t addr,
   return read_write_memory(false, addr, (uint8_t *)data, len);
 }
 
+#endif
 #endif
