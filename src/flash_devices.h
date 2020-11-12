@@ -76,7 +76,7 @@ typedef struct {
 // Datasheet: https://www.adestotech.com/wp-content/uploads/doc8715.pdf
 #define AT25DF081A                                                             \
   {                                                                            \
-    .total_size = (1 << 20), /* 1 MiB */                                       \
+    .total_size = (1UL << 20), /* 1 MiB */                                     \
         .start_up_time_us = 10000, .manufacturer_id = 0x1f,                    \
     .memory_type = 0x45, .capacity = 0x01, .max_clock_speed_mhz = 85,          \
     .quad_enable_bit_mask = 0x00, .has_sector_protection = true,               \
@@ -89,7 +89,7 @@ typedef struct {
 // Datasheet: http://www.gigadevice.com/datasheet/gd25q16c/
 #define GD25Q16C                                                               \
   {                                                                            \
-    .total_size = (1 << 21), /* 2 MiB */                                       \
+    .total_size = (1UL << 21), /* 2 MiB */                                     \
         .start_up_time_us = 5000, .manufacturer_id = 0xc8,                     \
     .memory_type = 0x40, .capacity = 0x15,                                     \
     .max_clock_speed_mhz =                                                     \
@@ -105,7 +105,7 @@ typedef struct {
 // http://www.elm-tech.com/en/products/spi-flash-memory/gd25q64/gd25q64.pdf
 #define GD25Q64C                                                               \
   {                                                                            \
-    .total_size = (1 << 23), /* 8 MiB */                                       \
+    .total_size = (1UL << 23), /* 8 MiB */                                     \
         .start_up_time_us = 5000, .manufacturer_id = 0xc8,                     \
     .memory_type = 0x40, .capacity = 0x17,                                     \
     .max_clock_speed_mhz =                                                     \
@@ -119,7 +119,7 @@ typedef struct {
 // https://www.fujitsu.com/uk/Images/MB85RS64V.pdf
 #define MB85RS64V                                                              \
   {                                                                            \
-    .total_size = 8 * 1024, /* 8 KiB */                                        \
+    .total_size = 8UL * 1024, /* 8 KiB */                                      \
         .start_up_time_us = 5000, .manufacturer_id = 0x04,                     \
     .memory_type = 0x7F, .capacity = 0x03, .max_clock_speed_mhz = 20,          \
     .quad_enable_bit_mask = 0x00, .has_sector_protection = false,              \
@@ -131,7 +131,7 @@ typedef struct {
 // https://www.fujitsu.com/uk/Images/MB85RS1MT.pdf
 #define MB85RS1MT                                                              \
   {                                                                            \
-    .total_size = (1 << 17), /* 128 KiB */                                     \
+    .total_size = (1UL << 17), /* 128 KiB */                                   \
         .start_up_time_us = 5000, .manufacturer_id = 0x04,                     \
     .memory_type = 0x7F, .capacity = 0x27, .max_clock_speed_mhz = 40,          \
     .quad_enable_bit_mask = 0x00, .has_sector_protection = false,              \
@@ -143,7 +143,7 @@ typedef struct {
 // https://www.fujitsu.com/uk/Images/MB85RS2MTA.pdf
 #define MB85RS2MTA                                                             \
   {                                                                            \
-    .total_size = (1 << 18), /* 256 KiB */                                     \
+    .total_size = (1UL << 18), /* 256 KiB */                                   \
         .start_up_time_us = 5000, .manufacturer_id = 0x04,                     \
     .memory_type = 0x7F, .capacity = 0x48, .max_clock_speed_mhz = 40,          \
     .quad_enable_bit_mask = 0x00, .has_sector_protection = false,              \
@@ -155,7 +155,7 @@ typedef struct {
 // https://www.fujitsu.com/uk/Images/MB85RS4MT.pdf
 #define MB85RS4MT                                                              \
   {                                                                            \
-    .total_size = (1 << 19), /* 512 KiB */                                     \
+    .total_size = (1UL << 19), /* 512 KiB */                                   \
         .start_up_time_us = 5000, .manufacturer_id = 0x04,                     \
     .memory_type = 0x7F, .capacity = 0x49, .max_clock_speed_mhz = 40,          \
     .quad_enable_bit_mask = 0x00, .has_sector_protection = false,              \
@@ -182,7 +182,7 @@ typedef struct {
 // http://www.macronix.com/Lists/Datasheet/Attachments/7426/MX25L3233F,%203V,%2032Mb,%20v1.6.pdf
 #define MX25L3233F                                                             \
   {                                                                            \
-    .total_size = (1 << 22), /* 4 MiB */                                       \
+    .total_size = (1UL << 22), /* 4 MiB */                                     \
         .start_up_time_us = 5000, .manufacturer_id = 0xc2,                     \
     .memory_type = 0x20, .capacity = 0x16, .max_clock_speed_mhz = 133,         \
     .quad_enable_bit_mask = 0x40, .has_sector_protection = false,              \
@@ -198,7 +198,7 @@ typedef struct {
 // it can do 80mhz.
 #define MX25R6435F                                                             \
   {                                                                            \
-    .total_size = (1 << 23), /* 8 MiB */                                       \
+    .total_size = (1UL << 23), /* 8 MiB */                                     \
         .start_up_time_us = 5000, .manufacturer_id = 0xc2,                     \
     .memory_type = 0x28, .capacity = 0x17, .max_clock_speed_mhz = 8,           \
     .quad_enable_bit_mask = 0x40, .has_sector_protection = false,              \
@@ -211,7 +211,7 @@ typedef struct {
 // Datasheet: http://www.cypress.com/file/316661/download
 #define S25FL064L                                                              \
   {                                                                            \
-    .total_size = (1 << 23), /* 8 MiB */                                       \
+    .total_size = (1UL << 23), /* 8 MiB */                                     \
         .start_up_time_us = 300, .manufacturer_id = 0x01, .memory_type = 0x60, \
     .capacity = 0x17, .max_clock_speed_mhz = 108,                              \
     .quad_enable_bit_mask = 0x02, .has_sector_protection = false,              \
@@ -224,7 +224,7 @@ typedef struct {
 // Datasheet: http://www.cypress.com/file/196886/download
 #define S25FL116K                                                              \
   {                                                                            \
-    .total_size = (1 << 21), /* 2 MiB */                                       \
+    .total_size = (1UL << 21), /* 2 MiB */                                     \
         .start_up_time_us = 10000, .manufacturer_id = 0x01,                    \
     .memory_type = 0x40, .capacity = 0x15, .max_clock_speed_mhz = 108,         \
     .quad_enable_bit_mask = 0x02, .has_sector_protection = false,              \
@@ -237,7 +237,7 @@ typedef struct {
 // Datasheet: http://www.cypress.com/file/197346/download
 #define S25FL216K                                                              \
   {                                                                            \
-    .total_size = (1 << 21), /* 2 MiB */                                       \
+    .total_size = (1UL << 21), /* 2 MiB */                                     \
         .start_up_time_us = 10000, .manufacturer_id = 0x01,                    \
     .memory_type = 0x40, .capacity = 0x15, .max_clock_speed_mhz = 65,          \
     .quad_enable_bit_mask = 0x02, .has_sector_protection = false,              \
@@ -250,7 +250,7 @@ typedef struct {
 // https://www.winbond.com/resource-files/w25q80dv%20dl_revh_10022015.pdf
 #define W25Q80DL                                                               \
   {                                                                            \
-    .total_size = (1 << 20), /* 1 MiB */                                       \
+    .total_size = (1UL << 20), /* 1 MiB */                                     \
         .start_up_time_us = 5000, .manufacturer_id = 0xef,                     \
     .memory_type = 0x60, .capacity = 0x14, .max_clock_speed_mhz = 104,         \
     .quad_enable_bit_mask = 0x02, .has_sector_protection = false,              \
@@ -264,7 +264,7 @@ typedef struct {
 // https://www.winbond.com/resource-files/w25q16fw%20revj%2005182017%20sfdp.pdf
 #define W25Q16FW                                                               \
   {                                                                            \
-    .total_size = (1 << 21), /* 2 MiB */                                       \
+    .total_size = (1UL << 21), /* 2 MiB */                                     \
         .start_up_time_us = 5000, .manufacturer_id = 0xef,                     \
     .memory_type = 0x60, .capacity = 0x15, .max_clock_speed_mhz = 133,         \
     .quad_enable_bit_mask = 0x02, .has_sector_protection = false,              \
@@ -278,7 +278,7 @@ typedef struct {
 // https://www.winbond.com/resource-files/w25q16jv%20spi%20revf%2005092017.pdf
 #define W25Q16JV_IQ                                                            \
   {                                                                            \
-    .total_size = (1 << 21), /* 2 MiB */                                       \
+    .total_size = (1UL << 21), /* 2 MiB */                                     \
         .start_up_time_us = 5000, .manufacturer_id = 0xef,                     \
     .memory_type = 0x40, .capacity = 0x15, .max_clock_speed_mhz = 133,         \
     .quad_enable_bit_mask = 0x02, .has_sector_protection = false,              \
@@ -292,7 +292,7 @@ typedef struct {
 // https://www.winbond.com/resource-files/w25q16jv%20spi%20revf%2005092017.pdf
 #define W25Q16JV_IM                                                            \
   {                                                                            \
-    .total_size = (1 << 21), /* 2 MiB */                                       \
+    .total_size = (1UL << 21), /* 2 MiB */                                     \
         .start_up_time_us = 5000, .manufacturer_id = 0xef,                     \
     .memory_type = 0x70, .capacity = 0x15, .max_clock_speed_mhz = 133,         \
     .quad_enable_bit_mask = 0x02, .has_sector_protection = false,              \
@@ -305,7 +305,7 @@ typedef struct {
 // https://www.winbond.com/resource-files/w25q32bv_revi_100413_wo_automotive.pdf
 #define W25Q32BV                                                               \
   {                                                                            \
-    .total_size = (1 << 22), /* 4 MiB */                                       \
+    .total_size = (1UL << 22), /* 4 MiB */                                     \
         .start_up_time_us = 10000, .manufacturer_id = 0xef,                    \
     .memory_type = 0x60, .capacity = 0x16, .max_clock_speed_mhz = 104,         \
     .quad_enable_bit_mask = 0x02, .has_sector_protection = false,              \
@@ -318,7 +318,7 @@ typedef struct {
 // Datasheet:http://www.winbond.com/resource-files/w25q32fv%20revj%2006032016.pdf?__locale=en
 #define W25Q32FV                                                               \
   {                                                                            \
-    .total_size = (1 << 22), /* 4 MiB */                                       \
+    .total_size = (1UL << 22), /* 4 MiB */                                     \
         .start_up_time_us = 5000, .manufacturer_id = 0xef,                     \
     .memory_type = 0x40, .capacity = 0x16, .max_clock_speed_mhz = 104,         \
     .quad_enable_bit_mask = 0x00, .has_sector_protection = false,              \
@@ -331,7 +331,7 @@ typedef struct {
 // https://www.winbond.com/resource-files/w25q32jv%20revg%2003272018%20plus.pdf
 #define W25Q32JV_IM                                                            \
   {                                                                            \
-    .total_size = (1 << 22), /* 4 MiB */                                       \
+    .total_size = (1UL << 22), /* 4 MiB */                                     \
         .start_up_time_us = 5000, .manufacturer_id = 0xef,                     \
     .memory_type = 0x70, .capacity = 0x16, .max_clock_speed_mhz = 133,         \
     .quad_enable_bit_mask = 0x02, .has_sector_protection = false,              \
@@ -344,7 +344,7 @@ typedef struct {
 // http://www.winbond.com/resource-files/w25q64jv%20revj%2003272018%20plus.pdf
 #define W25Q64JV_IM                                                            \
   {                                                                            \
-    .total_size = (1 << 23), /* 8 MiB */                                       \
+    .total_size = (1UL << 23), /* 8 MiB */                                     \
         .start_up_time_us = 5000, .manufacturer_id = 0xef,                     \
     .memory_type = 0x70, .capacity = 0x17, .max_clock_speed_mhz = 133,         \
     .quad_enable_bit_mask = 0x02, .has_sector_protection = false,              \
@@ -358,7 +358,7 @@ typedef struct {
 // http://www.winbond.com/resource-files/w25q64jv%20revj%2003272018%20plus.pdf
 #define W25Q64JV_IQ                                                            \
   {                                                                            \
-    .total_size = (1 << 23), /* 8 MiB */                                       \
+    .total_size = (1UL << 23), /* 8 MiB */                                     \
         .start_up_time_us = 5000, .manufacturer_id = 0xef,                     \
     .memory_type = 0x40, .capacity = 0x17, .max_clock_speed_mhz = 133,         \
     .quad_enable_bit_mask = 0x02, .has_sector_protection = false,              \
@@ -372,7 +372,7 @@ typedef struct {
 // https://www.winbond.com/resource-files/w25q128jv%20revf%2003272018%20plus.pdf
 #define W25Q128JV_SQ                                                           \
   {                                                                            \
-    .total_size = (1 << 24), /* 16 MiB */                                      \
+    .total_size = (1UL << 24), /* 16 MiB */                                    \
         .start_up_time_us = 5000, .manufacturer_id = 0xef,                     \
     .memory_type = 0x40, .capacity = 0x18, .max_clock_speed_mhz = 133,         \
     .quad_enable_bit_mask = 0x02, .has_sector_protection = false,              \
@@ -386,7 +386,7 @@ typedef struct {
 // https://www.winbond.com/resource-files/w25q128jv%20revf%2003272018%20plus.pdf
 #define W25Q128JV_PM                                                           \
   {                                                                            \
-    .total_size = (1 << 24), /* 16 MiB */                                      \
+    .total_size = (1UL << 24), /* 16 MiB */                                    \
         .start_up_time_us = 5000, .manufacturer_id = 0xef,                     \
     .memory_type = 0x70, .capacity = 0x18, .max_clock_speed_mhz = 133,         \
     .quad_enable_bit_mask = 0x02, .has_sector_protection = false,              \
@@ -399,7 +399,7 @@ typedef struct {
 // https://www.winbond.com/resource-files/w25q256jv%20spi%20revg%2008032017.pdf
 #define W25Q256JV                                                              \
   {                                                                            \
-    .total_size = (1 << 25), /* 32 MiB */                                      \
+    .total_size = (1UL << 25), /* 32 MiB */                                    \
         .start_up_time_us = 5000, .manufacturer_id = 0xef,                     \
     .memory_type = 0x40, .capacity = 0x19, .max_clock_speed_mhz = 133,         \
     .quad_enable_bit_mask = 0x02, .has_sector_protection = false,              \

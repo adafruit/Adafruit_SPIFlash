@@ -106,7 +106,8 @@ bool Adafruit_SPIFlashBase::begin(SPIFlash_Device_t const *flash_devs,
 
   if (_flash_dev == NULL) {
     Serial.print("Unknown flash device 0x");
-    Serial.println(jedec_ids[0] << 16 | jedec_ids[1] << 8 | jedec_ids[2], HEX);
+    Serial.println(
+        ((uint32_t)jedec_ids[0]) << 16 | jedec_ids[1] << 8 | jedec_ids[2], HEX);
     return false;
   }
 
@@ -175,11 +176,11 @@ bool Adafruit_SPIFlashBase::begin(SPIFlash_Device_t const *flash_devs,
 
   // Addressing byte depends on total size
   uint8_t addr_byte;
-  if (_flash_dev->total_size > 16 * 1024 * 1024) {
+  if (_flash_dev->total_size > 16UL * 1024 * 1024) {
     addr_byte = 4;
     // Enable 4-Byte address mode (This has to be done after the reset above)
     _trans->runCommand(SFLASH_CMD_4_BYTE_ADDR);
-  } else if (_flash_dev->total_size > 64 * 1024) {
+  } else if (_flash_dev->total_size > 64UL * 1024) {
     addr_byte = 3;
   } else {
     addr_byte = 2;
@@ -221,7 +222,7 @@ uint32_t Adafruit_SPIFlashBase::getJEDECID(void) {
   if (!_flash_dev) {
     return 0xFFFFFF;
   } else {
-    return (_flash_dev->manufacturer_id << 16) |
+    return (((uint32_t)_flash_dev->manufacturer_id) << 16) |
            (_flash_dev->memory_type << 8) | _flash_dev->capacity;
   }
 }
