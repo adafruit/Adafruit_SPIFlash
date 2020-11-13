@@ -64,7 +64,9 @@ void Adafruit_FlashTransport_ESP32::setClockSpeed(uint32_t write_hz,
 }
 
 bool Adafruit_FlashTransport_ESP32::runCommand(uint8_t command) {
-  // do nothing
+  // TODO SFLASH_CMD_ERASE_CHIP erase whole partition
+
+  // do nothing, mostly write enable
   return true;
 }
 
@@ -79,74 +81,24 @@ bool Adafruit_FlashTransport_ESP32::readCommand(uint8_t command,
 bool Adafruit_FlashTransport_ESP32::writeCommand(uint8_t command,
                                                uint8_t const *data,
                                                uint32_t len) {
-  // mostly is Write Status, do nothing
+  //  do nothing, mostly is Write Status
   return true;
 }
 
 bool Adafruit_FlashTransport_ESP32::eraseCommand(uint8_t command, uint32_t addr) {
-//  beginTransaction(_clock_wr);
-//
-//  uint8_t cmd_with_addr[5] = {command};
-//  fillAddress(cmd_with_addr + 1, addr);
-//
-//  _spi->transfer(cmd_with_addr, 1 + _addr_len);
-//
-//  endTransaction();
-
-  return true;
+  uint32_t erase_sz = (command == SFLASH_CMD_ERASE_BLOCK) ? SFLASH_BLOCK_SIZE : SFLASH_SECTOR_SIZE;
+  return ESP_OK == esp_partition_erase_range(_partition, addr, erase_sz);
 }
 
 bool Adafruit_FlashTransport_ESP32::readMemory(uint32_t addr, uint8_t *data,
                                              uint32_t len) {
-//  beginTransaction(_clock_rd);
-//
-//  uint8_t cmd_with_addr[6] = {_cmd_read};
-//  fillAddress(cmd_with_addr + 1, addr);
-//
-//  // Fast Read has 1 extra dummy byte
-//  uint8_t const cmd_len =
-//      1 + _addr_len + (SFLASH_CMD_FAST_READ == _cmd_read ? 1 : 0);
-//
-//  _spi->transfer(cmd_with_addr, cmd_len);
-//
-//  // Use SPI DMA if available for best performance
-//#if defined(ARDUINO_NRF52_ADAFRUIT) && defined(NRF52840_XXAA)
-//  _spi->transfer(NULL, data, len);
-//#elif defined(ARDUINO_ARCH_SAMD) && defined(_ADAFRUIT_ZERODMA_H_)
-//  _spi->transfer(NULL, data, len, true);
-//#else
-//  _spi->transfer(data, len);
-//#endif
-//
-//  endTransaction();
-
-  return true;
+  return ESP_OK == esp_partition_read(_partition, addr, data, len);
 }
 
 bool Adafruit_FlashTransport_ESP32::writeMemory(uint32_t addr,
                                               uint8_t const *data,
                                               uint32_t len) {
-//  beginTransaction(_clock_wr);
-//
-//  uint8_t cmd_with_addr[5] = {SFLASH_CMD_PAGE_PROGRAM};
-//  fillAddress(cmd_with_addr + 1, addr);
-//
-//  _spi->transfer(cmd_with_addr, 1 + _addr_len);
-//
-//  // Use SPI DMA if available for best performance
-//#if defined(ARDUINO_NRF52_ADAFRUIT) && defined(NRF52840_XXAA)
-//  _spi->transfer(data, NULL, len);
-//#elif defined(ARDUINO_ARCH_SAMD) && defined(_ADAFRUIT_ZERODMA_H_)
-//  _spi->transfer(data, NULL, len, true);
-//#else
-//  while (len--) {
-//    _spi->transfer(*data++);
-//  }
-//#endif
-
-//  endTransaction();
-
-  return true;
+  return ESP_OK == esp_partition_write(_partition, addr, data, len);
 }
 
 #endif
