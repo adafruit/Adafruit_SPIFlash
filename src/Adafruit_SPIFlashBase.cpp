@@ -22,6 +22,8 @@
 
 #endif
 
+#if !CONFIG_IDF_TARGET_ESP32S2
+
 /// List of all possible flash devices used by Adafruit boards
 static const SPIFlash_Device_t possible_devices[] = {
     // Main devices used in current Adafruit products
@@ -53,6 +55,21 @@ enum {
       sizeof(possible_devices) / sizeof(possible_devices[0])
 };
 
+static SPIFlash_Device_t const *findDevice(SPIFlash_Device_t const *device_list,
+                                           int count,
+                                           uint8_t const (&jedec_ids)[3]) {
+  for (uint8_t i = 0; i < count; i++) {
+    const SPIFlash_Device_t *dev = &device_list[i];
+    if (jedec_ids[0] == dev->manufacturer_id &&
+        jedec_ids[1] == dev->memory_type && // comment to appease format check
+        jedec_ids[2] == dev->capacity) {
+      return dev;
+    }
+  }
+  return NULL;
+}
+#endif
+
 Adafruit_SPIFlashBase::Adafruit_SPIFlashBase() {
   _trans = NULL;
   _flash_dev = NULL;
@@ -68,20 +85,6 @@ Adafruit_SPIFlashBase::Adafruit_SPIFlashBase(
   _ind_active = true;
 }
 
-static SPIFlash_Device_t const *findDevice(SPIFlash_Device_t const *device_list,
-                                           int count,
-                                           uint8_t const (&jedec_ids)[3]) {
-  for (uint8_t i = 0; i < count; i++) {
-    const SPIFlash_Device_t *dev = &device_list[i];
-    if (jedec_ids[0] == dev->manufacturer_id &&
-        jedec_ids[1] == dev->memory_type && // comment to appease format check
-        jedec_ids[2] == dev->capacity) {
-      return dev;
-    }
-  }
-  return NULL;
-}
-
 bool Adafruit_SPIFlashBase::begin(SPIFlash_Device_t const *flash_devs,
                                   size_t count) {
   if (_trans == NULL)
@@ -89,6 +92,15 @@ bool Adafruit_SPIFlashBase::begin(SPIFlash_Device_t const *flash_devs,
 
   _trans->begin();
 
+#if CONFIG_IDF_TARGET_ESP32S2
+  (void) flash_devs;
+  (void) count;
+
+  // For ESP32S2 the spi flash is already detected and configured
+  // We could skip the initial sequence
+  _flash_dev = ((Adafruit_FlashTransport_ESP32*) _trans)->getFlashDevice();
+
+#else
   //------------- flash detection -------------//
   uint8_t jedec_ids[3];
   _trans->readCommand(SFLASH_CMD_READ_JEDEC_ID, jedec_ids, 3);
@@ -199,6 +211,7 @@ bool Adafruit_SPIFlashBase::begin(SPIFlash_Device_t const *flash_devs,
 
   writeDisable();
   waitUntilReady();
+#endif
 
   return true;
 }

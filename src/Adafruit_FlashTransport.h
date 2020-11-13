@@ -126,5 +126,6 @@ protected:
 
 #include "qspi/Adafruit_FlashTransport_QSPI.h"
 #include "spi/Adafruit_FlashTransport_SPI.h"
+#include "esp32/Adafruit_FlashTransport_ESP32.h"
 
 #endif /* ADAFRUIT_FLASHTRANSPORT_H_ */

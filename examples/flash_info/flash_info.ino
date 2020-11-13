@@ -11,6 +11,11 @@
 #if defined(FRAM_CS) && defined(FRAM_SPI)
   Adafruit_FlashTransport_SPI flashTransport(FRAM_CS, FRAM_SPI);
 
+#elif CONFIG_IDF_TARGET_ESP32S2
+  // ESP32-S2 use same flash device that store code, therefore there is no need to
+  // specify the SPI and SS
+  Adafruit_FlashTransport_ESP32 flashTransport;
+
 #else
   // On-board external flash (QSPI or SPI) macros should already
   // defined in your board variant if supported
@@ -35,11 +40,12 @@ void setup()
   Serial.begin(115200);
   while ( !Serial ) delay(100);   // wait for native usb
 
-  flash.begin();
-  
   Serial.println("Adafruit Serial Flash Info example");
-  Serial.print("JEDEC ID: "); Serial.println(flash.getJEDECID(), HEX);
-  Serial.print("Flash size: "); Serial.println(flash.size());
+
+  flash.begin();
+
+  Serial.print("JEDEC ID: 0x"); Serial.println(flash.getJEDECID(), HEX);
+  Serial.print("Flash size: "); Serial.print(flash.size() / 1024); Serial.println(" KB");
 }
 
 void loop()
