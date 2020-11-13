@@ -31,8 +31,8 @@
 
 class Adafruit_FlashTransport_ESP32 : public Adafruit_FlashTransport {
 private:
-    esp_partition_t const * _partition;
-    SPIFlash_Device_t _flash_device;
+  esp_partition_t const *_partition;
+  SPIFlash_Device_t _flash_device;
 
 public:
   Adafruit_FlashTransport_ESP32(void);
@@ -53,7 +53,7 @@ public:
 
   // Flash device is already detected and configured, get the pointer without
   // go through initial sequence
-  SPIFlash_Device_t* getFlashDevice(void);
+  SPIFlash_Device_t *getFlashDevice(void);
 };
 
 #endif /* ADAFRUIT_FLASHTRANSPORT_ESP32_H_ */

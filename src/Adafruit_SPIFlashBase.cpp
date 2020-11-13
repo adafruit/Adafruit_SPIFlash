@@ -93,12 +93,12 @@ bool Adafruit_SPIFlashBase::begin(SPIFlash_Device_t const *flash_devs,
   _trans->begin();
 
 #if CONFIG_IDF_TARGET_ESP32S2
-  (void) flash_devs;
-  (void) count;
+  (void)flash_devs;
+  (void)count;
 
   // For ESP32S2 the spi flash is already detected and configured
   // We could skip the initial sequence
-  _flash_dev = ((Adafruit_FlashTransport_ESP32*) _trans)->getFlashDevice();
+  _flash_dev = ((Adafruit_FlashTransport_ESP32 *)_trans)->getFlashDevice();
 
 #else
   //------------- flash detection -------------//
