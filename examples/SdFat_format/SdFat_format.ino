@@ -30,12 +30,17 @@
 // up to 11 characters
 #define DISK_LABEL    "EXT FLASH"
 
-// Uncomment to run example with FRAM
-// #define FRAM_CS   A5
-// #define FRAM_SPI  SPI
+// Uncomment to run example with custom SPI and SS e.g with FRAM breakout
+// #define CUSTOM_CS   A5
+// #define CUSTOM_SPI  SPI
 
-#if defined(FRAM_CS) && defined(FRAM_SPI)
-  Adafruit_FlashTransport_SPI flashTransport(FRAM_CS, FRAM_SPI);
+#if defined(CUSTOM_CS) && defined(CUSTOM_SPI)
+  Adafruit_FlashTransport_SPI flashTransport(CUSTOM_CS, CUSTOM_SPI);
+
+#elif CONFIG_IDF_TARGET_ESP32S2
+  // ESP32-S2 use same flash device that store code.
+  // Therefore there is no need to specify the SPI and SS
+  Adafruit_FlashTransport_ESP32 flashTransport;
 
 #else
   // On-board external flash (QSPI or SPI) macros should already
@@ -44,10 +49,10 @@
   // - EXTERNAL_FLASH_USE_CS/EXTERNAL_FLASH_USE_SPI
   #if defined(EXTERNAL_FLASH_USE_QSPI)
     Adafruit_FlashTransport_QSPI flashTransport;
-
+  
   #elif defined(EXTERNAL_FLASH_USE_SPI)
     Adafruit_FlashTransport_SPI flashTransport(EXTERNAL_FLASH_USE_CS, EXTERNAL_FLASH_USE_SPI);
-
+  
   #else
     #error No QSPI/SPI flash are defined on your board variant.h !
   #endif
@@ -76,7 +81,8 @@ void setup() {
   }
   Serial.print("Flash chip JEDEC ID: 0x"); Serial.println(flash.getJEDECID(), HEX);
 
-  flash.setIndicator(LED_BUILTIN, true);
+  // Uncomment to flash LED while writing to flash
+  // flash.setIndicator(LED_BUILTIN, true);
 
   // Wait for user to send OK to continue.
   Serial.setTimeout(30000);  // Increase timeout to print message less frequently.

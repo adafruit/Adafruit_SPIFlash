@@ -64,8 +64,7 @@ void Adafruit_FlashTransport_ESP32::setClockSpeed(uint32_t write_hz,
 }
 
 bool Adafruit_FlashTransport_ESP32::runCommand(uint8_t command) {
-  // TODO SFLASH_CMD_ERASE_CHIP erase whole partition
-
+  // TODO maybe SFLASH_CMD_ERASE_CHIP should erase whole partition
   // do nothing, mostly write enable
   return true;
 }
