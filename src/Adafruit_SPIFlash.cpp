@@ -30,7 +30,7 @@ bool Adafruit_SPIFlash::begin(SPIFlash_Device_t const *flash_devs,
   bool ret = Adafruit_SPIFlashBase::begin(flash_devs, count);
 
   // Use cache if not FRAM
-  if (!_flash_dev->is_fram) {
+  if (_flash_dev && !_flash_dev->is_fram) {
     // new cache object if not already
     if (!_cache) {
       _cache = new Adafruit_FlashCache();
