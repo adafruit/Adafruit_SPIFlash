@@ -21,12 +21,18 @@
 #include "SdFat.h"
 #include "Adafruit_SPIFlash.h"
 
-// Uncomment to run example with FRAM
-// #define FRAM_CS   A5
-// #define FRAM_SPI  SPI
 
-#if defined(FRAM_CS) && defined(FRAM_SPI)
-  Adafruit_FlashTransport_SPI flashTransport(FRAM_CS, FRAM_SPI);
+// Uncomment to run example with custom SPI and SS e.g with FRAM breakout
+// #define CUSTOM_CS   A5
+// #define CUSTOM_SPI  SPI
+
+#if defined(CUSTOM_CS) && defined(CUSTOM_SPI)
+  Adafruit_FlashTransport_SPI flashTransport(CUSTOM_CS, CUSTOM_SPI);
+
+#elif CONFIG_IDF_TARGET_ESP32S2
+  // ESP32-S2 use same flash device that store code.
+  // Therefore there is no need to specify the SPI and SS
+  Adafruit_FlashTransport_ESP32 flashTransport;
 
 #else
   // On-board external flash (QSPI or SPI) macros should already
@@ -53,7 +59,7 @@ File myFile;
 
 void setup() {
   // Open serial communications and wait for port to open:
-  Serial.begin(9600);
+  Serial.begin(115200);
   while (!Serial) {
     delay(1); // wait for serial port to connect. Needed for native USB port only
   }

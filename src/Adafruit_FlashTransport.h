@@ -58,6 +58,13 @@ enum {
   SFLASH_CMD_3_BYTE_ADDR = 0xE9,
 };
 
+/// Constant that is (mostly) true to all external flash devices
+enum {
+  SFLASH_BLOCK_SIZE = 64 * 1024UL,
+  SFLASH_SECTOR_SIZE = 4 * 1024,
+  SFLASH_PAGE_SIZE = 256,
+};
+
 class Adafruit_FlashTransport {
 public:
   virtual void begin(void) = 0;
@@ -126,5 +133,9 @@ protected:
 
 #include "qspi/Adafruit_FlashTransport_QSPI.h"
 #include "spi/Adafruit_FlashTransport_SPI.h"
+
+#if CONFIG_IDF_TARGET_ESP32S2
+#include "esp32/Adafruit_FlashTransport_ESP32.h"
+#endif
 
 #endif /* ADAFRUIT_FLASHTRANSPORT_H_ */

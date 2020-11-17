@@ -30,13 +30,6 @@
 #include "Adafruit_FlashTransport.h"
 #include "flash_devices.h"
 
-/// Constant that is (mostly) true to all external flash devices
-enum {
-  SFLASH_BLOCK_SIZE = 64 * 1024UL,
-  SFLASH_SECTOR_SIZE = 4 * 1024,
-  SFLASH_PAGE_SIZE = 256,
-};
-
 // An easy to use interface for working with Flash memory.
 //
 // If you are managing allocation of the Flash space yourself, this is the
