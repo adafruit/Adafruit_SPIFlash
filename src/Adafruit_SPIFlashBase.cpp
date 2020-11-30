@@ -145,19 +145,17 @@ bool Adafruit_SPIFlashBase::begin(SPIFlash_Device_t const *flash_devs,
   }
 
   // Speed up to max device frequency, or as high as possible
-  uint32_t const wr_clock_speed = min(
+  uint32_t const wr_speed = min(
       (uint32_t)_flash_dev->max_clock_speed_mhz * 1000000U, (uint32_t)F_CPU);
-  uint32_t rd_clock_speed = wr_clock_speed;
+  uint32_t rd_speed = wr_speed;
 
 #if defined(ARDUINO_ARCH_SAMD) && !defined(__SAMD51__)
-  // Hand-on testing show that SAMD21 M0 can write up to 24 Mhz, but can only
-  // read reliably at 12 Mhz with FRAM
-  if (_flash_dev->is_fram) {
-    rd_clock_speed = min(12000000, rd_clock_speed);
-  }
+  // Hand-on testing show that SAMD21 M0 can write up to 24 Mhz,
+  // but can only read reliably at 12 Mhz
+  rd_speed = min(12000000, rd_speed);
 #endif
 
-  _trans->setClockSpeed(wr_clock_speed, rd_clock_speed);
+  _trans->setClockSpeed(wr_speed, rd_speed);
 
   // Enable Quad Mode if available
   if (_trans->supportQuadMode() && _flash_dev->supports_qspi) {
