@@ -26,6 +26,16 @@ Adafruit_FlashTransport_SPI flashTransport(EXTERNAL_FLASH_USE_CS, EXTERNAL_FLASH
 
 Adafruit_SPIFlash onboardFlash(&flashTransport);
 SdFat onboardSdCard;
+
+constexpr int getSDCardPin() noexcept {
+#ifdef SDCARD_SS_PIN
+	return SDCARD_SS_PIN;
+#else
+	// modify to fit your needs
+	// by default, pin 4 is the SD_CS pin used by the Adafruit 1.8" TFT SD Shield
+	return 4; 
+#endif
+}
 void setup() {
 	Serial.begin(9600);
 	while (!Serial) {
@@ -42,7 +52,7 @@ void setup() {
     Serial.print(onboardFlash.size() / 1024);
     Serial.println(" KB");
     Serial.print("Starting up SD Card...");
-    if (!onboardSdCard.begin(SDCARD_SS_PIN)) {
+    if (!onboardSdCard.begin(getSDCardPin())) {
         Serial.println("No card found (is one inserted?)");
     } else {
         Serial.println("Card found!");
