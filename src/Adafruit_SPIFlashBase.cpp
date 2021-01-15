@@ -57,7 +57,7 @@ enum {
 
 static SPIFlash_Device_t const *findDevice(SPIFlash_Device_t const *device_list,
                                            int count,
-                                           uint8_t const (&jedec_ids)[3]) {
+                                           uint8_t const (&jedec_ids)[4]) {
   for (uint8_t i = 0; i < count; i++) {
     const SPIFlash_Device_t *dev = &device_list[i];
     if (jedec_ids[0] == dev->manufacturer_id &&
@@ -102,8 +102,18 @@ bool Adafruit_SPIFlashBase::begin(SPIFlash_Device_t const *flash_devs,
 
 #else
   //------------- flash detection -------------//
-  uint8_t jedec_ids[3];
-  _trans->readCommand(SFLASH_CMD_READ_JEDEC_ID, jedec_ids, 3);
+  // Note: Manufacturer can be assigned with numerous of continuation code
+  // (0x7F)
+  uint8_t jedec_ids[4];
+  _trans->readCommand(SFLASH_CMD_READ_JEDEC_ID, jedec_ids, 4);
+
+  // For simplicity with commonly used device, we only check for continuation
+  // code at 2nd byte (e.g Fujitsu FRAM devices)
+  if (jedec_ids[1] == 0x7F) {
+    // Shift and skip continuation code in 2nd byte
+    jedec_ids[1] = jedec_ids[2];
+    jedec_ids[2] = jedec_ids[3];
+  }
 
   // Check for device in supplied list, if any.
   if (flash_devs != NULL) {
@@ -209,7 +219,8 @@ bool Adafruit_SPIFlashBase::begin(SPIFlash_Device_t const *flash_devs,
 
   writeDisable();
   waitUntilReady();
-#endif
+
+#endif // CONFIG_IDF_TARGET_ESP32S2
 
   return true;
 }
