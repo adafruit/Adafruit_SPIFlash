@@ -120,52 +120,52 @@ typedef struct {
 // RDID has continuation code: 04-7F-03-02
 #define MB85RS64V                                                              \
   {                                                                            \
-    .total_size = 8UL * 1024,                                                  \
-        .start_up_time_us = 5000, .manufacturer_id = 0x04,                     \
-    .memory_type = 0x03, .capacity = 0x02, .max_clock_speed_mhz = 20,          \
-    .quad_enable_bit_mask = 0x00, .has_sector_protection = false,              \
-    .supports_fast_read = false, .supports_qspi = false,                       \
-    .supports_qspi_writes = false, .write_status_register_split = false,       \
-    .single_status_byte = true, .is_fram = true,                               \
+    .total_size = 8UL * 1024, .start_up_time_us = 5000,                        \
+    .manufacturer_id = 0x04, .memory_type = 0x03, .capacity = 0x02,            \
+    .max_clock_speed_mhz = 20, .quad_enable_bit_mask = 0x00,                   \
+    .has_sector_protection = false, .supports_fast_read = false,               \
+    .supports_qspi = false, .supports_qspi_writes = false,                     \
+    .write_status_register_split = false, .single_status_byte = true,          \
+    .is_fram = true,                                                           \
   }
 
 // https://www.fujitsu.com/uk/Images/MB85RS1MT.pdf
 // RDID has continuation code: 04-7F-27-03
 #define MB85RS1MT                                                              \
   {                                                                            \
-    .total_size = 128UL * 1024,                                                \
-        .start_up_time_us = 5000, .manufacturer_id = 0x04,                     \
-    .memory_type = 0x27, .capacity = 0x03, .max_clock_speed_mhz = 40,          \
-    .quad_enable_bit_mask = 0x00, .has_sector_protection = false,              \
-    .supports_fast_read = true, .supports_qspi = false,                        \
-    .supports_qspi_writes = false, .write_status_register_split = false,       \
-    .single_status_byte = true, .is_fram = true,                               \
+    .total_size = 128UL * 1024, .start_up_time_us = 5000,                      \
+    .manufacturer_id = 0x04, .memory_type = 0x27, .capacity = 0x03,            \
+    .max_clock_speed_mhz = 40, .quad_enable_bit_mask = 0x00,                   \
+    .has_sector_protection = false, .supports_fast_read = true,                \
+    .supports_qspi = false, .supports_qspi_writes = false,                     \
+    .write_status_register_split = false, .single_status_byte = true,          \
+    .is_fram = true,                                                           \
   }
 
 // https://www.fujitsu.com/uk/Images/MB85RS2MTA.pdf
 // RDID has continuation code: 04-7F-48-03
 #define MB85RS2MTA                                                             \
   {                                                                            \
-    .total_size = 256UL * 1024,                                                \
-        .start_up_time_us = 5000, .manufacturer_id = 0x04,                     \
-    .memory_type = 0x48, .capacity = 0x03, .max_clock_speed_mhz = 40,          \
-    .quad_enable_bit_mask = 0x00, .has_sector_protection = false,              \
-    .supports_fast_read = true, .supports_qspi = false,                        \
-    .supports_qspi_writes = false, .write_status_register_split = false,       \
-    .single_status_byte = true, .is_fram = true,                               \
+    .total_size = 256UL * 1024, .start_up_time_us = 5000,                      \
+    .manufacturer_id = 0x04, .memory_type = 0x48, .capacity = 0x03,            \
+    .max_clock_speed_mhz = 40, .quad_enable_bit_mask = 0x00,                   \
+    .has_sector_protection = false, .supports_fast_read = true,                \
+    .supports_qspi = false, .supports_qspi_writes = false,                     \
+    .write_status_register_split = false, .single_status_byte = true,          \
+    .is_fram = true,                                                           \
   }
 
 // https://www.fujitsu.com/uk/Images/MB85RS4MT.pdf
 // RDID has continuation code: 04-7F-49-03
 #define MB85RS4MT                                                              \
   {                                                                            \
-    .total_size = 512UL * 1024,                                                \
-        .start_up_time_us = 5000, .manufacturer_id = 0x04,                     \
-    .memory_type = 0x49, .capacity = 0x03, .max_clock_speed_mhz = 40,          \
-    .quad_enable_bit_mask = 0x00, .has_sector_protection = false,              \
-    .supports_fast_read = true, .supports_qspi = false,                        \
-    .supports_qspi_writes = true, .write_status_register_split = false,        \
-    .single_status_byte = true, .is_fram = true,                               \
+    .total_size = 512UL * 1024, .start_up_time_us = 5000,                      \
+    .manufacturer_id = 0x04, .memory_type = 0x49, .capacity = 0x03,            \
+    .max_clock_speed_mhz = 40, .quad_enable_bit_mask = 0x00,                   \
+    .has_sector_protection = false, .supports_fast_read = true,                \
+    .supports_qspi = false, .supports_qspi_writes = true,                      \
+    .write_status_register_split = false, .single_status_byte = true,          \
+    .is_fram = true,                                                           \
   }
 
 // Settings for the Macronix MX25L1606 2MiB SPI flash.
