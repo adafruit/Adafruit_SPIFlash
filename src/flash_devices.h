@@ -100,6 +100,21 @@ typedef struct {
     .single_status_byte = false, .is_fram = false,                             \
   }
 
+// Settings for the Gigadevice GD25Q32C 4MiB SPI flash.
+// Datasheet: http://www.gigadevice.com/datasheet/gd25q32c/
+#define GD25Q32C                                                               \
+  {                                                                            \
+    .total_size = (1UL << 22), /* 4 MiB */                                     \
+        .start_up_time_us = 5000, .manufacturer_id = 0xc8,                     \
+    .memory_type = 0x40, .capacity = 0x16,                                     \
+    .max_clock_speed_mhz =                                                     \
+        104, /* if we need 120 then we can turn on high performance mode */    \
+        .quad_enable_bit_mask = 0x02, .has_sector_protection = false,          \
+    .supports_fast_read = true, .supports_qspi = true,                         \
+    .supports_qspi_writes = true, .write_status_register_split = false,        \
+    .single_status_byte = false, .is_fram = false,                             \
+  }
+
 // Settings for the Gigadevice GD25Q64C 8MiB SPI flash.
 // Datasheet:
 // http://www.elm-tech.com/en/products/spi-flash-memory/gd25q64/gd25q64.pdf
