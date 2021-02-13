@@ -86,7 +86,7 @@ typedef struct {
   }
 
 // Settings for the Adesto Tech AT25SF041 4MiB SPI flash used in AS7262 sensor
-#define AT25SF041                                                             \
+#define AT25SF041                                                              \
   {                                                                            \
     .total_size = (4UL << 20), /* 4 MiB */                                     \
         .start_up_time_us = 10000, .manufacturer_id = 0x1f,                    \
@@ -96,7 +96,6 @@ typedef struct {
     .supports_qspi_writes = false, .write_status_register_split = false,       \
     .single_status_byte = false, .is_fram = false,                             \
   }
-
 
 // Settings for the Gigadevice GD25Q16C 2MiB SPI flash.
 // Datasheet: http://www.gigadevice.com/datasheet/gd25q16c/
