@@ -78,6 +78,18 @@ typedef struct {
   {                                                                            \
     .total_size = (1UL << 20), /* 1 MiB */                                     \
         .start_up_time_us = 10000, .manufacturer_id = 0x1f,                    \
+    .memory_type = 0x84, .capacity = 0x01, .max_clock_speed_mhz = 85,          \
+    .quad_enable_bit_mask = 0x00, .has_sector_protection = true,               \
+    .supports_fast_read = true, .supports_qspi = false,                        \
+    .supports_qspi_writes = false, .write_status_register_split = false,       \
+    .single_status_byte = false, .is_fram = false,                             \
+  }
+
+// Settings for the Adesto Tech AT25SF041 4MiB SPI flash used in AS7262 sensor
+#define AT25SF041                                                              \
+  {                                                                            \
+    .total_size = (4UL << 20), /* 4 MiB */                                     \
+        .start_up_time_us = 10000, .manufacturer_id = 0x1f,                    \
     .memory_type = 0x45, .capacity = 0x01, .max_clock_speed_mhz = 85,          \
     .quad_enable_bit_mask = 0x00, .has_sector_protection = true,               \
     .supports_fast_read = true, .supports_qspi = false,                        \
