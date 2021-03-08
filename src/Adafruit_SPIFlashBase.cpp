@@ -48,7 +48,7 @@ static const SPIFlash_Device_t possible_devices[] = {
 
     // Other common flash devices
     W25Q16JV_IQ,
-	W25Q32JV_IQ,
+    W25Q32JV_IQ,
     AT25SF041,
     AT25DF081A,
 };

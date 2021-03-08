@@ -369,7 +369,7 @@ typedef struct {
     .supports_fast_read = true, .supports_qspi = true,                         \
     .supports_qspi_writes = true, .write_status_register_split = false,        \
   }
-  
+
 // Settings for the Winbond W25Q32JV-IQ 4MiB SPI flash. Note that JV-IM has a
 // different .memory_type (0x70) Datasheet:
 // https://www.winbond.com/resource-files/w25q32jv%20revh%2001072019%20plus.pdf
