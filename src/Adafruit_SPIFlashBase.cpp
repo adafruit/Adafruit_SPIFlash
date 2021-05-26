@@ -166,7 +166,7 @@ bool Adafruit_SPIFlashBase::begin(SPIFlash_Device_t const *flash_devs,
 #if defined(ARDUINO_ARCH_SAMD) && !defined(__SAMD51__)
   // Hand-on testing show that SAMD21 M0 can write up to 24 Mhz,
   // but can only read reliably at 12 Mhz
-  rd_speed = min(12000000, rd_speed);
+  rd_speed = min(12000000U, rd_speed);
 #endif
 
   _trans->setClockSpeed(wr_speed, rd_speed);
