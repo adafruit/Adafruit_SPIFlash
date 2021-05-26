@@ -203,7 +203,8 @@ static void _run_instruction(uint8_t command, uint32_t iframe, uint32_t addr,
   // Dummy read of INSTRFRAME needed to synchronize.
   // See Instruction Transmission Flow Diagram, figure 37.9, page 995
   // and Example 4, page 998, section 37.6.8.5.
-  (volatile uint32_t) QSPI->INSTRFRAME.reg;
+  volatile uint32_t dummy = QSPI->INSTRFRAME.reg;
+  (void)dummy;
 
   if (buffer && size) {
     uint8_t *qspi_mem = (uint8_t *)(QSPI_AHB + addr);
