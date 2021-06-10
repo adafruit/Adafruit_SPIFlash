@@ -235,7 +235,7 @@ typedef struct {
     .supports_qspi_writes = true, .write_status_register_split = false,        \
     .single_status_byte = true, .is_fram = false,                              \
   }
-	
+
 // Settings for the Macronix MX25R6435F 8MiB SPI flash.
 // Datasheet:
 // http://www.macronix.com/Lists/Datasheet/Attachments/7428/MX25R6435F,%20Wide%20Range,%2064Mb,%20v1.4.pdf
@@ -304,7 +304,7 @@ typedef struct {
     .supports_qspi_writes = false, .write_status_register_split = false,       \
     .single_status_byte = false, .is_fram = false,                             \
   }
-	
+
 // Settings for the Winbond W25Q80DV 1MiB SPI flash.
 // https://www.winbond.com/resource-files/w25q80dv%20dl_revh_10022015.pdf
 
@@ -317,7 +317,7 @@ typedef struct {
     .supports_fast_read = true, .supports_qspi = true,                         \
     .supports_qspi_writes = false, .write_status_register_split = false,       \
     .single_status_byte = false, .is_fram = false,                             \
-  } 
+  }
 
 // Settings for the Winbond W25Q16FW 2MiB SPI flash.
 // Datasheet:
