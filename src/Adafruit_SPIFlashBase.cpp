@@ -81,7 +81,6 @@ bool Adafruit_SPIFlashBase::begin(SPIFlash_Device_t const *flash_devs,
   return true;
 }
 
-
 #else
 
 /// List of all possible flash devices used by Adafruit boards
@@ -259,7 +258,6 @@ bool Adafruit_SPIFlashBase::begin(SPIFlash_Device_t const *flash_devs,
 
   writeDisable();
   waitUntilReady();
-
 
   return true;
 }
