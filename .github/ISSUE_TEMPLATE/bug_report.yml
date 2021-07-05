@@ -80,7 +80,7 @@ body:
     attributes:
       label: Debug Log
       placeholder: |
-        TinyUSB debug log where the issue occurred as attached txt file, best with comments to explain the actual events.
+        Debug log where the issue occurred as attached txt file, best with comments to explain the actual events.
     validations:
       required: false
 
