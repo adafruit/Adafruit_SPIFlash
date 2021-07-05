@@ -11,7 +11,7 @@ jobs:
           - 'metro_m0'
           - 'metro_m4'
           - 'nrf52840'
-          - 'magtag'
+          - 'metroesp32s2'
 
     runs-on: ubuntu-latest
     steps:
