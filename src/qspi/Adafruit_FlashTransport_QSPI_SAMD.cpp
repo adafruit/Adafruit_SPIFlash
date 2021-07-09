@@ -26,6 +26,9 @@
 #include "Adafruit_FlashTransport.h"
 #include "wiring_private.h"
 #include <Arduino.h>
+#include "variant.h"
+
+#ifdef EXTERNAL_FLASH_USE_QSPI
 
 static void _run_instruction(uint8_t command, uint32_t iframe, uint32_t addr,
                              uint8_t *buffer, uint32_t size);
@@ -224,4 +227,5 @@ static void _run_instruction(uint8_t command, uint32_t iframe, uint32_t addr,
   QSPI->INTFLAG.bit.INSTREND = 1;
 }
 
+#endif
 #endif
