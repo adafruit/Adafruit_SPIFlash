@@ -69,7 +69,6 @@ bool Adafruit_FlashTransport_ESP32::runCommand(uint8_t command) {
   case SFLASH_CMD_ERASE_CHIP:
     Serial.printf("partition size %u", _partition->size);
     return ESP_OK == esp_partition_erase_range(_partition, 0, _partition->size);
-    break;
 
   // do nothing, mostly write enable
   default:
@@ -96,9 +95,9 @@ bool Adafruit_FlashTransport_ESP32::writeCommand(uint8_t command,
 bool Adafruit_FlashTransport_ESP32::eraseCommand(uint8_t command,
                                                  uint32_t addr) {
   uint32_t const erase_sz =
-      (command == SFLASH_CMD_ERASE_SECTOR)
-          ? SFLASH_SECTOR_SIZE
-          : (command == SFLASH_CMD_ERASE_BLOCK) ? SFLASH_BLOCK_SIZE : 0;
+      (command == SFLASH_CMD_ERASE_SECTOR)  ? SFLASH_SECTOR_SIZE
+      : (command == SFLASH_CMD_ERASE_BLOCK) ? SFLASH_BLOCK_SIZE
+                                            : 0;
 
   if (erase_sz == 0) {
     return false;
