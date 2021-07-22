@@ -94,12 +94,13 @@ bool Adafruit_FlashTransport_ESP32::writeCommand(uint8_t command,
 
 bool Adafruit_FlashTransport_ESP32::eraseCommand(uint8_t command,
                                                  uint32_t addr) {
-  uint32_t const erase_sz =
-      (command == SFLASH_CMD_ERASE_SECTOR)  ? SFLASH_SECTOR_SIZE
-      : (command == SFLASH_CMD_ERASE_BLOCK) ? SFLASH_BLOCK_SIZE
-                                            : 0;
+  uint32_t erase_sz;
 
-  if (erase_sz == 0) {
+  if (command == SFLASH_CMD_ERASE_SECTOR) {
+    erase_sz = SFLASH_SECTOR_SIZE;
+  } else if (command == SFLASH_CMD_ERASE_BLOCK) {
+    erase_sz = SFLASH_BLOCK_SIZE;
+  } else {
     return false;
   }
 
