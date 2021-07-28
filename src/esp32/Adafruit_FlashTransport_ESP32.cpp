@@ -48,10 +48,10 @@ SPIFlash_Device_t *Adafruit_FlashTransport_ESP32::getFlashDevice(void) {
     return NULL;
   }
 
+  // Limit to partition size
+  _flash_device.total_size = _partition->size;
+
   esp_flash_t const *flash = _partition->flash_chip;
-
-  _flash_device.total_size = flash->size;
-
   _flash_device.manufacturer_id = (flash->chip_id >> 16);
   _flash_device.memory_type = (flash->chip_id >> 8) & 0xff;
   _flash_device.capacity = flash->chip_id & 0xff;
@@ -67,7 +67,6 @@ void Adafruit_FlashTransport_ESP32::setClockSpeed(uint32_t write_hz,
 bool Adafruit_FlashTransport_ESP32::runCommand(uint8_t command) {
   switch (command) {
   case SFLASH_CMD_ERASE_CHIP:
-    Serial.printf("partition size %u", _partition->size);
     return ESP_OK == esp_partition_erase_range(_partition, 0, _partition->size);
 
   // do nothing, mostly write enable
