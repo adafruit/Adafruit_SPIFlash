@@ -102,9 +102,6 @@ static const SPIFlash_Device_t possible_devices[] = {
     MB85RS2MTA,
     MB85RS4MT,
 
-    // Nordic PCA10056
-    MX25R6435F,
-
     // Other common flash devices
     W25Q16JV_IQ,
     W25Q32JV_IQ,
@@ -194,13 +191,18 @@ bool Adafruit_SPIFlashBase::begin(SPIFlash_Device_t const *flash_devs,
   }
 
   // Speed up to max device frequency, or as high as possible
-  uint32_t const wr_speed = min(
-      (uint32_t)_flash_dev->max_clock_speed_mhz * 1000000U, (uint32_t)F_CPU);
+  uint32_t wr_speed = _flash_dev->max_clock_speed_mhz * 1000000U;
+
+#ifdef F_CPU
+  // Limit to CPU speed if defined
+  wr_speed = min(wr_speed, (uint32_t)F_CPU);
+#endif
+
   uint32_t rd_speed = wr_speed;
 
 #if defined(ARDUINO_ARCH_SAMD) && !defined(__SAMD51__)
   // Hand-on testing show that SAMD21 M0 can write up to 24 Mhz,
-  // but can only read reliably at 12 Mhz
+  // but only read reliably at 12 Mhz
   rd_speed = min(12000000U, rd_speed);
 #endif
 
