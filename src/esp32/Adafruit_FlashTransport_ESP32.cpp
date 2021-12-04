@@ -43,7 +43,7 @@ void Adafruit_FlashTransport_ESP32::begin(void) {
   }
 }
 
-oid Adafruit_FlashTransport_ESP32:end(void) {
+void Adafruit_FlashTransport_ESP32::end(void) {
   _cmd_read = SFLASH_CMD_READ;
   _addr_len = 3; // work with most device if not set
 
