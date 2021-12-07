@@ -142,8 +142,8 @@ bool Adafruit_FlashTransport_QSPI::eraseCommand(uint8_t command,
 bool Adafruit_FlashTransport_QSPI::readMemory(uint32_t addr, uint8_t *data,
                                               uint32_t len) {
   uint32_t width = (_cmd_read == SFLASH_CMD_QUAD_READ)
-                    ? QSPI_INSTRFRAME_WIDTH_QUAD_OUTPUT
-                    : QSPI_INSTRFRAME_WIDTH_SINGLE_BIT_SPI;
+                       ? QSPI_INSTRFRAME_WIDTH_QUAD_OUTPUT
+                       : QSPI_INSTRFRAME_WIDTH_SINGLE_BIT_SPI;
 
   // Command 0x6B (or 0x0B) 1 line address, 4 (or 1) line Data
   // Quad (or single) output mode, read memory type
@@ -163,8 +163,8 @@ bool Adafruit_FlashTransport_QSPI::writeMemory(uint32_t addr,
                                                uint8_t const *data,
                                                uint32_t len) {
   uint32_t width = (_cmd_read == SFLASH_CMD_QUAD_READ)
-                    ? QSPI_INSTRFRAME_WIDTH_QUAD_OUTPUT
-                    : QSPI_INSTRFRAME_WIDTH_SINGLE_BIT_SPI;
+                       ? QSPI_INSTRFRAME_WIDTH_QUAD_OUTPUT
+                       : QSPI_INSTRFRAME_WIDTH_SINGLE_BIT_SPI;
 
   uint32_t iframe = width | QSPI_INSTRFRAME_ADDRLEN_24BITS |
                     QSPI_INSTRFRAME_TFRTYPE_WRITEMEMORY |
