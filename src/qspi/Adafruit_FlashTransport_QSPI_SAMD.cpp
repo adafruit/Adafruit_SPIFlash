@@ -80,6 +80,14 @@ void Adafruit_FlashTransport_QSPI::begin(void) {
   QSPI->CTRLA.bit.ENABLE = 1;
 }
 
+void Adafruit_FlashTransport_QSPI::end(void) {
+  QSPI->CTRLA.bit.ENABLE = 0;
+
+  MCLK->APBCMASK.bit.QSPI_ = false;
+  MCLK->AHBMASK.bit.QSPI_ = false;
+  MCLK->AHBMASK.bit.QSPI_2X_ = false;
+}
+
 bool Adafruit_FlashTransport_QSPI::runCommand(uint8_t command) {
   uint32_t iframe = QSPI_INSTRFRAME_WIDTH_SINGLE_BIT_SPI |
                     QSPI_INSTRFRAME_ADDRLEN_24BITS |
