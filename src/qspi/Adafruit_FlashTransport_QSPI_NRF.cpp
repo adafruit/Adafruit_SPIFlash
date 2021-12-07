@@ -71,8 +71,8 @@ void Adafruit_FlashTransport_QSPI::begin(void) {
       .irq_priority = 7};
 
   if (_cmd_read != SFLASH_CMD_QUAD_READ) {
-    qspi_cfg.prot_if.readoc  = NRF_QSPI_READOC_FASTREAD; // 0x0B read command
-    qspi_cfg.prot_if.writeoc = NRF_QSPI_WRITEOC_PP;      // 0x02 write command
+    qspi_cfg.prot_if.readoc = NRF_QSPI_READOC_FASTREAD; // 0x0B read command
+    qspi_cfg.prot_if.writeoc = NRF_QSPI_WRITEOC_PP;     // 0x02 write command
   }
 
   // No callback for blocking API

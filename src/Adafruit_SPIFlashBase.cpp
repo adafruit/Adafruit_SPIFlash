@@ -133,9 +133,9 @@ void Adafruit_SPIFlashBase::write_status_register(uint8_t *status) {
   if (_flash_dev->write_status_register_split) {
     _trans->writeCommand(SFLASH_CMD_WRITE_STATUS2, status + 1, 1);
   } else if (_flash_dev->single_status_byte) {
-    _trans->writeCommand(SFLASH_CMD_WRITE_STATUS,  status + 1, 1);
+    _trans->writeCommand(SFLASH_CMD_WRITE_STATUS, status + 1, 1);
   } else {
-    _trans->writeCommand(SFLASH_CMD_WRITE_STATUS,  status, 2);
+    _trans->writeCommand(SFLASH_CMD_WRITE_STATUS, status, 2);
   }
 }
 
@@ -233,10 +233,10 @@ bool Adafruit_SPIFlashBase::begin(SPIFlash_Device_t const *flash_devs,
     }
   } else {
     /*
-     * Most of QSPI flash memory ICs have non-volatile QE bit in a status register.
-     * If it was set once - we need to apply a separate procedure to clear it off
-     * when the device is connected to a non-QSPI capable bus or
-     * it has _flash_dev->supports_qspi setting in 'false' state
+     * Most of QSPI flash memory ICs have non-volatile QE bit in a status
+     * register. If it was set once - we need to apply a separate procedure to
+     * clear it off when the device is connected to a non-QSPI capable bus or it
+     * has _flash_dev->supports_qspi setting in 'false' state
      */
     // Disable Quad Mode if not available
     if (!_trans->supportQuadMode() || !_flash_dev->supports_qspi) {
