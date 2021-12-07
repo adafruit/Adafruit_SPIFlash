@@ -255,13 +255,13 @@ bool Adafruit_SPIFlashBase::begin(SPIFlash_Device_t const *flash_devs,
 
     // Single mode, use fast read if supported
     if (_flash_dev->supports_fast_read) {
-      _trans->setReadCommand(SFLASH_CMD_FAST_READ);
-
       if (_trans->supportQuadMode() && !_flash_dev->supports_qspi) {
-
         /* Re-init QSPI with READOC_FASTREAD and WRITEOC_PP */
         _trans->end();
+        _trans->setReadCommand(SFLASH_CMD_FAST_READ);
         _trans->begin();
+      } else {
+        _trans->setReadCommand(SFLASH_CMD_FAST_READ);
       }
     }
   }
