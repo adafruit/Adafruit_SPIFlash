@@ -70,11 +70,19 @@ void Adafruit_FlashTransport_QSPI::begin(void) {
           },
       .irq_priority = 7};
 
+  if (_cmd_read != SFLASH_CMD_QUAD_READ) {
+    qspi_cfg.prot_if.readoc  = NRF_QSPI_READOC_FASTREAD; // 0x0B read command
+    qspi_cfg.prot_if.writeoc = NRF_QSPI_WRITEOC_PP;      // 0x02 write command
+  }
+
   // No callback for blocking API
   nrfx_qspi_init(&qspi_cfg, NULL, NULL);
 }
 
-void Adafruit_FlashTransport_QSPI::end(void) { nrfx_qspi_uninit(); }
+void Adafruit_FlashTransport_QSPI::end(void) {
+  nrfx_qspi_uninit();
+  _cmd_read = SFLASH_CMD_QUAD_READ;
+}
 
 void Adafruit_FlashTransport_QSPI::setClockSpeed(uint32_t clock_hz,
                                                  uint32_t read_hz) {

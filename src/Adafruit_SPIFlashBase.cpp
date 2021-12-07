@@ -129,6 +129,16 @@ static SPIFlash_Device_t const *findDevice(SPIFlash_Device_t const *device_list,
   return NULL;
 }
 
+void Adafruit_SPIFlashBase::write_status_register(uint8_t *status) {
+  if (_flash_dev->write_status_register_split) {
+    _trans->writeCommand(SFLASH_CMD_WRITE_STATUS2, status + 1, 1);
+  } else if (_flash_dev->single_status_byte) {
+    _trans->writeCommand(SFLASH_CMD_WRITE_STATUS,  status + 1, 1);
+  } else {
+    _trans->writeCommand(SFLASH_CMD_WRITE_STATUS,  status, 2);
+  }
+}
+
 bool Adafruit_SPIFlashBase::begin(SPIFlash_Device_t const *flash_devs,
                                   size_t count) {
   if (_trans == NULL) {
@@ -219,19 +229,40 @@ bool Adafruit_SPIFlashBase::begin(SPIFlash_Device_t const *flash_devs,
       writeEnable();
 
       uint8_t full_status[2] = {0x00, _flash_dev->quad_enable_bit_mask};
-
-      if (_flash_dev->write_status_register_split) {
-        _trans->writeCommand(SFLASH_CMD_WRITE_STATUS2, full_status + 1, 1);
-      } else if (_flash_dev->single_status_byte) {
-        _trans->writeCommand(SFLASH_CMD_WRITE_STATUS, full_status + 1, 1);
-      } else {
-        _trans->writeCommand(SFLASH_CMD_WRITE_STATUS, full_status, 2);
-      }
+      write_status_register(full_status);
     }
   } else {
+    /*
+     * Most of QSPI flash memory ICs have non-volatile QE bit in a status register.
+     * If it was set once - we need to apply a separate procedure to clear it off
+     * when the device is connected to a non-QSPI capable bus or
+     * it has _flash_dev->supports_qspi setting in 'false' state
+     */
+    // Disable Quad Mode if not available
+    if (!_trans->supportQuadMode() || !_flash_dev->supports_qspi) {
+      // Verify that QSPI mode is not enabled.
+      uint8_t status =
+          _flash_dev->single_status_byte ? readStatus() : readStatus2();
+
+      // Check the quad enable bit.
+      if ((status & _flash_dev->quad_enable_bit_mask) != 0) {
+        writeEnable();
+
+        uint8_t full_status[2] = {0x00, 0x00};
+        write_status_register(full_status);
+      }
+    }
+
     // Single mode, use fast read if supported
     if (_flash_dev->supports_fast_read) {
       _trans->setReadCommand(SFLASH_CMD_FAST_READ);
+
+      if (_trans->supportQuadMode() && !_flash_dev->supports_qspi) {
+
+        /* Re-init QSPI with READOC_FASTREAD and WRITEOC_PP */
+        _trans->end();
+        _trans->begin();
+      }
     }
   }
 
