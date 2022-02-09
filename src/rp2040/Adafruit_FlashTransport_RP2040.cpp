@@ -74,11 +74,16 @@ void Adafruit_FlashTransport_RP2040::begin(void) {
   Serial.print("Size = ");
   Serial.println(_size);
 
-//  esp_flash_t const *flash = _partition->flash_chip;
-//  _flash_dev.manufacturer_id = (flash->chip_id >> 16);
-//  _flash_dev.memory_type = (flash->chip_id >> 8) & 0xff;
-//  _flash_dev.capacity = flash->chip_id & 0xff;
+  // Read the RDID register to get the flash capacity.
+  uint8_t cmd[] = {0x9f, 0, 0, 0, };
+  uint8_t data[4];
+  flash_do_cmd(cmd, data, 5);
 
+  uint8_t* jedec_ids = data+1;
+
+  _flash_dev.manufacturer_id = jedec_ids[0];
+  _flash_dev.memory_type = jedec_ids[1];
+  _flash_dev.capacity = jedec_ids[2];
 }
 
 void Adafruit_FlashTransport_RP2040::end(void) {
