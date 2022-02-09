@@ -13,8 +13,20 @@
 
 #elif defined(ARDUINO_ARCH_ESP32)
   // ESP32 use same flash device that store code.
+  // SPIFlash can use partition table to detect fatfs partition
   // Therefore there is no need to specify the SPI and SS
   Adafruit_FlashTransport_ESP32 flashTransport;
+
+#elif defined(ARDUINO_ARCH_RP2040)
+  // RP2040 use same flash device that store code.
+  // Therefore there is no need to specify the SPI and SS
+  // Use default (no-args) constructor to be compatible with CircuitPython partition scheme
+  Adafruit_FlashTransport_RP2040 flashTransport;
+
+  // For generic usage:
+  //    Adafruit_FlashTransport_RP2040 flashTransport(start_address, size)
+  // If start_address and size are both 0, value that match filesystem setting in
+  // 'Tools->Flash Size' menu selection will be used
 
 #else
   // On-board external flash (QSPI or SPI) macros should already
@@ -82,7 +94,7 @@ void setup()
 
   Serial.println("Adafruit Serial Flash Info example");
   flash.begin();
-  
+
   //Using a flash device not already listed? Start the flash memory by passing it the array of device settings defined above, and the number of elements in the array.
   //flash.begin(my_flash_devices, flashDevices);
 
