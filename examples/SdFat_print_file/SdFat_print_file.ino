@@ -70,7 +70,7 @@ void setup() {
   // Initialize flash library and check its chip ID.
   if (!flash.begin()) {
     Serial.println("Error, failed to initialize flash chip!");
-    while(1);
+    while(1) delay(1);
   }
   Serial.print("Flash chip JEDEC ID: 0x"); Serial.println(flash.getJEDECID(), HEX);
 
@@ -79,7 +79,7 @@ void setup() {
   if (!fatfs.begin(&flash)) {
     Serial.println("Error, failed to mount newly formatted filesystem!");
     Serial.println("Was the flash chip formatted with the fatfs_format example?");
-    while(1);
+    while(1) delay(1);
   }
   Serial.println("Mounted filesystem!");
 

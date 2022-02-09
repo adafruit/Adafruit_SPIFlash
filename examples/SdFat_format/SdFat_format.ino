@@ -91,7 +91,7 @@ void setup() {
     Serial.println("This sketch will ERASE ALL DATA on the flash chip and format it with a new filesystem!");
     Serial.println("Type OK (all caps) and press enter to continue.");
     Serial.println("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
-  } while ( !Serial.find("OK"));
+  } while ( !Serial.find((char*) "OK"));
 
   // Call fatfs begin and passed flash object to initialize file system
   Serial.println("Creating and formatting FAT filesystem (this takes ~60 seconds)...");
