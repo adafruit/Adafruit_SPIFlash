@@ -40,6 +40,19 @@ extern uint8_t _FS_end;
 #define CPY_START_ADDR    (1*1024*1024)
 #define CPY_SIZE          ( ((uint32_t)&_FS_end) - (XIP_BASE + CPY_START_ADDR) + 4096 )
 
+
+static inline void fl_lock(void)
+{
+  noInterrupts();
+  rp2040.idleOtherCore();
+}
+
+static inline void fl_unlock(void)
+{
+  rp2040.resumeOtherCore();
+  interrupts();
+}
+
 Adafruit_FlashTransport_RP2040::Adafruit_FlashTransport_RP2040(void) :
   Adafruit_FlashTransport_RP2040(CPY_START_ADDR, CPY_SIZE) {
 }
@@ -102,7 +115,9 @@ void Adafruit_FlashTransport_RP2040::setClockSpeed(uint32_t write_hz,
 bool Adafruit_FlashTransport_RP2040::runCommand(uint8_t command) {
   switch (command) {
   case SFLASH_CMD_ERASE_CHIP:
+    fl_lock();
     flash_range_erase(_start_addr, _size);
+    fl_unlock();
     break;
 
   // do nothing, mostly write enable
@@ -140,7 +155,9 @@ bool Adafruit_FlashTransport_RP2040::eraseCommand(uint8_t command,
     return false;
   }
 
+  fl_lock();
   flash_range_erase(_start_addr+addr, erase_sz);
+  fl_unlock();
 
   return true;
 }
@@ -154,8 +171,9 @@ bool Adafruit_FlashTransport_RP2040::readMemory(uint32_t addr, uint8_t *data,
 bool Adafruit_FlashTransport_RP2040::writeMemory(uint32_t addr,
                                                 uint8_t const *data,
                                                 uint32_t len) {
-  //return ESP_OK == esp_partition_write(_partition, addr, data, len);
+  fl_lock();
   flash_range_program(_start_addr + addr, data, len);
+  fl_unlock();
   return true;
 }
 
