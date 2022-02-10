@@ -37,9 +37,8 @@ extern uint8_t _FS_end;
 
 // CircuitPython partition scheme with start adress = 1 MB, the rest is for FileSystem
 // + 4KB since CPY does not reserve EEPROM from arduino core
-#define CPY_START_ADDR    (XIP_BASE + 1*1024*1024)
-#define CPY_SIZE          (((uint32_t)&_FS_end) - CPY_START_ADDR + 4096)
-
+#define CPY_START_ADDR    (1*1024*1024)
+#define CPY_SIZE          ( ((uint32_t)&_FS_end) - (XIP_BASE + CPY_START_ADDR) + 4096 )
 
 Adafruit_FlashTransport_RP2040::Adafruit_FlashTransport_RP2040(void) :
   Adafruit_FlashTransport_RP2040(CPY_START_ADDR, CPY_SIZE) {
@@ -59,7 +58,7 @@ Adafruit_FlashTransport_RP2040::Adafruit_FlashTransport_RP2040(uint32_t start_ad
 void Adafruit_FlashTransport_RP2040::begin(void) {
   // auto detect start address
   if (!_start_addr) {
-    _start_addr = (uint32_t) &_FS_start;
+    _start_addr = (uint32_t) &_FS_start - XIP_BASE;
   }
 
   // auto detect size
@@ -68,7 +67,7 @@ void Adafruit_FlashTransport_RP2040::begin(void) {
   }
   _flash_dev.total_size = _size;
 
-  Serial.print("Start = ");
+  Serial.print("Start = 0x");
   Serial.println(_start_addr, HEX);
 
   Serial.print("Size = ");
@@ -103,12 +102,14 @@ void Adafruit_FlashTransport_RP2040::setClockSpeed(uint32_t write_hz,
 bool Adafruit_FlashTransport_RP2040::runCommand(uint8_t command) {
   switch (command) {
   case SFLASH_CMD_ERASE_CHIP:
-//    return ESP_OK == esp_partition_erase_range(_partition, 0, _partition->size);
+    flash_range_erase(_start_addr, _size);
+    break;
 
   // do nothing, mostly write enable
-  default:
-    return true;
+  default: break;
   }
+
+  return true;
 }
 
 bool Adafruit_FlashTransport_RP2040::readCommand(uint8_t command,
@@ -139,22 +140,23 @@ bool Adafruit_FlashTransport_RP2040::eraseCommand(uint8_t command,
     return false;
   }
 
-  //return ESP_OK == esp_partition_erase_range(_partition, addr, erase_sz);
+  flash_range_erase(_start_addr+addr, erase_sz);
 
-  return false;
+  return true;
 }
 
 bool Adafruit_FlashTransport_RP2040::readMemory(uint32_t addr, uint8_t *data,
                                                uint32_t len) {
-  //return ESP_OK == esp_partition_read(_partition, addr, data, len);
-  return false;
+  memcpy(data, (void*) (XIP_BASE + _start_addr + addr), len);
+  return true;
 }
 
 bool Adafruit_FlashTransport_RP2040::writeMemory(uint32_t addr,
                                                 uint8_t const *data,
                                                 uint32_t len) {
   //return ESP_OK == esp_partition_write(_partition, addr, data, len);
-  return false;
+  flash_range_program(_start_addr + addr, data, len);
+  return true;
 }
 
 #endif
