@@ -40,8 +40,7 @@
   // Use default (no-args) constructor to be compatible with CircuitPython partition scheme
   Adafruit_FlashTransport_RP2040 flashTransport;
 
-  // For generic usage:
-  //    Adafruit_FlashTransport_RP2040 flashTransport(start_address, size)
+  // For generic usage: Adafruit_FlashTransport_RP2040(start_address, size)
   // If start_address and size are both 0, value that match filesystem setting in
   // 'Tools->Flash Size' menu selection will be used
 
