@@ -68,7 +68,7 @@ Adafruit_SPIFlash flash(&flashTransport);
 FatFileSystem fatfs;
 
 // Configuration for the file to open and read:
-#define FILE_NAME      "boot_out.txt"
+#define FILE_NAME      "data.csv"
 
 void setup() {
   // Initialize serial port and wait for it to open before continuing.
