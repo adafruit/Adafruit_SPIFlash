@@ -113,6 +113,8 @@ SPIFlash_Device_t *Adafruit_FlashTransport_RP2040::getFlashDevice(void) {
 void Adafruit_FlashTransport_RP2040::setClockSpeed(uint32_t write_hz,
                                                    uint32_t read_hz) {
   // do nothing, just use current configured clock
+  (void)write_hz;
+  (void)read_hz;
 }
 
 bool Adafruit_FlashTransport_RP2040::runCommand(uint8_t command) {
@@ -135,6 +137,7 @@ bool Adafruit_FlashTransport_RP2040::readCommand(uint8_t command,
                                                  uint8_t *response,
                                                  uint32_t len) {
   // mostly is Read STATUS, just fill with 0x0
+  (void)command;
   memset(response, 0, len);
 
   return true;
@@ -143,7 +146,11 @@ bool Adafruit_FlashTransport_RP2040::readCommand(uint8_t command,
 bool Adafruit_FlashTransport_RP2040::writeCommand(uint8_t command,
                                                   uint8_t const *data,
                                                   uint32_t len) {
-  //  do nothing, mostly is Write Status
+  // mostly is Write Status, do nothing
+  (void)command;
+  (void)data;
+  (void)len;
+
   return true;
 }
 

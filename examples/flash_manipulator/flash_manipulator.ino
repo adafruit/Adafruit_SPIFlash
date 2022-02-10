@@ -47,7 +47,7 @@ File dataFile;
 uint8_t buffer[MAXPAGESIZE], buffer2[MAXPAGESIZE];
 uint32_t results;
 
-void error(char *str) {
+void error(const char *str) {
   Serial.println(str);
   while (1) delay(1);
 }
