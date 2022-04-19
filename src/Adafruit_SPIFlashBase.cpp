@@ -107,6 +107,7 @@ static const SPIFlash_Device_t possible_devices[] = {
     W25Q32JV_IQ,
     AT25SF041,
     AT25DF081A,
+    MX25L12833F
 };
 
 /// Flash device list count
