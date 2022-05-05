@@ -90,29 +90,16 @@ bool Adafruit_SPIFlashBase::begin(SPIFlash_Device_t const *flash_devs,
 /// List of all possible flash devices used by Adafruit boards
 static const SPIFlash_Device_t possible_devices[] = {
     // Main devices used in current Adafruit products
-    GD25Q16C,
-    GD25Q32C,
-    GD25Q64C,
-    S25FL116K,
-    S25FL216K,
+    GD25Q16C, GD25Q32C, GD25Q64C, S25FL116K, S25FL216K,
 
     // Only a handful of production run
-    W25Q16FW,
-    W25Q64JV_IQ,
+    W25Q16FW, W25Q64JV_IQ,
 
     // Fujitsu FRAM
-    MB85RS64V,
-    MB85RS1MT,
-    MB85RS2MTA,
-    MB85RS4MT,
+    MB85RS64V, MB85RS1MT, MB85RS2MTA, MB85RS4MT,
 
     // Other common flash devices
-    W25Q16JV_IQ,
-    W25Q32JV_IQ,
-    AT25SF041,
-    AT25DF081A,
-    MX25L12833F
-};
+    W25Q16JV_IQ, W25Q32JV_IQ, AT25SF041, AT25DF081A};
 
 /// Flash device list count
 enum {

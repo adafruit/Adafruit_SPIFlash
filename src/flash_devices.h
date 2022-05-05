@@ -268,10 +268,10 @@ typedef struct {
     .single_status_byte = true, .is_fram = false,                              \
   }
 
-  // Settings for the Macronix MX25L12833F 16MiB SPI flash.
+// Settings for the Macronix MX25L12833F 16MiB SPI flash.
 // Datasheet:
 // https://www.macronix.com/Lists/Datasheet/Attachments/7408/MX25L12833F,%203V,%2064Mb,%20v1.6.pdf
-#define MX25L12833F                                                             \
+#define MX25L12833F                                                            \
   {                                                                            \
     .total_size = (1UL << 24), /* 8 MiB */                                     \
         .start_up_time_us = 5000, .manufacturer_id = 0xc2,                     \
