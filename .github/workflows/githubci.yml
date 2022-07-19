@@ -43,3 +43,18 @@ jobs:
         GH_REPO_TOKEN: ${{ secrets.GH_REPO_TOKEN }}
         PRETTYNAME : "Adafruit SPIFlash Library"
       run: bash ci/doxy_gen_and_deploy.sh
+
+
+    - name: Move build artifacts into place
+      run: |
+            mkdir build
+            find -name "*.uf2" -ls
+            for i in examples/*/build/*/*.uf2; do j=${i##*/}; j=${j%%*.}; mv $i build/$j-${{ matrix.arduino-platform }}.uf2; done
+
+
+    - name: Upload build artifacts
+      uses: actions/upload-artifact@v2
+      with:
+        name: ${{ github.event.repository.name }}.${{ github.sha }}
+        path: |
+            build/*.uf2
