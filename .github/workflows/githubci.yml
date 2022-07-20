@@ -8,8 +8,12 @@ jobs:
       fail-fast: false
       matrix:
         arduino-platform:
+          - 'cpx'
+          - 'feather_m0_express'
+          - 'feather_m4_express'
           - 'metro_m0'
           - 'metro_m4'
+          - 'grand_central'
           - 'metroesp32s2'
           - 'nrf52840'
           - 'feather_rp2040'
@@ -57,4 +61,6 @@ jobs:
       with:
         name: ${{ github.event.repository.name }}.${{ github.sha }}
         path: |
+            build/*.hex
+            build/*.bin
             build/*.uf2
