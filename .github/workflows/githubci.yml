@@ -10,12 +10,19 @@ jobs:
         arduino-platform:
           - 'cpx_ada'
           - 'feather_m0_express'
-          - 'feather_m4_express'
           - 'metro_m0'
+          - 'feather_m4_express'
           - 'metro_m4'
           - 'grand_central'
+          - 'neotrellis_m4'
+          - 'pyportal'
+          - 'pyportal_titano'
+          - 'matrixportal'
+          - 'pybadge'
           - 'metroesp32s2'
           - 'nrf52840'
+          - 'cpb'
+          - 'clue'
           - 'feather_rp2040'
 
     runs-on: ubuntu-latest
