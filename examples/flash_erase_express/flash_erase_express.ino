@@ -58,8 +58,17 @@
 
 Adafruit_SPIFlash flash(&flashTransport);
 
-// On-board status Neopixel, do this only if you don't have an onboard pixel defined!
-//#define PIN_NEOPIXEL 40
+// On-board status Neopixel.
+#if defined(ARDUINO_TRELLIS_M4)
+  #define PIN_NEOPIXEL         10
+#elif defined(ARDUINO_PYPORTAL_M4) || defined(ADAFRUIT_PYPORTAL_M4_TITANO)
+  #define PIN_NEOPIXEL         2
+#elif defined(ADAFRUIT_PYBADGE_M4_EXPRESS)
+  #define PIN_NEOPIXEL         8
+#else
+// something else?
+//  #define PIN_NEOPIXEL         8
+#endif
 
 Adafruit_NeoPixel pixel = Adafruit_NeoPixel(1, PIN_NEOPIXEL, NEO_GRB + NEO_KHZ800);
 uint32_t BLUE = pixel.Color(0, 0, 100);
