@@ -8,7 +8,7 @@ jobs:
       fail-fast: false
       matrix:
         arduino-platform:
-          - 'cpx'
+          - 'cpx_ada'
           - 'feather_m0_express'
           - 'feather_m4_express'
           - 'metro_m0'
