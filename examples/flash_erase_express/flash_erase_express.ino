@@ -59,10 +59,21 @@
 Adafruit_SPIFlash flash(&flashTransport);
 
 // On-board status Neopixel.
-#define NEOPIN         40       // neopixel pin
-Adafruit_NeoPixel pixel = Adafruit_NeoPixel(1, NEOPIN, NEO_GRB + NEO_KHZ800);
+#if defined(ARDUINO_TRELLIS_M4)
+  #define PIN_NEOPIXEL         10
+#elif defined(ARDUINO_PYPORTAL_M4) || defined(ADAFRUIT_PYPORTAL_M4_TITANO)
+  #define PIN_NEOPIXEL         2
+#elif defined(ADAFRUIT_PYBADGE_M4_EXPRESS)
+  #define PIN_NEOPIXEL         8
+#else
+// something else?
+//  #define PIN_NEOPIXEL         8
+#endif
+
+Adafruit_NeoPixel pixel = Adafruit_NeoPixel(1, PIN_NEOPIXEL, NEO_GRB + NEO_KHZ800);
 uint32_t BLUE = pixel.Color(0, 0, 100);
 uint32_t GREEN = pixel.Color(0, 100, 0);
+uint32_t YELLOW = pixel.Color(100, 100, 0);
 uint32_t RED = pixel.Color(100, 0, 0);
 uint32_t OFF = pixel.Color(0, 0, 0);
 
@@ -78,6 +89,9 @@ void setup() {
     // blink red
     blink(2, RED);
   }
+  
+  pixel.setPixelColor(0, YELLOW);
+  pixel.show();
   
   if (!flash.eraseChip()) {
     blink(3, RED);
