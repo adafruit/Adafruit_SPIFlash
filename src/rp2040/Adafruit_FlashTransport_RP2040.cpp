@@ -36,7 +36,7 @@ extern uint8_t _FS_end;
 // FS Size determined by menu selection
 #define MENU_FS_SIZE ((uint32_t)(&_FS_end - &_FS_start))
 
-// CircuitPython partition scheme with start adress = 1 MB, the rest is for
+// CircuitPython partition scheme with start address = 1 MB, the rest is for
 // FileSystem
 // + 4KB since CPY does not reserve EEPROM from arduino core
 #define CPY_START_ADDR (1 * 1024 * 1024)

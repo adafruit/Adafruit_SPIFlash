@@ -154,11 +154,10 @@ void loop(void)
       memset(buffer, 0, pagesize);
       
       int16_t r = dataFile.read(buffer, pagesize);
-      if (r == 0) 
-        break;
+      if (r == 0) break;
       Serial.print("// Writing page ");  Serial.println(page);
 
-      if (r != flash.writeBuffer (page * r, buffer, r)) {
+      if (r != (int) flash.writeBuffer(page * r, buffer, r)) {
         error("Flash write failure");
       }
     }  

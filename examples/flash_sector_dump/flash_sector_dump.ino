@@ -90,10 +90,11 @@ void loop()
   while( !Serial.available() ) delay(10);
 
   int sector = Serial.parseInt();
+  int sector_max = (int) flash.size()/4096;
 
   Serial.println(sector); // echo
 
-  if ( sector < flash.size()/4096 )
+  if ( sector < sector_max )
   {
     dump_sector(sector);
   }else

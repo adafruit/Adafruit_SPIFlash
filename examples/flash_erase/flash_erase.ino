@@ -79,7 +79,7 @@ void setup() {
     Serial.println("Type OK (all caps) and press enter to continue.");
     Serial.println("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
   }
-  while (!Serial.find("OK"));
+  while (!Serial.find((char*) "OK"));
 
   Serial.println("Erasing flash chip in 10 seconds...");
   Serial.println("Note you will see stat and other debug output printed repeatedly.");
