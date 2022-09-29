@@ -4,6 +4,8 @@
 #include "SdFat.h"
 #include "Adafruit_SPIFlash.h"
 
+#define TEST_WHOLE_CHIP 1
+
 #ifdef LED_BUILTIN
   uint8_t led_pin = LED_BUILTIN;
 #else
@@ -99,9 +101,7 @@ bool write_and_compare(uint8_t pattern)
   Serial.println("Erase chip");
   Serial.flush();
 
-#define TEST_WHOLE_CHIP
-
-#ifdef TEST_WHOLE_CHIP
+#if TEST_WHOLE_CHIP
   uint32_t const flash_sz = flash.size();
   flash.eraseChip();
 #else

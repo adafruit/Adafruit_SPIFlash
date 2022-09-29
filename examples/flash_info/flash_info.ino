@@ -1,8 +1,8 @@
 // The MIT License (MIT)
 // Copyright (c) 2019 Ha Thach for Adafruit Industries
 
-#include "SdFat.h"
 #include "Adafruit_SPIFlash.h"
+#include "SdFat.h"
 
 // Uncomment to run example with custom SPI and SS e.g with FRAM breakout
 // #define CUSTOM_CS   A5
