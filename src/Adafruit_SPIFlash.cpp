@@ -28,7 +28,7 @@
 #include "Adafruit_TinyUSB.h"
 #endif
 
-#define LOGICAL_BLOCK_SIZE    512
+#define LOGICAL_BLOCK_SIZE 512
 
 #if SPIFLASH_DEBUG
 #define SPIFLASH_LOG(_block, _count)                                           \
@@ -85,14 +85,10 @@ void Adafruit_SPIFlash::end(void) {
 // A block is 512 bytes
 //--------------------------------------------------------------------+
 
-bool Adafruit_SPIFlash::isBusy()
-{
-  return !Adafruit_SPIFlashBase::isReady();
-}
+bool Adafruit_SPIFlash::isBusy() { return !Adafruit_SPIFlashBase::isReady(); }
 
-uint32_t Adafruit_SPIFlash::sectorCount()
-{
-  return Adafruit_SPIFlashBase::size()/LOGICAL_BLOCK_SIZE;
+uint32_t Adafruit_SPIFlash::sectorCount() {
+  return Adafruit_SPIFlashBase::size() / LOGICAL_BLOCK_SIZE;
 }
 
 bool Adafruit_SPIFlash::readBlock(uint32_t block, uint8_t *dst) {
@@ -100,9 +96,11 @@ bool Adafruit_SPIFlash::readBlock(uint32_t block, uint8_t *dst) {
 
   if (_flash_dev->is_fram) {
     // FRAM does not need caching
-    return this->readBuffer(block * LOGICAL_BLOCK_SIZE, dst, LOGICAL_BLOCK_SIZE) > 0;
+    return this->readBuffer(block * LOGICAL_BLOCK_SIZE, dst,
+                            LOGICAL_BLOCK_SIZE) > 0;
   } else {
-    return _cache->read(this, block * LOGICAL_BLOCK_SIZE, dst, LOGICAL_BLOCK_SIZE);
+    return _cache->read(this, block * LOGICAL_BLOCK_SIZE, dst,
+                        LOGICAL_BLOCK_SIZE);
   }
 }
 
@@ -120,9 +118,11 @@ bool Adafruit_SPIFlash::writeBlock(uint32_t block, const uint8_t *src) {
   SPIFLASH_LOG(block, 1);
 
   if (_flash_dev->is_fram) {
-    return this->writeBuffer(block * LOGICAL_BLOCK_SIZE, src, LOGICAL_BLOCK_SIZE) > 0;
+    return this->writeBuffer(block * LOGICAL_BLOCK_SIZE, src,
+                             LOGICAL_BLOCK_SIZE) > 0;
   } else {
-    return _cache->write(this, block * LOGICAL_BLOCK_SIZE, src, LOGICAL_BLOCK_SIZE);
+    return _cache->write(this, block * LOGICAL_BLOCK_SIZE, src,
+                         LOGICAL_BLOCK_SIZE);
   }
 }
 
@@ -130,9 +130,11 @@ bool Adafruit_SPIFlash::readBlocks(uint32_t block, uint8_t *dst, size_t nb) {
   SPIFLASH_LOG(block, nb);
 
   if (_flash_dev->is_fram) {
-    return this->readBuffer(block * LOGICAL_BLOCK_SIZE, dst, LOGICAL_BLOCK_SIZE * nb) > 0;
+    return this->readBuffer(block * LOGICAL_BLOCK_SIZE, dst,
+                            LOGICAL_BLOCK_SIZE * nb) > 0;
   } else {
-    return _cache->read(this, block * LOGICAL_BLOCK_SIZE, dst, LOGICAL_BLOCK_SIZE * nb);
+    return _cache->read(this, block * LOGICAL_BLOCK_SIZE, dst,
+                        LOGICAL_BLOCK_SIZE * nb);
   }
 }
 
@@ -140,8 +142,10 @@ bool Adafruit_SPIFlash::writeBlocks(uint32_t block, const uint8_t *src,
                                     size_t nb) {
   SPIFLASH_LOG(block, nb);
   if (_flash_dev->is_fram) {
-    return this->writeBuffer(block * LOGICAL_BLOCK_SIZE, src, LOGICAL_BLOCK_SIZE * nb) > 0;
+    return this->writeBuffer(block * LOGICAL_BLOCK_SIZE, src,
+                             LOGICAL_BLOCK_SIZE * nb) > 0;
   } else {
-    return _cache->write(this, block * LOGICAL_BLOCK_SIZE, src, LOGICAL_BLOCK_SIZE * nb);
+    return _cache->write(this, block * LOGICAL_BLOCK_SIZE, src,
+                         LOGICAL_BLOCK_SIZE * nb);
   }
 }

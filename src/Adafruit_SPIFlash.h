@@ -32,30 +32,30 @@
 #include "SdFat.h"
 #include "SdFatConfig.h"
 
-
 #if SD_FAT_VERSION >= 20000
 
-  #if USE_BLOCK_DEVICE_INTERFACE == 0
-  #error USE_BLOCK_DEVICE_INTERFACE must be defined to 1 in SdFatConfig.h
-  #endif
+#if USE_BLOCK_DEVICE_INTERFACE == 0
+#error USE_BLOCK_DEVICE_INTERFACE must be defined to 1 in SdFatConfig.h
+#endif
 
-  // Try our best to be Backward-compatible with v1
-  #define ENABLE_EXTENDED_TRANSFER_CLASS  USE_BLOCK_DEVICE_INTERFACE
-  #define BaseBlockDriver                 FsBlockDeviceInterface
+// Try our best to be Backward-compatible with v1
+#define ENABLE_EXTENDED_TRANSFER_CLASS USE_BLOCK_DEVICE_INTERFACE
+#define BaseBlockDriver FsBlockDeviceInterface
 
-  #define FatFileSystem FatVolume
-  // #define File          File32     // type conflict with other generic File defined
+#define FatFileSystem FatVolume
+// #define File          File32     // type conflict with other generic File
+// defined
 #else
-  // Try our best to be Backward-compatible with v1
+// Try our best to be Backward-compatible with v1
 
-  #if ENABLE_EXTENDED_TRANSFER_CLASS == 0
-  #error ENABLE_EXTENDED_TRANSFER_CLASS must be set to 1 in SdFatConfig.h
-  #endif
+#if ENABLE_EXTENDED_TRANSFER_CLASS == 0
+#error ENABLE_EXTENDED_TRANSFER_CLASS must be set to 1 in SdFatConfig.h
+#endif
 
-  #define USE_BLOCK_DEVICE_INTERFACE  ENABLE_EXTENDED_TRANSFER_CLASS
-  #define FsBlockDeviceInterface      BaseBlockDriver
-  #define FatVolume FatFileSystem
-  #define File32    File
+#define USE_BLOCK_DEVICE_INTERFACE ENABLE_EXTENDED_TRANSFER_CLASS
+#define FsBlockDeviceInterface BaseBlockDriver
+#define FatVolume FatFileSystem
+#define File32 File
 #endif
 
 #if FAT12_SUPPORT == 0
@@ -83,33 +83,25 @@ public:
   virtual bool readBlocks(uint32_t block, uint8_t *dst, size_t nb);
   virtual bool writeBlocks(uint32_t block, const uint8_t *src, size_t nb);
 
-
   //------------- SdFat v2 FsBlockDeviceInterface API -------------//
   virtual bool isBusy();
   virtual uint32_t sectorCount();
 
-  virtual bool syncDevice()
-  {
-    return syncBlocks();
-  }
+  virtual bool syncDevice() { return syncBlocks(); }
 
-  virtual bool readSector(uint32_t block, uint8_t *dst)
-  {
+  virtual bool readSector(uint32_t block, uint8_t *dst) {
     return readBlock(block, dst);
   }
 
-  virtual bool readSectors(uint32_t block, uint8_t *dst, size_t nb)
-  {
+  virtual bool readSectors(uint32_t block, uint8_t *dst, size_t nb) {
     return readBlocks(block, dst, nb);
   }
 
-  virtual bool writeSector(uint32_t block, const uint8_t *src)
-  {
+  virtual bool writeSector(uint32_t block, const uint8_t *src) {
     return writeBlock(block, src);
   }
 
-  virtual bool writeSectors(uint32_t block, const uint8_t *src, size_t nb)
-  {
+  virtual bool writeSectors(uint32_t block, const uint8_t *src, size_t nb) {
     return writeBlocks(block, src, nb);
   }
 

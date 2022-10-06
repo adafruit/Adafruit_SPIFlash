@@ -303,11 +303,10 @@ uint8_t Adafruit_SPIFlashBase::readStatus2(void) {
   return status;
 }
 
-bool Adafruit_SPIFlashBase::isReady(void)
-{
+bool Adafruit_SPIFlashBase::isReady(void) {
   if (_flash_dev->is_fram) {
     return true;
-  }else {
+  } else {
     return (readStatus() & 0x03) == 0;
   }
 }
