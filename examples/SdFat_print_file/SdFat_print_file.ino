@@ -64,7 +64,7 @@
 Adafruit_SPIFlash flash(&flashTransport);
 
 // file system object from SdFat
-FatFileSystem fatfs;
+FatVolume fatfs;
 
 // Configuration for the file to open and read:
 #define FILE_NAME      "data.csv"
@@ -95,7 +95,7 @@ void setup() {
 
   // Open the file for reading and check that it was successfully opened.
   // The FILE_READ mode will open the file for reading.
-  File dataFile = fatfs.open(FILE_NAME, FILE_READ);
+  File32 dataFile = fatfs.open(FILE_NAME, FILE_READ);
   if (dataFile) {
     // File was opened, now print out data character by character until at the
     // end of the file.

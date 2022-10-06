@@ -36,18 +36,26 @@
 #if SD_FAT_VERSION >= 20000
 
   #if USE_BLOCK_DEVICE_INTERFACE == 0
-  #error USE_BLOCK_DEVICE_INTERFACE must be defined to 1 before including SdFat SdFatConfig.
+  #error USE_BLOCK_DEVICE_INTERFACE must be defined to 1 in SdFatConfig.h
   #endif
 
-  // v2 rename class and function. TODO should use v2 name, and add define for v1 instead
-  #define BaseBlockDriver FsBlockDeviceInterface
-  #define FatFileSystem   FatVolume
+  // Try our best to be Backward-compatible with v1
+  #define ENABLE_EXTENDED_TRANSFER_CLASS  USE_BLOCK_DEVICE_INTERFACE
+  #define BaseBlockDriver                 FsBlockDeviceInterface
+
+  #define FatFileSystem FatVolume
+  // #define File          File32     // type conflict with other generic File defined
 #else
+  // Try our best to be Backward-compatible with v1
 
   #if ENABLE_EXTENDED_TRANSFER_CLASS == 0
-  #error ENABLE_EXTENDED_TRANSFER_CLASS must be set to 1 in SdFat SdFatConfig.h
+  #error ENABLE_EXTENDED_TRANSFER_CLASS must be set to 1 in SdFatConfig.h
   #endif
 
+  #define USE_BLOCK_DEVICE_INTERFACE  ENABLE_EXTENDED_TRANSFER_CLASS
+  #define FsBlockDeviceInterface      BaseBlockDriver
+  #define FatVolume FatFileSystem
+  #define File32    File
 #endif
 
 #if FAT12_SUPPORT == 0

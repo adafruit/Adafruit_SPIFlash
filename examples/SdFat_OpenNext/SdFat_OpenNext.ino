@@ -46,10 +46,10 @@
 Adafruit_SPIFlash flash(&flashTransport);
 
 // file system object from SdFat
-FatFileSystem fatfs;
+FatVolume fatfs;
 
-FatFile root;
-FatFile file;
+File32 root;
+File32 file;
 
 //------------------------------------------------------------------------------
 void setup() {
@@ -63,7 +63,7 @@ void setup() {
   
   // Wait for USB Serial 
   while (!Serial) {
-    SysCall::yield();
+    yield();
   }
   
   if (!root.open("/")) {

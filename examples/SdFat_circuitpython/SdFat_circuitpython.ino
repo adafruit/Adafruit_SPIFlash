@@ -61,7 +61,7 @@
 Adafruit_SPIFlash flash(&flashTransport);
 
 // file system object from SdFat
-FatFileSystem fatfs;
+FatVolume fatfs;
 
 
 void setup() {
@@ -90,7 +90,7 @@ void setup() {
 
   // Check if a boot.py exists and print it out.
   if (fatfs.exists("boot.py")) {
-    File bootPy = fatfs.open("boot.py", FILE_READ);
+    File32 bootPy = fatfs.open("boot.py", FILE_READ);
     Serial.println("Printing boot.py...");
     while (bootPy.available()) {
       char c = bootPy.read();
@@ -104,7 +104,7 @@ void setup() {
 
   // Check if a main.py exists and print it out:
   if (fatfs.exists("code.py")) {
-    File mainPy = fatfs.open("code.py", FILE_READ);
+    File32 mainPy = fatfs.open("code.py", FILE_READ);
     Serial.println("Printing code.py...");
     while (mainPy.available()) {
       char c = mainPy.read();
@@ -119,7 +119,7 @@ void setup() {
   // Create or append to a data.txt file and add a new line
   // to the end of it.  CircuitPython code can later open and
   // see this file too!
-  File data = fatfs.open("data.txt", FILE_WRITE);
+  File32 data = fatfs.open("data.txt", FILE_WRITE);
   if (data) {
     // Write a new line to the file:
     data.println("Hello CircuitPython from Arduino!");

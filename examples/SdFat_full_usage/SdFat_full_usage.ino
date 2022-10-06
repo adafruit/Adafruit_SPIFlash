@@ -60,7 +60,7 @@
 Adafruit_SPIFlash flash(&flashTransport);
 
 // file system object from SdFat
-FatFileSystem fatfs;
+FatVolume fatfs;
 
 void setup() {
   // Initialize serial port and wait for it to open before continuing.
@@ -136,7 +136,7 @@ void setup() {
   // write to the file.  This will create the file if it doesn't exist,
   // otherwise it will open the file and start appending new data to the
   // end of it.
-  File writeFile = fatfs.open("/test/test.txt", FILE_WRITE);
+  File32 writeFile = fatfs.open("/test/test.txt", FILE_WRITE);
   if (!writeFile) {
     Serial.println("Error, failed to open test.txt for writing!");
     while(1) yield();
@@ -154,7 +154,7 @@ void setup() {
   Serial.println("Wrote to file /test/test.txt!");
 
   // Now open the same file but for reading.
-  File readFile = fatfs.open("/test/test.txt", FILE_READ);
+  File32 readFile = fatfs.open("/test/test.txt", FILE_READ);
   if (!readFile) {
     Serial.println("Error, failed to open test.txt for reading!");
     while(1) yield();
@@ -173,7 +173,9 @@ void setup() {
   Serial.print("Available data to read in test.txt: "); Serial.println(readFile.available(), DEC);
 
   // And a few other interesting attributes of a file:
-  Serial.print("File name: "); Serial.println(readFile.name());
+  char readName[64];
+  readFile.getName(readName, sizeof(readName));
+  Serial.print("File name: "); Serial.println(readName);
   Serial.print("Is file a directory? "); Serial.println(readFile.isDirectory() ? "Yes" : "No");
 
   // You can seek around inside the file relative to the start of the file.
@@ -196,7 +198,7 @@ void setup() {
 
   // You can open a directory to list all the children (files and directories).
   // Just like the SD library the File type represents either a file or directory.
-  File testDir = fatfs.open("/test");
+  File32 testDir = fatfs.open("/test");
   if (!testDir) {
     Serial.println("Error, failed to open test directory!");
     while(1) yield();
@@ -206,7 +208,7 @@ void setup() {
     while(1) yield();
   }
   Serial.println("Listing children of directory /test:");
-  File child = testDir.openNextFile();
+  File32 child = testDir.openNextFile();
   while (child) {
     char filename[64];
     child.getName(filename, sizeof(filename));
@@ -231,7 +233,7 @@ void setup() {
 
   // Delete a file with the remove command.  For example create a test2.txt file
   // inside /test/foo and then delete it.
-  File test2File = fatfs.open("/test/foo/test2.txt", FILE_WRITE);
+  File32 test2File = fatfs.open("/test/foo/test2.txt", FILE_WRITE);
   test2File.close();
   Serial.println("Deleting /test/foo/test2.txt...");
   if (!fatfs.remove("/test/foo/test2.txt")) {

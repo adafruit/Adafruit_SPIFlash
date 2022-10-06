@@ -63,26 +63,62 @@
 Adafruit_SPIFlash flash(&flashTransport);
 
 // file system object from SdFat
-FatFileSystem fatfs;
+FatVolume fatfs;
 
-File myFile;
+File32 myFile;
+
+void dump_sector(uint32_t sector)
+{
+  uint8_t buf[4096];
+  memset(buf, 0xff, sizeof(buf));
+
+  flash.readBuffer(sector*4096, buf, 4096);
+
+  for(uint32_t row=0; row<sizeof(buf)/16; row++)
+  {
+    if ( row == 0 ) Serial.print("0");
+    if ( row < 16 ) Serial.print("0");
+    Serial.print(row*16, HEX);
+    Serial.print(" : ");
+//    PRINTF("%03X :", row*16);
+
+    for(uint32_t col=0; col<16; col++)
+    {
+      uint8_t val = buf[row*16 + col];
+
+      if ( val < 16 ) Serial.print("0");
+      Serial.print(val, HEX);
+      Serial.print(" ");
+//      PRINTF("%02X ");
+    }
+
+    Serial.println();
+//    PRINTF("\n");
+  }
+}
 
 void setup() {
   // Open serial communications and wait for port to open:
   Serial.begin(115200);
   while (!Serial) {
-    delay(1); // wait for serial port to connect. Needed for native USB port only
+    delay(10); // wait for serial port to connect. Needed for native USB port only
   }
 
-  Serial.print("Initializing Filesystem on external flash...");
+  Serial.println("Initializing Filesystem on external flash...");
   
   // Init external flash
   flash.begin();
 
+  dump_sector(0);
+
   // Open file system on the flash
   if ( !fatfs.begin(&flash) ) {
     Serial.println("Error: filesystem is not existed. Please try SdFat_format example to make one.");
-    while(1) yield();
+    while(1)
+    {
+      yield();
+      delay(1);
+    }
   }
 
   Serial.println("initialization done.");

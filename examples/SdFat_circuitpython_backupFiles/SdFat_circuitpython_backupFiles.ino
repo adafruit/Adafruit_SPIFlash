@@ -50,7 +50,7 @@
 Adafruit_SPIFlash flash(&flashTransport);
 
 // file system object from SdFat
-FatFileSystem fatfs;
+FatVolume fatfs;
 
 
 #define NEOPIN         40       // neopixel pin
@@ -118,8 +118,8 @@ boolean moveFile(const char *file, const char *dest) {
 
   pixel.setPixelColor(0, pixel.Color(100,100,0)); pixel.show();
 
-  File source = fatfs.open(file, FILE_READ);
-  File backup = fatfs.open(dest, FILE_WRITE);
+  File32 source = fatfs.open(file, FILE_READ);
+  File32 backup = fatfs.open(dest, FILE_WRITE);
   Serial.println("Making backup!");
   Serial.println("\n---------------------\n");
 
@@ -143,7 +143,7 @@ boolean moveFile(const char *file, const char *dest) {
     }
     buffer[toread] = 0;      
     Serial.print(buffer);
-    if (backup.write(buffer, toread) != toread) {
+    if ( (int) backup.write(buffer, toread) != toread) {
         Serial.println("Error, couldn't write data to backup file!");
         error(6);
     }
