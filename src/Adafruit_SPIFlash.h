@@ -84,7 +84,7 @@ public:
   virtual bool writeSector(uint32_t block, const uint8_t *src);
   virtual bool writeSectors(uint32_t block, const uint8_t *src, size_t nb);
 
-  //------------- SdFat v1 BaseBlockDRiver API for backward-compatible -------------//
+  // SdFat v1 BaseBlockDRiver API for backward-compatible
   virtual bool syncBlocks() { return syncDevice(); }
 
   virtual bool readBlock(uint32_t block, uint8_t *dst) {

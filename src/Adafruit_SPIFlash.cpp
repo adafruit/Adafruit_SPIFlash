@@ -139,7 +139,7 @@ bool Adafruit_SPIFlash::readSectors(uint32_t block, uint8_t *dst, size_t nb) {
 }
 
 bool Adafruit_SPIFlash::writeSectors(uint32_t block, const uint8_t *src,
-                                    size_t nb) {
+                                     size_t nb) {
   SPIFLASH_LOG(block, nb);
   if (_flash_dev->is_fram) {
     return this->writeBuffer(block * LOGICAL_BLOCK_SIZE, src,
