@@ -91,7 +91,7 @@ uint32_t Adafruit_SPIFlash::sectorCount() {
   return Adafruit_SPIFlashBase::size() / LOGICAL_BLOCK_SIZE;
 }
 
-bool Adafruit_SPIFlash::readBlock(uint32_t block, uint8_t *dst) {
+bool Adafruit_SPIFlash::readSector(uint32_t block, uint8_t *dst) {
   SPIFLASH_LOG(block, 1);
 
   if (_flash_dev->is_fram) {
@@ -104,7 +104,7 @@ bool Adafruit_SPIFlash::readBlock(uint32_t block, uint8_t *dst) {
   }
 }
 
-bool Adafruit_SPIFlash::syncBlocks() {
+bool Adafruit_SPIFlash::syncDevice() {
   SPIFLASH_LOG(0, 0);
 
   if (_flash_dev->is_fram) {
@@ -114,7 +114,7 @@ bool Adafruit_SPIFlash::syncBlocks() {
   }
 }
 
-bool Adafruit_SPIFlash::writeBlock(uint32_t block, const uint8_t *src) {
+bool Adafruit_SPIFlash::writeSector(uint32_t block, const uint8_t *src) {
   SPIFLASH_LOG(block, 1);
 
   if (_flash_dev->is_fram) {
@@ -126,7 +126,7 @@ bool Adafruit_SPIFlash::writeBlock(uint32_t block, const uint8_t *src) {
   }
 }
 
-bool Adafruit_SPIFlash::readBlocks(uint32_t block, uint8_t *dst, size_t nb) {
+bool Adafruit_SPIFlash::readSectors(uint32_t block, uint8_t *dst, size_t nb) {
   SPIFLASH_LOG(block, nb);
 
   if (_flash_dev->is_fram) {
@@ -138,7 +138,7 @@ bool Adafruit_SPIFlash::readBlocks(uint32_t block, uint8_t *dst, size_t nb) {
   }
 }
 
-bool Adafruit_SPIFlash::writeBlocks(uint32_t block, const uint8_t *src,
+bool Adafruit_SPIFlash::writeSectors(uint32_t block, const uint8_t *src,
                                     size_t nb) {
   SPIFLASH_LOG(block, nb);
   if (_flash_dev->is_fram) {

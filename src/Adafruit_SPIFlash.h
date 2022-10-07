@@ -34,7 +34,7 @@
 #if SD_FAT_VERSION >= 20000
 
 #if USE_BLOCK_DEVICE_INTERFACE == 0
-#error USE_BLOCK_DEVICE_INTERFACE must be defined to 1 in SdFatConfig.h
+#error USE_BLOCK_DEVICE_INTERFACE must be defined to 1 in SdFatConfig.h. Alternatively you can use the Adafruit Fork at 'https://github.com/adafruit/SdFat' which already set this to 1
 #endif
 
 // Try our best to be Backward-compatible with v1
@@ -46,11 +46,10 @@
 #else
 
 #if ENABLE_EXTENDED_TRANSFER_CLASS == 0
-#error ENABLE_EXTENDED_TRANSFER_CLASS must be set to 1 in SdFatConfig.h
+#error ENABLE_EXTENDED_TRANSFER_CLASS must be set to 1 in SdFatConfig.h. Alternatively you can use the Adafruit Fork at 'https://github.com/adafruit/SdFat' which already set this to 1
 #endif
 
 // Try our best to be forward-compatible with v2
-#define USE_BLOCK_DEVICE_INTERFACE ENABLE_EXTENDED_TRANSFER_CLASS
 #define FsBlockDeviceInterface BaseBlockDriver
 #define FatVolume FatFileSystem
 #define File32 File
@@ -58,7 +57,7 @@
 #endif // SD_FAT_VERSION
 
 #if FAT12_SUPPORT == 0
-#error FAT12_SUPPORT must be set to 1 in SdFat SdFatConfig.h
+#error FAT12_SUPPORT must be set to 1 in SdFat SdFatConfig.h. Alternatively you can use the Adafruit Fork at 'https://github.com/adafruit/SdFat' which already set this to 1
 #endif
 
 // This class extends Adafruit_SPIFlashBase by adding support for the
@@ -75,33 +74,33 @@ public:
   bool begin(SPIFlash_Device_t const *flash_devs = NULL, size_t count = 1);
   void end(void);
 
-  //------------- SdFat v1 BaseBlockDRiver API -------------//
-  virtual bool readBlock(uint32_t block, uint8_t *dst);
-  virtual bool syncBlocks();
-  virtual bool writeBlock(uint32_t block, const uint8_t *src);
-  virtual bool readBlocks(uint32_t block, uint8_t *dst, size_t nb);
-  virtual bool writeBlocks(uint32_t block, const uint8_t *src, size_t nb);
-
   //------------- SdFat v2 FsBlockDeviceInterface API -------------//
   virtual bool isBusy();
   virtual uint32_t sectorCount();
+  virtual bool syncDevice();
 
-  virtual bool syncDevice() { return syncBlocks(); }
+  virtual bool readSector(uint32_t block, uint8_t *dst);
+  virtual bool readSectors(uint32_t block, uint8_t *dst, size_t nb);
+  virtual bool writeSector(uint32_t block, const uint8_t *src);
+  virtual bool writeSectors(uint32_t block, const uint8_t *src, size_t nb);
 
-  virtual bool readSector(uint32_t block, uint8_t *dst) {
-    return readBlock(block, dst);
+  //------------- SdFat v1 BaseBlockDRiver API for backward-compatible -------------//
+  virtual bool syncBlocks() { return syncDevice(); }
+
+  virtual bool readBlock(uint32_t block, uint8_t *dst) {
+    return readSector(block, dst);
   }
 
-  virtual bool readSectors(uint32_t block, uint8_t *dst, size_t nb) {
-    return readBlocks(block, dst, nb);
+  virtual bool readBlocks(uint32_t block, uint8_t *dst, size_t nb) {
+    return readSectors(block, dst, nb);
   }
 
-  virtual bool writeSector(uint32_t block, const uint8_t *src) {
-    return writeBlock(block, src);
+  virtual bool writeBlock(uint32_t block, const uint8_t *src) {
+    return writeSector(block, src);
   }
 
-  virtual bool writeSectors(uint32_t block, const uint8_t *src, size_t nb) {
-    return writeBlocks(block, src, nb);
+  virtual bool writeBlocks(uint32_t block, const uint8_t *src, size_t nb) {
+    return writeSectors(block, src, nb);
   }
 
 private:
