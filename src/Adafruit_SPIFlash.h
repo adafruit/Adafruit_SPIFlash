@@ -65,7 +65,8 @@
 // FatFileSystem class.
 //
 // Instances of this class will use 4kB of RAM as a block cache.
-class Adafruit_SPIFlash : public BaseBlockDriver, public Adafruit_SPIFlashBase {
+class Adafruit_SPIFlash : public FsBlockDeviceInterface,
+                          public Adafruit_SPIFlashBase {
 public:
   Adafruit_SPIFlash();
   Adafruit_SPIFlash(Adafruit_FlashTransport *transport);
@@ -80,9 +81,9 @@ public:
   virtual bool syncDevice();
 
   virtual bool readSector(uint32_t block, uint8_t *dst);
-  virtual bool readSectors(uint32_t block, uint8_t *dst, size_t nb);
+  virtual bool readSectors(uint32_t block, uint8_t *dst, size_t ns);
   virtual bool writeSector(uint32_t block, const uint8_t *src);
-  virtual bool writeSectors(uint32_t block, const uint8_t *src, size_t nb);
+  virtual bool writeSectors(uint32_t block, const uint8_t *src, size_t ns);
 
   // SdFat v1 BaseBlockDRiver API for backward-compatible
   virtual bool syncBlocks() { return syncDevice(); }
