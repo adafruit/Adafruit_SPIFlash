@@ -37,11 +37,6 @@
 #error USE_BLOCK_DEVICE_INTERFACE must be defined to 1 in SdFatConfig.h. Make sure you use the Adafruit Fork at 'https://github.com/adafruit/SdFat'
 #endif
 
-// Try our best to be Backward-compatible with v1
-#define ENABLE_EXTENDED_TRANSFER_CLASS USE_BLOCK_DEVICE_INTERFACE
-#define BaseBlockDriver FsBlockDeviceInterface
-#define FatFileSystem FatVolume
-
 #else
 
 #if ENABLE_EXTENDED_TRANSFER_CLASS == 0
