@@ -38,9 +38,12 @@ extern uint8_t _FS_end;
 
 // CircuitPython partition scheme with
 // - start address = 1 MB,
-// - size = total flash - 1 MB + 4KB (since CPY does not reserve EEPROM from arduino core)
-const uint32_t Adafruit_FlashTransport_RP2040::CPY_START_ADDR = (1 * 1024 * 1024);
-const uint32_t Adafruit_FlashTransport_RP2040::CPY_SIZE = (((uint32_t)&_FS_end) - (XIP_BASE + CPY_START_ADDR) + 4096);
+// - size = total flash - 1 MB + 4KB (since CPY does not reserve EEPROM from
+// arduino core)
+const uint32_t Adafruit_FlashTransport_RP2040::CPY_START_ADDR =
+    (1 * 1024 * 1024);
+const uint32_t Adafruit_FlashTransport_RP2040::CPY_SIZE =
+    (((uint32_t)&_FS_end) - (XIP_BASE + CPY_START_ADDR) + 4096);
 
 static inline void fl_lock(void) {
   noInterrupts();
@@ -163,7 +166,7 @@ bool Adafruit_FlashTransport_RP2040::eraseCommand(uint8_t command,
     return false;
   }
 
-  if (!check_addr(addr+erase_sz)) {
+  if (!check_addr(addr + erase_sz)) {
     return false;
   }
 
@@ -176,7 +179,7 @@ bool Adafruit_FlashTransport_RP2040::eraseCommand(uint8_t command,
 
 bool Adafruit_FlashTransport_RP2040::readMemory(uint32_t addr, uint8_t *data,
                                                 uint32_t len) {
-  if (!check_addr(addr+len)) {
+  if (!check_addr(addr + len)) {
     return false;
   }
 
@@ -187,7 +190,7 @@ bool Adafruit_FlashTransport_RP2040::readMemory(uint32_t addr, uint8_t *data,
 bool Adafruit_FlashTransport_RP2040::writeMemory(uint32_t addr,
                                                  uint8_t const *data,
                                                  uint32_t len) {
-  if (!check_addr(addr+len)) {
+  if (!check_addr(addr + len)) {
     return false;
   }
 

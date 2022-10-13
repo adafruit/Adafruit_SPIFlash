@@ -36,9 +36,7 @@ private:
   SPIFlash_Device_t _flash_dev;
 
   // check if relative addr is valid
-  bool check_addr(uint32_t addr) {
-    return addr <= _size;
-  }
+  bool check_addr(uint32_t addr) { return addr <= _size; }
 
 public:
   static const uint32_t CPY_START_ADDR;
