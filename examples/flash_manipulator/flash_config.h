@@ -33,8 +33,8 @@
 Adafruit_FlashTransport_SPI flashTransport(CUSTOM_CS, CUSTOM_SPI);
 
 #elif defined(ARDUINO_ARCH_ESP32)
-// ESP32 use same flash device that store code.
-// Therefore there is no need to specify the SPI and SS
+// ESP32 use same flash device that store code for file system.
+// SPIFlash will parse partition.cvs to detect FATFS partition to use
 Adafruit_FlashTransport_ESP32 flashTransport;
 
 #elif defined(ARDUINO_ARCH_RP2040)
