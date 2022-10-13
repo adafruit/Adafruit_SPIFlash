@@ -38,15 +38,19 @@ Adafruit_FlashTransport_SPI flashTransport(CUSTOM_CS, CUSTOM_SPI);
 Adafruit_FlashTransport_ESP32 flashTransport;
 
 #elif defined(ARDUINO_ARCH_RP2040)
-// RP2040 use same flash device that store code.
-// Therefore there is no need to specify the SPI and SS
-// Use default (no-args) constructor to be compatible with CircuitPython
-// partition scheme
+// RP2040 use same flash device that store code for file system. Therefore we
+// only need to specify start address and size (no need SPI or SS)
+//   Adafruit_FlashTransport_RP2040(start_address, size)
+// If start = 0, size = 0 (default), values that match file system setting in
+// 'Tools->Flash Size' menu selection will be used.
 Adafruit_FlashTransport_RP2040 flashTransport;
 
-// For generic usage: Adafruit_FlashTransport_RP2040(start_address, size)
-// If start_address and size are both 0, value that match filesystem setting in
-// 'Tools->Flash Size' menu selection will be used
+// To be compatible with CircuitPython partition scheme (start_address = 1 MB,
+// size = total flash - 1 MB) use const value (CPY_START_ADDR, CPY_SIZE).
+// Un-comment following line:
+// Adafruit_FlashTransport_RP2040
+//     flashTransport(Adafruit_FlashTransport_RP2040::CPY_START_ADDR,
+//                    Adafruit_FlashTransport_RP2040::CPY_SIZE);
 
 #else
 // On-board external flash (QSPI or SPI) macros should already

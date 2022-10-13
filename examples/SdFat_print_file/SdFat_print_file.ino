@@ -32,7 +32,7 @@ Adafruit_SPIFlash flash(&flashTransport);
 FatVolume fatfs;
 
 // Configuration for the file to open and read:
-#define FILE_NAME      "data.csv"
+#define FILE_NAME      "test2.txt"
 
 void setup() {
   // Initialize serial port and wait for it to open before continuing.
@@ -74,7 +74,9 @@ void setup() {
     }
   }
   else {
-    Serial.println("Failed to open data file! Does it exist?");
+    Serial.print("Failed to open file \"");
+    Serial.print(FILE_NAME);
+    Serial.print("\" !! Does it exist?");
   }
 }
 

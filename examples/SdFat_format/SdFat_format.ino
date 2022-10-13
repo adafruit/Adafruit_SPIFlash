@@ -54,7 +54,9 @@ void setup() {
     Serial.println("Error, failed to initialize flash chip!");
     while(1) yield();
   }
+
   Serial.print("Flash chip JEDEC ID: 0x"); Serial.println(flash.getJEDECID(), HEX);
+  Serial.print("Flash size: "); Serial.print(flash.size() / 1024); Serial.println(" KB");
 
   // Uncomment to flash LED while writing to flash
   // flash.setIndicator(LED_BUILTIN, true);
