@@ -43,7 +43,8 @@ extern uint8_t _FS_end;
 const uint32_t Adafruit_FlashTransport_RP2040::CPY_START_ADDR =
     (1 * 1024 * 1024);
 const uint32_t Adafruit_FlashTransport_RP2040::CPY_SIZE =
-    (((uint32_t)&_FS_end) - (XIP_BASE + CPY_START_ADDR) + 4096);
+    (((uint32_t)&_FS_end) -
+     (XIP_BASE + Adafruit_FlashTransport_RP2040::CPY_START_ADDR) + 4096);
 
 static inline void fl_lock(void) {
   noInterrupts();

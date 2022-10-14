@@ -30,7 +30,7 @@
 #include "flash_devices.h"
 
 class Adafruit_FlashTransport_RP2040 : public Adafruit_FlashTransport {
-private:
+protected:
   uint32_t _start_addr;
   uint32_t _size;
   SPIFlash_Device_t _flash_dev;
@@ -69,6 +69,14 @@ public:
   // Flash device is already detected and configured, get the pointer without
   // go through initial sequence
   SPIFlash_Device_t *getFlashDevice(void);
+};
+
+class Adafruit_FlashTransport_RP2040_CPY
+    : public Adafruit_FlashTransport_RP2040 {
+
+public:
+  Adafruit_FlashTransport_RP2040_CPY(void)
+      : Adafruit_FlashTransport_RP2040(CPY_START_ADDR, CPY_SIZE) {}
 };
 
 #endif
