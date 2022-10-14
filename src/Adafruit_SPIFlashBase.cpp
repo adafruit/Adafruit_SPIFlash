@@ -258,17 +258,13 @@ bool Adafruit_SPIFlashBase::begin(SPIFlash_Device_t const *flash_devs,
 
 #endif // ARDUINO_ARCH_ESP32
 
-bool Adafruit_SPIFlashBase::end(void) {
-
+void Adafruit_SPIFlashBase::end(void) {
   if (_trans == NULL) {
-    return false;
+    return;
   }
 
   _trans->end();
-
   _flash_dev = NULL;
-
-  return true;
 }
 
 void Adafruit_SPIFlashBase::setIndicator(int pin, bool state_on) {
@@ -305,6 +301,14 @@ uint8_t Adafruit_SPIFlashBase::readStatus2(void) {
   uint8_t status;
   _trans->readCommand(SFLASH_CMD_READ_STATUS2, &status, 1);
   return status;
+}
+
+bool Adafruit_SPIFlashBase::isReady(void) {
+  if (_flash_dev->is_fram) {
+    return true;
+  } else {
+    return (readStatus() & 0x03) == 0;
+  }
 }
 
 void Adafruit_SPIFlashBase::waitUntilReady(void) {

@@ -1,50 +1,14 @@
 // The MIT License (MIT)
 // Copyright (c) 2019 Ha Thach for Adafruit Industries
 
+#include <SPI.h>
 #include "SdFat.h"
 #include "Adafruit_SPIFlash.h"
 
-// Uncomment to run example with custom SPI and SS e.g with FRAM breakout
-// #define CUSTOM_CS   A5
-// #define CUSTOM_SPI  SPI
-
-#if defined(CUSTOM_CS) && defined(CUSTOM_SPI)
-  Adafruit_FlashTransport_SPI flashTransport(CUSTOM_CS, CUSTOM_SPI);
-
-#elif defined(ARDUINO_ARCH_ESP32)
-  // ESP32 use same flash device that store code.
-  // SPIFlash can use partition table to detect fatfs partition
-  // Therefore there is no need to specify the SPI and SS
-  Adafruit_FlashTransport_ESP32 flashTransport;
-
-#elif defined(ARDUINO_ARCH_RP2040)
-  // RP2040 use same flash device that store code.
-  // Therefore there is no need to specify the SPI and SS
-  // Use default (no-args) constructor to be compatible with CircuitPython partition scheme
-  Adafruit_FlashTransport_RP2040 flashTransport;
-
-  // For generic usage: Adafruit_FlashTransport_RP2040(start_address, size)
-  // If start_address and size are both 0, value that match filesystem setting in
-  // 'Tools->Flash Size' menu selection will be used
-
-#else
-  // On-board external flash (QSPI or SPI) macros should already
-  // defined in your board variant if supported
-  // - EXTERNAL_FLASH_USE_QSPI
-  // - EXTERNAL_FLASH_USE_CS/EXTERNAL_FLASH_USE_SPI
-  #if defined(EXTERNAL_FLASH_USE_QSPI)
-    Adafruit_FlashTransport_QSPI flashTransport;
-
-  #elif defined(EXTERNAL_FLASH_USE_SPI)
-    Adafruit_FlashTransport_SPI flashTransport(EXTERNAL_FLASH_USE_CS, EXTERNAL_FLASH_USE_SPI);
-
-  #else
-    #error No QSPI/SPI flash are defined on your board variant.h !
-  #endif
-#endif
+// for flashTransport definition
+#include "flash_config.h"
 
 Adafruit_SPIFlash flash(&flashTransport);
-
 
 /*  If you want to use a specific flash device, for example for a custom built board, first look for it in Adafruit_SPIFlash\src\flash_devices.h
  *  If it isn't in there you need to create your own definition like the W25Q80DLX_EXAMPLE example below.
