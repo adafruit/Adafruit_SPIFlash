@@ -24,6 +24,7 @@ jobs:
           - 'cpb'
           - 'clue'
           - 'feather_rp2040'
+          - 'uno'
 
     runs-on: ubuntu-latest
     steps:
