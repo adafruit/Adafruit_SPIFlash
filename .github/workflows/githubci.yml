@@ -56,13 +56,11 @@ jobs:
         PRETTYNAME : "Adafruit SPIFlash Library"
       run: bash ci/doxy_gen_and_deploy.sh
 
-
     - name: Move build artifacts into place
       run: |
             mkdir build
             find -name "*.uf2" -ls
-            for i in examples/*/build/*/*.uf2; do j=${i##*/}; j=${j%%*.}; mv $i build/$j-${{ matrix.arduino-platform }}.uf2; done
-
+            for i in examples/*/build/*/*.uf2; do if [ -f $i ]; then j=${i##*/}; j=${j%%*.}; mv $i build/$j-${{ matrix.arduino-platform }}.uf2; fi done
 
     - name: Upload build artifacts
       uses: actions/upload-artifact@v2
