@@ -1,9 +1,9 @@
 // The MIT License (MIT)
 // Copyright (c) 2019 Ha Thach for Adafruit Industries
 
-#include "Adafruit_SPIFlash.h"
-#include "SdFat.h"
 #include <SPI.h>
+#include <SdFat.h>
+#include <Adafruit_SPIFlash.h>
 
 // for flashTransport definition
 #include "flash_config.h"

@@ -38,8 +38,9 @@ Adafruit_SPIFlash flash(&flashTransport);
 #elif defined(ADAFRUIT_PYBADGE_M4_EXPRESS)
   #define PIN_NEOPIXEL         8
 #else
-// something else?
-//  #define PIN_NEOPIXEL         8
+  // something else?
+  #warning "PIN_NEOPIXEL is not defined/detected, default to 8"
+  #define PIN_NEOPIXEL         8
 #endif
 
 Adafruit_NeoPixel pixel = Adafruit_NeoPixel(1, PIN_NEOPIXEL, NEO_GRB + NEO_KHZ800);
