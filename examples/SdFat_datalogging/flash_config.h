@@ -71,9 +71,17 @@ Adafruit_FlashTransport_QSPI flashTransport;
 Adafruit_FlashTransport_SPI flashTransport(EXTERNAL_FLASH_USE_CS,
                                            EXTERNAL_FLASH_USE_SPI);
 
+#elif defined(__AVR__)
+
+// Use stand SPI/SS for avr port.
+// Note cache will be disable due to lack of memory.
+
+Adafruit_FlashTransport_SPI flashTransport(SS, SPI);
+
 #else
 #error No (Q)SPI flash are defined for your board !
 #endif
+
 #endif
 
 #endif

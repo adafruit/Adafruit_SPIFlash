@@ -63,11 +63,13 @@ class Adafruit_SPIFlash : public FsBlockDeviceInterface,
                           public Adafruit_SPIFlashBase {
 public:
   Adafruit_SPIFlash();
-  Adafruit_SPIFlash(Adafruit_FlashTransport *transport);
+  Adafruit_SPIFlash(Adafruit_FlashTransport *transport, bool useCache = true);
   ~Adafruit_SPIFlash() {}
 
   bool begin(SPIFlash_Device_t const *flash_devs = NULL, size_t count = 1);
   void end(void);
+
+  bool isCached(void) { return _cache_en && (_cache != NULL); }
 
   //------------- SdFat v2 FsBlockDeviceInterface API -------------//
   virtual bool isBusy();
@@ -99,6 +101,7 @@ public:
   }
 
 private:
+  bool _cache_en;
   Adafruit_FlashCache *_cache;
 };
 

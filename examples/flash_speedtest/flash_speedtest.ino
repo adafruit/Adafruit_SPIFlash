@@ -10,7 +10,11 @@
 
 Adafruit_SPIFlash flash(&flashTransport);
 
+#ifdef __AVR__
+#define BUFSIZE   512
+#else
 #define BUFSIZE   4096
+#endif
 
 #define TEST_WHOLE_CHIP 1
 
@@ -55,7 +59,7 @@ void print_speed(const char* text, uint32_t count, uint32_t ms)
   Serial.print(ms / 1000.0F, 2);
   Serial.println(" seconds.");
 
-  Serial.print("Speed : ");
+  Serial.print("Speed: ");
   Serial.print( (count / 1000.0F) / (ms / 1000.0F), 2);
   Serial.println(" KB/s.\r\n");
 }
@@ -79,7 +83,8 @@ bool write_and_compare(uint8_t pattern)
 
   // write all
   memset(bufwrite, (int) pattern, sizeof(bufwrite));
-  Serial.printf("Write flash with 0x%02X\n", pattern);
+  Serial.print("Write flash with 0x");
+  Serial.println(pattern, HEX);
   Serial.flush();
   ms = millis();
 
@@ -106,17 +111,22 @@ bool write_and_compare(uint8_t pattern)
 
     if ( memcmp(bufwrite, bufread, BUFSIZE) )
     {
-      Serial.printf("Error: flash contents mismatched at address 0x%08X!!!", addr);
+      Serial.print("Error: flash contents mismatched at address 0x");
+      Serial.println(addr, HEX);
       for(uint32_t i=0; i<sizeof(bufread); i++)
       {
         if ( i != 0 ) Serial.print(' ');
         if ( (i%16 == 0) )
         {
           Serial.println();
-          Serial.printf("%03X: ", i);
+          if ( i < 0x100 ) Serial.print('0');
+          if ( i < 0x010 ) Serial.print('0');
+          Serial.print(i, HEX);
+          Serial.print(": ");
         }
 
-        Serial.printf("%02X", bufread[i]);
+        if (bufread[i] < 0x10) Serial.print('0');
+        Serial.print(bufread[i], HEX);
       }
 
       Serial.println();
