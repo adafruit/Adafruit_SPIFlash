@@ -155,9 +155,11 @@ bool Adafruit_SPIFlashBase::begin(SPIFlash_Device_t const *flash_devs,
   }
 
   if (_flash_dev == NULL) {
+#if SPIFLASH_DEBUG
     Serial.print("Unknown flash device 0x");
     Serial.println(
         ((uint32_t)jedec_ids[0]) << 16 | jedec_ids[1] << 8 | jedec_ids[2], HEX);
+#endif
     return false;
   }
 
