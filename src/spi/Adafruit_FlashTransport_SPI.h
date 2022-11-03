@@ -28,6 +28,10 @@
 #include "Arduino.h"
 #include "SPI.h"
 
+#if defined(ARDUINO_ARCH_SAMD) && defined(_ADAFRUIT_ZERODMA_H_)
+#define SPIClass SPIClassSAMD
+#endif
+
 class Adafruit_FlashTransport_SPI : public Adafruit_FlashTransport {
 private:
   SPIClass *_spi;
