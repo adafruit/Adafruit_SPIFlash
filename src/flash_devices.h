@@ -30,7 +30,7 @@
 #include <stdint.h>
 
 typedef struct {
-  uint32_t total_size;
+  uint32_t total_size; // in bytes
   uint16_t start_up_time_us;
 
   // Three response bytes to 0x9f JEDEC ID command.
@@ -141,6 +141,19 @@ typedef struct {
     .supports_fast_read = true, .supports_qspi = true,                         \
     .supports_qspi_writes = true, .write_status_register_split = true,         \
     .single_status_byte = false, .is_fram = false,                             \
+  }
+
+// Settings for the ISSI IS25LP016D 16Mib / 2MiB SPI flash. 
+// Datasheet: https://www.issi.com/WW/pdf/25LP-WP016D.pdf
+#define IS25LP016D                                                             \
+  {                                                                            \
+    .total_size = 2097152, /* 2MiB */ .start_up_time_us = 5000,                \
+    .manufacturer_id = 0x9d, .memory_type = 0x60, .capacity = 0x15,            \
+    .max_clock_speed_mhz = 133, .quad_enable_bit_mask = 0x40,                  \
+    .has_sector_protection = false, .supports_fast_read = true,                \
+    .supports_qspi = true, .supports_qspi_writes = true,                       \
+    .write_status_register_split = false, .single_status_byte = true,          \
+    .is_fram = false,                                                          \
   }
 
 // https://www.fujitsu.com/uk/Images/MB85RS64V.pdf
