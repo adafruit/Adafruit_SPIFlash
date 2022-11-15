@@ -104,7 +104,7 @@ void setup() {
   }
 
   Serial.print(F("Flash chip JEDEC ID: 0x")); Serial.println(flash.getJEDECID(), HEX);
-  Serial.print(F("Flash size: ")); Serial.print(flash.size() / 1024); Serial.println(F(" KB"));
+  Serial.print(F("Flash size: ")); Serial.print(flash.size() / 1024); Serial.println(F(" KiB"));
 
   // Uncomment to flash LED while writing to flash
   // flash.setIndicator(LED_BUILTIN, true);

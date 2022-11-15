@@ -39,7 +39,7 @@ void setup() {
     Serial.println(onboardFlash.getJEDECID(), HEX);
     Serial.print("Flash size: ");
     Serial.print(onboardFlash.size() / 1024);
-    Serial.println(" KB");
+    Serial.println(" KiB");
     Serial.print("Starting up SD Card...");
     if (!onboardSdCard.begin(getSDCardPin())) {
         Serial.println("No card found (is one inserted?)");
