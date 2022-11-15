@@ -143,7 +143,7 @@ typedef struct {
     .single_status_byte = false, .is_fram = false,                             \
   }
 
-// Settings for the ISSI IS25LP016D 16Mib / 2MiB SPI flash. 
+// Settings for the ISSI IS25LP016D 16Mib / 2MiB SPI flash.
 // Datasheet: https://www.issi.com/WW/pdf/25LP-WP016D.pdf
 #define IS25LP016D                                                             \
   {                                                                            \
