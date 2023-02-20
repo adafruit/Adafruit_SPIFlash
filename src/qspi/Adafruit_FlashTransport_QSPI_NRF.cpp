@@ -22,7 +22,7 @@
  * THE SOFTWARE.
  */
 
-#ifdef NRF52840_XXAA
+#if defined(NRF52840_XXAA) && defined(EXTERNAL_FLASH_USE_QSPI)
 
 #include "Adafruit_FlashTransport.h"
 #include "nrfx_qspi.h"
