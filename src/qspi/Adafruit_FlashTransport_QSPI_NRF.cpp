@@ -22,11 +22,12 @@
  * THE SOFTWARE.
  */
 
+#include <Arduino.h>
+
 #if defined(NRF52840_XXAA) && defined(EXTERNAL_FLASH_USE_QSPI)
 
 #include "Adafruit_FlashTransport.h"
 #include "nrfx_qspi.h"
-#include <Arduino.h>
 
 Adafruit_FlashTransport_QSPI::Adafruit_FlashTransport_QSPI(void)
     : Adafruit_FlashTransport_QSPI(PIN_QSPI_SCK, PIN_QSPI_CS, PIN_QSPI_IO0,
