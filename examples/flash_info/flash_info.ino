@@ -62,15 +62,18 @@ Adafruit_SPIFlash flash(&flashTransport);
 // the setup function runs once when you press reset or power the board
 void setup() {
   Serial.begin(115200);
-  while (!Serial)
+  while (!Serial) {
     delay(100); // wait for native usb
+  }
 
   Serial.println("Adafruit Serial Flash Info example");
   flash.begin();
 
   // Using a flash device not already listed? Start the flash memory by passing
   // it the array of device settings defined above, and the number of elements
-  // in the array. flash.begin(my_flash_devices, flashDevices);
+  // in the array.
+
+  // flash.begin(my_flash_devices, flashDevices);
 
   Serial.print("JEDEC ID: 0x");
   Serial.println(flash.getJEDECID(), HEX);
