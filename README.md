@@ -16,5 +16,5 @@ Arduino library for external (Q)SPI flash device.
 - Support SPI interfaces for all cores
 - Support QSPI interfaces for nRF52 and SAMD51
 - Support FRAM flash devices
-- Provie raw flash access APIs
+- Provide raw flash access APIs
 - Implement block device APIs from SdFat's BaseBlockDRiver with caching to facilitate FAT filesystem on flash device
