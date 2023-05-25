@@ -87,6 +87,10 @@ bool Adafruit_SPIFlashBase::begin(SPIFlash_Device_t const *flash_devs,
 
 #else
 
+#if defined(EXTERNAL_FLASH_DEVICES)
+/// List of all possible flash devices defined by board's variant.h
+static const SPIFlash_Device_t possible_devices[] = {EXTERNAL_FLASH_DEVICES};
+#else
 /// List of all possible flash devices used by Adafruit boards
 static const SPIFlash_Device_t possible_devices[] = {
     // Main devices used in current Adafruit products
@@ -100,6 +104,7 @@ static const SPIFlash_Device_t possible_devices[] = {
 
     // Other common flash devices
     W25Q16JV_IQ, W25Q32JV_IQ, AT25SF041, AT25DF081A};
+#endif /* if defined (EXTERNAL_FLASH_DEVICES) */
 
 /// Flash device list count
 enum {

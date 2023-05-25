@@ -79,7 +79,7 @@ void setup() {
   Serial.println(flash.getJEDECID(), HEX);
   Serial.print("Flash size: ");
   Serial.print(flash.size() / 1024);
-  Serial.println(" KB");
+  Serial.println(" KiB");
 }
 
 void loop() {
