@@ -100,7 +100,7 @@ public:
 
   /// Erase external flash by address
   /// @param command  can be sector erase (0x20) or block erase 0xD8
-  /// @param address  adddress to be erased
+  /// @param address  address to be erased
   /// @return true if success
   virtual bool eraseCommand(uint8_t command, uint32_t address) = 0;
 

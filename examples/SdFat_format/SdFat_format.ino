@@ -11,7 +11,7 @@
 // - Upload this sketch to your M0 express board.
 // - Open the serial monitor at 115200 baud.  You should see a
 //   prompt to confirm formatting.  If you don't see the prompt
-//   close the serial monitor, press the board reset buttton,
+//   close the serial monitor, press the board reset button,
 //   wait a few seconds, then open the serial monitor again.
 // - Type OK and enter to confirm the format when prompted.
 // - Partitioning and formatting will take about 30-60 seconds.
