@@ -32,7 +32,7 @@
 #define SPIFLASH_LOG(_address, _count)                                         \
   do {                                                                         \
     Serial.print(__FUNCTION__);                                                \
-    Serial.print(": adddress = ");                                             \
+    Serial.print(": address = ");                                              \
     Serial.print(_address, HEX);                                               \
     if (_count) {                                                              \
       Serial.print(" count = ");                                               \

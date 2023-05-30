@@ -2,7 +2,9 @@
  * Print size, modify date/time, and name for all files in root.
  */
 #include <SPI.h>
+
 #include "SdFat.h"
+
 #include "Adafruit_SPIFlash.h"
 
 // for flashTransport definition
@@ -25,12 +27,12 @@ void setup() {
 
   // Init file system on the flash
   fatfs.begin(&flash);
-  
-  // Wait for USB Serial 
+
+  // Wait for USB Serial
   while (!Serial) {
     yield();
   }
-  
+
   if (!root.open("/")) {
     Serial.println("open root failed");
   }
@@ -50,7 +52,7 @@ void setup() {
     Serial.println();
     file.close();
   }
-  
+
   if (root.getError()) {
     Serial.println("openNext failed");
   } else {

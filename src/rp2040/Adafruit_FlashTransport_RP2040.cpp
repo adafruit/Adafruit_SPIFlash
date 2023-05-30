@@ -79,7 +79,7 @@ Adafruit_FlashTransport_RP2040::Adafruit_FlashTransport_RP2040(
 void Adafruit_FlashTransport_RP2040::begin(void) {
   _flash_dev.total_size = _size;
 
-  #if 0
+#if 0
   // Read the RDID register only for JEDEC ID
   uint8_t const cmd[] = {
       0x9f,
@@ -97,13 +97,12 @@ void Adafruit_FlashTransport_RP2040::begin(void) {
   _flash_dev.manufacturer_id = jedec_ids[0];
   _flash_dev.memory_type = jedec_ids[1];
   _flash_dev.capacity = jedec_ids[2];
-  #else
+#else
   // skip JEDEC ID
   _flash_dev.manufacturer_id = 0xad;
   _flash_dev.memory_type = 0xaf;
   _flash_dev.capacity = 0x00;
-  #endif
-
+#endif
 }
 
 void Adafruit_FlashTransport_RP2040::end(void) {

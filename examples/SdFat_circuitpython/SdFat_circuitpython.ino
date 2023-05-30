@@ -21,10 +21,12 @@
 // - Open the serial monitor at 115200 baud.  You should see the
 //   example start to run and messages printed to the monitor.
 //   If you don't see anything close the serial monitor, press
-//   the board reset buttton, wait a few seconds, then open the
+//   the board reset button, wait a few seconds, then open the
 //   serial monitor again.
 #include <SPI.h>
+
 #include <SdFat.h>
+
 #include <Adafruit_SPIFlash.h>
 
 // for flashTransport definition
@@ -46,16 +48,20 @@ void setup() {
   // Initialize flash library and check its chip ID.
   if (!flash.begin()) {
     Serial.println("Error, failed to initialize flash chip!");
-    while(1);
+    while (1) {
+    }
   }
-  Serial.print("Flash chip JEDEC ID: 0x"); Serial.println(flash.getJEDECID(), HEX);
+  Serial.print("Flash chip JEDEC ID: 0x");
+  Serial.println(flash.getJEDECID(), HEX);
 
   // First call begin to mount the filesystem.  Check that it returns true
   // to make sure the filesystem was mounted.
   if (!fatfs.begin(&flash)) {
     Serial.println("Failed to mount filesystem!");
-    Serial.println("Was CircuitPython loaded on the board first to create the filesystem?");
-    while(1);
+    Serial.println("Was CircuitPython loaded on the board first to create the "
+                   "filesystem?");
+    while (1) {
+    }
   }
   Serial.println("Mounted filesystem!");
 
@@ -68,8 +74,7 @@ void setup() {
       Serial.print(c);
     }
     Serial.println();
-  }
-  else {
+  } else {
     Serial.println("No boot.py found...");
   }
 
@@ -82,8 +87,7 @@ void setup() {
       Serial.print(c);
     }
     Serial.println();
-  }
-  else {
+  } else {
     Serial.println("No code.py found...");
   }
 
@@ -98,8 +102,7 @@ void setup() {
     // See the other fatfs examples like fatfs_full_usage and fatfs_datalogging
     // for more examples of interacting with files.
     Serial.println("Wrote a new line to the end of data.txt!");
-  }
-  else {
+  } else {
     Serial.println("Error, failed to open data file for writing!");
   }
 

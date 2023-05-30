@@ -17,6 +17,7 @@
 //   value to the data logging file.
 #include <SPI.h>
 #include <SdFat.h>
+
 #include <Adafruit_SPIFlash.h>
 
 // for flashTransport definition
@@ -28,8 +29,7 @@ Adafruit_SPIFlash flash(&flashTransport);
 FatVolume fatfs;
 
 // Configuration for the datalogging file:
-#define FILE_NAME      "data.csv"
-
+#define FILE_NAME "data.csv"
 
 void setup() {
   // Initialize serial port and wait for it to open before continuing.
@@ -42,16 +42,22 @@ void setup() {
   // Initialize flash library and check its chip ID.
   if (!flash.begin()) {
     Serial.println("Error, failed to initialize flash chip!");
-    while(1) delay(1);
+    while (1) {
+      delay(1);
+    }
   }
-  Serial.print("Flash chip JEDEC ID: 0x"); Serial.println(flash.getJEDECID(), HEX);
+  Serial.print("Flash chip JEDEC ID: 0x");
+  Serial.println(flash.getJEDECID(), HEX);
 
   // First call begin to mount the filesystem.  Check that it returns true
   // to make sure the filesystem was mounted.
   if (!fatfs.begin(&flash)) {
     Serial.println("Error, failed to mount newly formatted filesystem!");
-    Serial.println("Was the flash chip formatted with the fatfs_format example?");
-    while(1) delay(1);
+    Serial.println(
+        "Was the flash chip formatted with the fatfs_format example?");
+    while (1) {
+      delay(1);
+    }
   }
   Serial.println("Mounted filesystem!");
 
@@ -66,7 +72,7 @@ void loop() {
   if (dataFile) {
     // Take a new data reading from a sensor, etc.  For this example just
     // make up a random number.
-    int reading = random(0,100);
+    int reading = random(0, 100);
     // Write a line to the file.  You can use all the same print functions
     // as if you're writing to the serial monitor.  For example to write
     // two CSV (commas separated) values:
@@ -78,8 +84,7 @@ void loop() {
     // sure all the data is written to the file.
     dataFile.close();
     Serial.println("Wrote new measurement to data file!");
-  }
-  else {
+  } else {
     Serial.println("Failed to open data file for writing!");
   }
 

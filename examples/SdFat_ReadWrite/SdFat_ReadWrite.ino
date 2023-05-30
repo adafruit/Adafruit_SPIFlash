@@ -18,7 +18,9 @@
  */
 
 #include <SPI.h>
+
 #include "SdFat.h"
+
 #include "Adafruit_SPIFlash.h"
 
 // for flashTransport definition
@@ -34,19 +36,20 @@ void setup() {
   // Open serial communications and wait for port to open:
   Serial.begin(115200);
   while (!Serial) {
-    delay(10); // wait for serial port to connect. Needed for native USB port only
+    delay(
+        10); // wait for serial port to connect. Needed for native USB port only
   }
 
   Serial.println("Initializing Filesystem on external flash...");
-  
+
   // Init external flash
   flash.begin();
 
   // Open file system on the flash
-  if ( !fatfs.begin(&flash) ) {
-    Serial.println("Error: filesystem is not existed. Please try SdFat_format example to make one.");
-    while(1)
-    {
+  if (!fatfs.begin(&flash)) {
+    Serial.println("Error: filesystem is not existed. Please try SdFat_format "
+                   "example to make one.");
+    while (1) {
       yield();
       delay(1);
     }
