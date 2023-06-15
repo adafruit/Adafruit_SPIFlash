@@ -38,7 +38,12 @@ protected:
   // check if relative addr is valid
   bool check_addr(uint32_t addr) { return addr <= _size; }
 
-  bool _idle_other_core_on_write; // idle cores on erase/write, see notes below
+  // Flag (set via constructor) indicates whether other core must pause when
+  // writing or erasing flash. Default state is true, pause other core. VERY
+  // rare that this needs changed, REQUIRES SPECIAL LINKER CONFIG to locate
+  // ALL functions of other core entirely in RAM, else hard crash and flash
+  // filesystem corruption. PicoDVI is a rare use case.
+  bool _idle_other_core_on_write;
 
 public:
   static const uint32_t CPY_START_ADDR;
@@ -51,16 +56,8 @@ public:
   // To be compatible with CircuitPython partition scheme (start_address = 1
   // MB, size = total flash - 1 MB) use
   //   Adafruit_FlashTransport_RP2040(CPY_START_ADDR, CPY_SIZE)
-  Adafruit_FlashTransport_RP2040(uint32_t start_addr = 0, uint32_t size = 0);
-
-  // Set/clear flag indicating whether other core must pause when writing
-  // or erasing flash. Default state is true, pause other core. Changing this
-  // is VERY rare, requires special linker config to locate any functions
-  // called by other core entirely in RAM, else hard crash and filesystem is
-  // corrupted and must be re-initialized. PicoDVI is a rare use case. This
-  // is a setter (rather than constructor argument) as it's not always known
-  // at compile-time.
-  void setIdle(bool idle = true) { _idle_other_core_on_write = idle; }
+  Adafruit_FlashTransport_RP2040(uint32_t start_addr = 0, uint32_t size = 0,
+                                 bool idle = true);
 
   virtual void begin(void);
   virtual void end(void);
@@ -86,8 +83,8 @@ class Adafruit_FlashTransport_RP2040_CPY
     : public Adafruit_FlashTransport_RP2040 {
 
 public:
-  Adafruit_FlashTransport_RP2040_CPY()
-      : Adafruit_FlashTransport_RP2040(CPY_START_ADDR, CPY_SIZE) {}
+  Adafruit_FlashTransport_RP2040_CPY(bool idle = true)
+      : Adafruit_FlashTransport_RP2040(CPY_START_ADDR, CPY_SIZE, idle) {}
 };
 
 #endif

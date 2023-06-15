@@ -41,8 +41,7 @@ extern uint8_t _FS_end;
 // - size = total flash - 1 MB + 4KB (since CPY does not reserve EEPROM from
 // arduino core)
 #if defined(ARDUINO_RASPBERRY_PI_PICO_W)
-const uint32_t Adafruit_FlashTransport_RP2040::CPY_START_ADDR =
-    (1536 * 1024);
+const uint32_t Adafruit_FlashTransport_RP2040::CPY_START_ADDR = (1536 * 1024);
 #else
 const uint32_t Adafruit_FlashTransport_RP2040::CPY_START_ADDR =
     (1 * 1024 * 1024);
@@ -53,19 +52,21 @@ const uint32_t Adafruit_FlashTransport_RP2040::CPY_SIZE =
 
 static inline void fl_lock(bool idle) {
   noInterrupts();
-  if (idle) rp2040.idleOtherCore();
+  if (idle)
+    rp2040.idleOtherCore();
 }
 
 static inline void fl_unlock(bool idle) {
-  if (idle) rp2040.resumeOtherCore();
+  if (idle)
+    rp2040.resumeOtherCore();
   interrupts();
 }
 
 Adafruit_FlashTransport_RP2040::Adafruit_FlashTransport_RP2040(
-    uint32_t start_addr, uint32_t size) {
+    uint32_t start_addr, uint32_t size, bool idle)
+    : _idle_other_core_on_write(idle) {
   _cmd_read = SFLASH_CMD_READ;
   _addr_len = 3; // work with most device if not set
-  _idle_other_core_on_write = true; // See notes in .h
 
   _start_addr = start_addr;
   _size = size;
