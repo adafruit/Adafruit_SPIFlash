@@ -38,6 +38,8 @@ protected:
   // check if relative addr is valid
   bool check_addr(uint32_t addr) { return addr <= _size; }
 
+  bool _idle_other_core_on_write; // true to idle other core on erase/write
+
 public:
   static const uint32_t CPY_START_ADDR;
   static const uint32_t CPY_SIZE;
@@ -50,6 +52,11 @@ public:
   // MB, size = total flash - 1 MB) use
   //   Adafruit_FlashTransport_RP2040(CPY_START_ADDR, CPY_SIZE)
   Adafruit_FlashTransport_RP2040(uint32_t start_addr = 0, uint32_t size = 0);
+
+  // Set/clear flag indicating whether other core must pause when writing
+  // or erasing flash (default state is true, keeping other core running is
+  // very rare, that code MUST be entirely RAM-resident).
+  void setIdle(bool idle = true) { _idle_other_core_on_write = idle; }
 
   virtual void begin(void);
   virtual void end(void);
@@ -75,7 +82,7 @@ class Adafruit_FlashTransport_RP2040_CPY
     : public Adafruit_FlashTransport_RP2040 {
 
 public:
-  Adafruit_FlashTransport_RP2040_CPY(void)
+  Adafruit_FlashTransport_RP2040_CPY()
       : Adafruit_FlashTransport_RP2040(CPY_START_ADDR, CPY_SIZE) {}
 };
 
