@@ -65,7 +65,7 @@ Adafruit_FlashTransport_RP2040::Adafruit_FlashTransport_RP2040(
     uint32_t start_addr, uint32_t size) {
   _cmd_read = SFLASH_CMD_READ;
   _addr_len = 3; // work with most device if not set
-  _idle_other_core_on_write = true;
+  _idle_other_core_on_write = true; // See notes in .h
 
   _start_addr = start_addr;
   _size = size;

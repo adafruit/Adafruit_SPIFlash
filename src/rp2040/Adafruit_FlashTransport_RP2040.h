@@ -38,7 +38,7 @@ protected:
   // check if relative addr is valid
   bool check_addr(uint32_t addr) { return addr <= _size; }
 
-  bool _idle_other_core_on_write; // true to idle other core on erase/write
+  bool _idle_other_core_on_write; // idle cores on erase/write, see notes below
 
 public:
   static const uint32_t CPY_START_ADDR;
@@ -54,8 +54,12 @@ public:
   Adafruit_FlashTransport_RP2040(uint32_t start_addr = 0, uint32_t size = 0);
 
   // Set/clear flag indicating whether other core must pause when writing
-  // or erasing flash (default state is true, keeping other core running is
-  // very rare, that code MUST be entirely RAM-resident).
+  // or erasing flash. Default state is true, pause other core. Changing this
+  // is VERY rare, requires special linker config to locate any functions
+  // called by other core entirely in RAM, else hard crash and filesystem is
+  // corrupted and must be re-initialized. PicoDVI is a rare use case. This
+  // is a setter (rather than constructor argument) as it's not always known
+  // at compile-time.
   void setIdle(bool idle = true) { _idle_other_core_on_write = idle; }
 
   virtual void begin(void);
