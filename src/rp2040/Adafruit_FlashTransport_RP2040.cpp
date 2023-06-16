@@ -37,27 +37,34 @@ extern uint8_t _FS_end;
 #define MENU_FS_SIZE ((uint32_t)(&_FS_end - &_FS_start))
 
 // CircuitPython partition scheme with
-// - start address = 1 MB,
+// - start address = 1 MB (Pico), 1.5 MB (Pico W)
 // - size = total flash - 1 MB + 4KB (since CPY does not reserve EEPROM from
 // arduino core)
+#if defined(ARDUINO_RASPBERRY_PI_PICO_W)
+const uint32_t Adafruit_FlashTransport_RP2040::CPY_START_ADDR = (1536 * 1024);
+#else
 const uint32_t Adafruit_FlashTransport_RP2040::CPY_START_ADDR =
     (1 * 1024 * 1024);
+#endif
 const uint32_t Adafruit_FlashTransport_RP2040::CPY_SIZE =
     (((uint32_t)&_FS_end) -
      (XIP_BASE + Adafruit_FlashTransport_RP2040::CPY_START_ADDR) + 4096);
 
-static inline void fl_lock(void) {
+static inline void fl_lock(bool idle) {
   noInterrupts();
-  rp2040.idleOtherCore();
+  if (idle)
+    rp2040.idleOtherCore();
 }
 
-static inline void fl_unlock(void) {
-  rp2040.resumeOtherCore();
+static inline void fl_unlock(bool idle) {
+  if (idle)
+    rp2040.resumeOtherCore();
   interrupts();
 }
 
 Adafruit_FlashTransport_RP2040::Adafruit_FlashTransport_RP2040(
-    uint32_t start_addr, uint32_t size) {
+    uint32_t start_addr, uint32_t size, bool idle)
+    : _idle_other_core_on_write(idle) {
   _cmd_read = SFLASH_CMD_READ;
   _addr_len = 3; // work with most device if not set
 
@@ -88,9 +95,9 @@ void Adafruit_FlashTransport_RP2040::begin(void) {
       0,
   };
   uint8_t data[4];
-  fl_lock();
+  fl_lock(_idle_other_core_on_write);
   flash_do_cmd(cmd, data, 5);
-  fl_unlock();
+  fl_unlock(_idle_other_core_on_write);
 
   uint8_t *jedec_ids = data + 1;
 
@@ -128,9 +135,9 @@ bool Adafruit_FlashTransport_RP2040::runCommand(uint8_t command) {
 
   switch (command) {
   case SFLASH_CMD_ERASE_CHIP:
-    fl_lock();
+    fl_lock(_idle_other_core_on_write);
     flash_range_erase(_start_addr, _size);
-    fl_unlock();
+    fl_unlock(_idle_other_core_on_write);
     break;
 
   // do nothing, mostly write enable
@@ -178,9 +185,9 @@ bool Adafruit_FlashTransport_RP2040::eraseCommand(uint8_t command,
     return false;
   }
 
-  fl_lock();
+  fl_lock(_idle_other_core_on_write);
   flash_range_erase(_start_addr + addr, erase_sz);
-  fl_unlock();
+  fl_unlock(_idle_other_core_on_write);
 
   return true;
 }
@@ -202,9 +209,9 @@ bool Adafruit_FlashTransport_RP2040::writeMemory(uint32_t addr,
     return false;
   }
 
-  fl_lock();
+  fl_lock(_idle_other_core_on_write);
   flash_range_program(_start_addr + addr, data, len);
-  fl_unlock();
+  fl_unlock(_idle_other_core_on_write);
   return true;
 }
 

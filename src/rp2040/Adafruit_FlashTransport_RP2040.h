@@ -38,6 +38,13 @@ protected:
   // check if relative addr is valid
   bool check_addr(uint32_t addr) { return addr <= _size; }
 
+  // Flag (set via constructor) indicates whether other core must pause when
+  // writing or erasing flash. Default state is true, pause other core. VERY
+  // rare that this needs changed, REQUIRES SPECIAL LINKER CONFIG to locate
+  // ALL functions of other core entirely in RAM, else hard crash and flash
+  // filesystem corruption. PicoDVI is a rare use case.
+  bool _idle_other_core_on_write;
+
 public:
   static const uint32_t CPY_START_ADDR;
   static const uint32_t CPY_SIZE;
@@ -49,7 +56,8 @@ public:
   // To be compatible with CircuitPython partition scheme (start_address = 1
   // MB, size = total flash - 1 MB) use
   //   Adafruit_FlashTransport_RP2040(CPY_START_ADDR, CPY_SIZE)
-  Adafruit_FlashTransport_RP2040(uint32_t start_addr = 0, uint32_t size = 0);
+  Adafruit_FlashTransport_RP2040(uint32_t start_addr = 0, uint32_t size = 0,
+                                 bool idle = true);
 
   virtual void begin(void);
   virtual void end(void);
@@ -75,8 +83,8 @@ class Adafruit_FlashTransport_RP2040_CPY
     : public Adafruit_FlashTransport_RP2040 {
 
 public:
-  Adafruit_FlashTransport_RP2040_CPY(void)
-      : Adafruit_FlashTransport_RP2040(CPY_START_ADDR, CPY_SIZE) {}
+  Adafruit_FlashTransport_RP2040_CPY(bool idle = true)
+      : Adafruit_FlashTransport_RP2040(CPY_START_ADDR, CPY_SIZE, idle) {}
 };
 
 #endif
