@@ -3,6 +3,39 @@ name: Build
 on: [pull_request, push, repository_dispatch]
 
 jobs:
+  pre-commit:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.x'
+
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Run pre-commit
+        uses: pre-commit/action@v3.0.0
+
+      - name: Checkout adafruit/ci-arduino
+        uses: actions/checkout@v3
+        with:
+          repository: adafruit/ci-arduino
+          path: ci
+
+      - name: pre-install
+        run: bash ci/actions_install.sh
+
+      # clang is already run as part of pre-commit
+      # - name: clang
+      # run: python3 ci/run-clang-format.py -r src/arduino
+
+      - name: doxygen
+        env:
+          GH_REPO_TOKEN: ${{ secrets.GH_REPO_TOKEN }}
+          PRETTYNAME : "Adafruit SPIFlash Library"
+        run: bash ci/doxy_gen_and_deploy.sh
+
   build:
     strategy:
       fail-fast: false
@@ -32,8 +65,10 @@ jobs:
       uses: actions/setup-python@v4
       with:
         python-version: '3.x'
+
     - name: Checkout code
       uses: actions/checkout@v3
+
     - name: Checkout adafruit/ci-arduino
       uses: actions/checkout@v3
       with:
@@ -46,16 +81,6 @@ jobs:
     - name: test platforms
       run: python3 ci/build_platform.py ${{ matrix.arduino-platform }}
 
-    - name: clang
-      # skip clang for fatfs (ff) to make it easier to compare and upgrade
-      run: python3 ci/run-clang-format.py -e "ci/*" -e "bin/*" -e "./examples/SdFat_format/*" -r .
-
-    - name: doxygen
-      env:
-        GH_REPO_TOKEN: ${{ secrets.GH_REPO_TOKEN }}
-        PRETTYNAME : "Adafruit SPIFlash Library"
-      run: bash ci/doxy_gen_and_deploy.sh
-
     - name: Move build artifacts into place
       run: |
             mkdir build
@@ -63,7 +88,7 @@ jobs:
             for i in examples/*/build/*/*.uf2; do if [ -f $i ]; then j=${i##*/}; j=${j%%*.}; mv $i build/$j-${{ matrix.arduino-platform }}.uf2; fi done
 
     - name: Upload build artifacts
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v3
       with:
         name: ${{ github.event.repository.name }}.${{ github.sha }}
         path: |
