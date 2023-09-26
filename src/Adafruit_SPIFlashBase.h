@@ -63,6 +63,7 @@ public:
   uint32_t readBuffer(uint32_t address, uint8_t *buffer, uint32_t len);
   uint32_t writeBuffer(uint32_t address, uint8_t const *buffer, uint32_t len);
 
+  bool erasePage(uint32_t pageNumber);
   bool eraseSector(uint32_t sectorNumber);
   bool eraseBlock(uint32_t blockNumber);
   bool eraseChip(void);
