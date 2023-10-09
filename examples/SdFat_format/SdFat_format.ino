@@ -34,7 +34,7 @@
 #include "flash_config.h"
 
 Adafruit_SPIFlash flash(&flashTransport);
-
+FatVolume fatfs;
 
 void format_fat12(void)
 {
@@ -82,7 +82,6 @@ void format_fat12(void)
 void check_fat12(void)
 {
   // Check new filesystem
-  FatVolume fatfs;
   if (!fatfs.begin(&flash)) {
     Serial.println(F("Error, failed to mount newly formatted filesystem!"));
     while(1) delay(1);
