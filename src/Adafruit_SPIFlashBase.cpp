@@ -93,13 +93,16 @@ static const SPIFlash_Device_t possible_devices[] = {
     GD25Q16C, GD25Q32C, GD25Q64C, S25FL116K, S25FL216K,
 
     // Only a handful of production run
-    W25Q16FW, W25Q64JV_IQ,
+    W25Q16FW,
+
+    // Flash breakout
+    W25Q16JV_IQ, W25Q32JV_IQ, W25Q64JV_IQ, W25Q128JV_SQ,
 
     // Fujitsu FRAM
     MB85RS64V, MB85RS1MT, MB85RS2MTA, MB85RS4MT,
 
     // Other common flash devices
-    W25Q16JV_IQ, W25Q32JV_IQ, AT25SF041, AT25DF081A};
+    AT25SF041, AT25DF081A};
 
 /// Flash device list count
 enum {
