@@ -102,7 +102,7 @@ static const SPIFlash_Device_t possible_devices[] = {
     MB85RS64V, MB85RS1MT, MB85RS2MTA, MB85RS4MT,
 
     // Other common flash devices
-    AT25SF041, AT25DF081A};
+    AT25SF041, AT25DF081A, P25Q16H};
 
 /// Flash device list count
 enum {
