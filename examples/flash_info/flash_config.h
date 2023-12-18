@@ -33,13 +33,11 @@
 Adafruit_FlashTransport_SPI flashTransport(CUSTOM_CS, CUSTOM_SPI);
 
 #elif defined(ARDUINO_ARCH_ESP32)
-
 // ESP32 use same flash device that store code for file system.
 // SPIFlash will parse partition.cvs to detect FATFS partition to use
 Adafruit_FlashTransport_ESP32 flashTransport;
 
 #elif defined(ARDUINO_ARCH_RP2040)
-
 // RP2040 use same flash device that store code for file system. Therefore we
 // only need to specify start address and size (no need SPI or SS)
 // By default (start=0, size=0), values that match file system setting in
@@ -54,7 +52,6 @@ Adafruit_FlashTransport_RP2040 flashTransport;
 //    flashTransport(Adafruit_FlashTransport_RP2040::CPY_START_ADDR,
 //                   Adafruit_FlashTransport_RP2040::CPY_SIZE);
 //  Adafruit_FlashTransport_RP2040_CPY flashTransport;
-
 #else
 
 // On-board external flash (QSPI or SPI) macros should already
@@ -63,19 +60,17 @@ Adafruit_FlashTransport_RP2040 flashTransport;
 // - EXTERNAL_FLASH_USE_CS/EXTERNAL_FLASH_USE_SPI
 
 #if defined(EXTERNAL_FLASH_USE_QSPI)
-
 Adafruit_FlashTransport_QSPI flashTransport;
 
 #elif defined(EXTERNAL_FLASH_USE_SPI)
-
 Adafruit_FlashTransport_SPI flashTransport(EXTERNAL_FLASH_USE_CS,
                                            EXTERNAL_FLASH_USE_SPI);
 
-#elif defined(__AVR__)
+#elif defined(__AVR__) || defined(ARDUINO_SAMD_CIRCUITPLAYGROUND_EXPRESS)
 
-// Use stand SPI/SS for avr port.
-// Note cache will be disable due to lack of memory.
-
+// Circuit Playground Express built with Arduino SAMD instead of Adafruit SAMD
+// core or AVR core Use stand SPI/SS for avr port. Note: For AVR, cache will be
+// disable due to lack of memory.
 Adafruit_FlashTransport_SPI flashTransport(SS, SPI);
 
 #else
