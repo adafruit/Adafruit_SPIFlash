@@ -61,7 +61,7 @@ Adafruit_SPIFlashBase::Adafruit_SPIFlashBase(
   _ind_active = true;
 }
 
-#if defined(ARDUINO_ARCH_ESP32) || defined(ARDUINO_ARCH_RP2040)
+#if !defined(ESP32_EXT_FLASH) && (defined(ARDUINO_ARCH_ESP32) || defined(ARDUINO_ARCH_RP2040))
 
 // For ESP32 and RP2040 the SPI flash is already detected and configured
 // We could skip the initial sequence
@@ -323,7 +323,11 @@ void Adafruit_SPIFlashBase::waitUntilReady(void) {
   }
 
   // both WIP and WREN bit should be clear
+#if !defined(FLASH_NO_WREN)
   while (readStatus() & 0x03) {
+#else
+  while (readStatus() & 0x01) {
+#endif
     yield();
   }
 }
