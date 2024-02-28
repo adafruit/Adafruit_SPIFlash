@@ -61,7 +61,8 @@ Adafruit_SPIFlashBase::Adafruit_SPIFlashBase(
   _ind_active = true;
 }
 
-#if !defined(ESP32_EXT_FLASH) && (defined(ARDUINO_ARCH_ESP32) || defined(ARDUINO_ARCH_RP2040))
+#if !defined(ESP32_EXT_FLASH) &&                                               \
+    (defined(ARDUINO_ARCH_ESP32) || defined(ARDUINO_ARCH_RP2040))
 
 // For ESP32 and RP2040 the SPI flash is already detected and configured
 // We could skip the initial sequence
