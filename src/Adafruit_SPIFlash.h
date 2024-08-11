@@ -100,7 +100,7 @@ public:
     return writeSectors(block, src, nb);
   }
 
-private:
+protected:
   bool _cache_en;
   Adafruit_FlashCache *_cache;
 };
