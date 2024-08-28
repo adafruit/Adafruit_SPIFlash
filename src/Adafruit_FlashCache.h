@@ -42,7 +42,8 @@ public:
   bool sync(Adafruit_SPIFlashBase *fl);
   bool write(Adafruit_SPIFlashBase *fl, uint32_t dst, void const *src,
              uint32_t len);
-  bool read(Adafruit_SPIFlashBase *fl, uint32_t addr, uint8_t *dst, uint32_t count);
+  bool read(Adafruit_SPIFlashBase *fl, uint32_t addr, uint8_t *dst,
+            uint32_t count);
 };
 
 #endif /* ADAFRUIT_FLASHCACHE_H_ */
