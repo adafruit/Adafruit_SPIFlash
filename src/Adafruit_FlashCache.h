@@ -29,7 +29,7 @@
 #include <stdint.h>
 
 // forward declaration
-class Adafruit_SPIFlash;
+class Adafruit_SPIFlashBase;
 
 class Adafruit_FlashCache {
 private:
@@ -39,10 +39,11 @@ private:
 public:
   Adafruit_FlashCache(void);
 
-  bool sync(Adafruit_SPIFlash *fl);
-  bool write(Adafruit_SPIFlash *fl, uint32_t dst, void const *src,
+  bool sync(Adafruit_SPIFlashBase *fl);
+  bool write(Adafruit_SPIFlashBase *fl, uint32_t dst, void const *src,
              uint32_t len);
-  bool read(Adafruit_SPIFlash *fl, uint32_t addr, uint8_t *dst, uint32_t count);
+  bool read(Adafruit_SPIFlashBase *fl, uint32_t addr, uint8_t *dst,
+            uint32_t count);
 };
 
 #endif /* ADAFRUIT_FLASHCACHE_H_ */
