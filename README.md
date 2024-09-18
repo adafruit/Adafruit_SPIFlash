@@ -1,6 +1,6 @@
 # Adafruit SPI Flash
 
-[![Build Status](https://travis-ci.com/adafruit/Adafruit_SPIFlash.svg?branch=master)](https://travis-ci.com/adafruit/Adafruit_SPIFlash) [![License](https://img.shields.io/badge/license-MIT-brightgreen.svg)](https://opensource.org/licenses/MIT)
+[![Build Status](https://github.com/adafruit/Adafruit_SPIFlash/workflows/Build/badge.svg)](https://github.com/adafruit/Adafruit_SPIFlash/actions) [![License](https://img.shields.io/badge/license-MIT-brightgreen.svg)](https://opensource.org/licenses/MIT)
 
 Arduino library for external (Q)SPI flash device.
 
