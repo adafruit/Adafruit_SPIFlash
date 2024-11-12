@@ -21,7 +21,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-#ifdef __SAMD51__
+#if defined(__SAMD51__) && defined(EXTERNAL_FLASH_USE_QSPI)
 
 #include "Adafruit_FlashTransport.h"
 #include "wiring_private.h"
