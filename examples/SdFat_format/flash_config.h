@@ -68,9 +68,9 @@ Adafruit_FlashTransport_SPI flashTransport(EXTERNAL_FLASH_USE_CS,
 
 #elif defined(__AVR__) || defined(ARDUINO_SAMD_CIRCUITPLAYGROUND_EXPRESS)
 
-// Circuit Playground Express built with Arduino SAMD instead of Adafruit SAMD
-// core or AVR core Use stand SPI/SS for avr port. Note: For AVR, cache will be
-// disable due to lack of memory.
+// Circuit Playground Express built with Arduino SAMD instead of Adafruit SAMD core or AVR core
+// Use stand SPI/SS for avr port.
+// Note: For AVR, cache will be disable due to lack of memory.
 Adafruit_FlashTransport_SPI flashTransport(SS, SPI);
 
 #else
