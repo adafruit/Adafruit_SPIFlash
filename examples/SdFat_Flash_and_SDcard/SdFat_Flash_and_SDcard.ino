@@ -6,8 +6,8 @@
 // Flash and SD card (if present) and display information about the QSPI flash.
 //
 
-#include <SPI.h>
 #include "SdFat_Adafruit_Fork.h"
+#include <SPI.h>
 
 #include <Adafruit_SPIFlash.h>
 

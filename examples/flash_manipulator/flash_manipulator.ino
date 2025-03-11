@@ -1,8 +1,8 @@
 /* This is my go-to example for erasing, dumping, writing and verifying SPI
  * flash!  */
 
-#include <SPI.h>
 #include "SdFat_Adafruit_Fork.h"
+#include <SPI.h>
 
 #include <Adafruit_SPIFlash.h>
 
