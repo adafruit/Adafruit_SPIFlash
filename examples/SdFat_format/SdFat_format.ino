@@ -24,8 +24,8 @@
 
 // Since SdFat doesn't fully support FAT12 such as format a new flash
 // We will use Elm Cham's fatfs f_mkfs() to format
-#include "diskio.h"
 #include "ff.h"
+#include "diskio.h"
 
 // up to 11 characters
 #define DISK_LABEL "EXT FLASH"
