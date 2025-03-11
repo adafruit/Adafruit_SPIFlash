@@ -19,8 +19,8 @@
 //   wait a few seconds, then open the serial monitor again.
 // - Type OK and enter to confirm the format when prompted,
 //   the flash chip will be erased.
+#include "SdFat_Adafruit_Fork.h"
 #include <SPI.h>
-#include <SdFat.h>
 
 #include <Adafruit_SPIFlash.h>
 

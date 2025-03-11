@@ -15,8 +15,8 @@
 // - Open the serial monitor at 115200 baud.  You should see the
 //   example print a message every minute when it writes a new
 //   value to the data logging file.
+#include "SdFat_Adafruit_Fork.h"
 #include <SPI.h>
-#include <SdFat.h>
 
 #include <Adafruit_SPIFlash.h>
 

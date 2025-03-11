@@ -11,8 +11,8 @@
  *  TODO: automagically detect if it's Feather/Metro/CircuitPlayground!
  */
 
+#include "SdFat_Adafruit_Fork.h"
 #include <SPI.h>
-#include <SdFat.h>
 
 #include <Adafruit_NeoPixel.h>
 #include <Adafruit_SPIFlash.h>

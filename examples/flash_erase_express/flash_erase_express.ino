@@ -20,8 +20,8 @@
 // - If the Nexopixel starts flashing red two or three times a second,
 //   an error has occurred.
 
+#include "SdFat_Adafruit_Fork.h"
 #include <SPI.h>
-#include <SdFat.h>
 
 #include <Adafruit_NeoPixel.h>
 #include <Adafruit_SPIFlash.h>

@@ -3,7 +3,7 @@
  */
 #include <SPI.h>
 
-#include "SdFat.h"
+#include "SdFat_Adafruit_Fork.h"
 
 #include "Adafruit_SPIFlash.h"
 
