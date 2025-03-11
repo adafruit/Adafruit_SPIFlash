@@ -16,7 +16,7 @@
 //   example print a message every minute when it writes a new
 //   value to the data logging file.
 #include <SPI.h>
-#include <SdFat.h>
+#include "SdFat_Adafruit_Fork.h"
 
 #include <Adafruit_SPIFlash.h>
 

@@ -19,7 +19,7 @@
 //   it is finished.
 //
 #include <SPI.h>
-#include <SdFat.h>
+#include "SdFat_Adafruit_Fork.h"
 #include <Adafruit_SPIFlash.h>
 
 // Since SdFat doesn't fully support FAT12 such as format a new flash
@@ -93,7 +93,7 @@ void setup() {
   // Initialize serial port and wait for it to open before continuing.
   Serial.begin(115200);
   while (!Serial) delay(100);
-  
+
   Serial.println(F("Adafruit SPI Flash FatFs Format Example"));
 
   // Initialize flash library and check its chip ID.

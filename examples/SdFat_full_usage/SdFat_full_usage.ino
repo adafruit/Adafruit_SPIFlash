@@ -23,7 +23,7 @@
 //   the board reset button, wait a few seconds, then open the
 //   serial monitor again.
 #include <SPI.h>
-#include <SdFat.h>
+#include "SdFat_Adafruit_Fork.h"
 
 #include <Adafruit_SPIFlash.h>
 

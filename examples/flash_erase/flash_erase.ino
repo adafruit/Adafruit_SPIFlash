@@ -20,7 +20,7 @@
 // - Type OK and enter to confirm the format when prompted,
 //   the flash chip will be erased.
 #include <SPI.h>
-#include <SdFat.h>
+#include "SdFat_Adafruit_Fork.h"
 
 #include <Adafruit_SPIFlash.h>
 
