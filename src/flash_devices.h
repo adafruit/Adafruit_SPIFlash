@@ -29,44 +29,46 @@
 #include <stdbool.h>
 #include <stdint.h>
 
+/// Description of a flash chip: size, JEDEC ID and supported features
 typedef struct {
-  uint32_t total_size;
-  uint16_t start_up_time_us;
+  uint32_t total_size;       ///< Flash size in bytes
+  uint16_t start_up_time_us; ///< Time to wait after power up, in microseconds
 
   // Three response bytes to 0x9f JEDEC ID command.
-  uint8_t manufacturer_id;
-  uint8_t memory_type;
-  uint8_t capacity;
+  uint8_t manufacturer_id; ///< JEDEC ID byte 1: manufacturer
+  uint8_t memory_type;     ///< JEDEC ID byte 2: memory type
+  uint8_t capacity;        ///< JEDEC ID byte 3: capacity
 
-  // Max clock speed for all operations and the fastest read mode.
+  /// Max clock speed for all operations and the fastest read mode.
   uint8_t max_clock_speed_mhz;
 
-  // Bitmask for Quad Enable bit if present. 0x00 otherwise. This is for the
-  // highest byte in the status register.
+  /// Bitmask for Quad Enable bit if present. 0x00 otherwise. This is for the
+  /// highest byte in the status register.
   uint8_t quad_enable_bit_mask;
 
+  /// Chip has sector write protection (not currently cleared by begin())
   bool has_sector_protection : 1;
 
-  // Supports the 0x0b fast read command with 8 dummy cycles.
+  /// Supports the 0x0b fast read command with 8 dummy cycles.
   bool supports_fast_read : 1;
 
-  // Supports the fast read, quad output command 0x6b with 8 dummy cycles.
+  /// Supports the fast read, quad output command 0x6b with 8 dummy cycles.
   bool supports_qspi : 1;
 
-  // Supports the quad input page program command 0x32. This is known as 1-1-4
-  // because it only uses all four lines for data.
+  /// Supports the quad input page program command 0x32. This is known as 1-1-4
+  /// because it only uses all four lines for data.
   bool supports_qspi_writes : 1;
 
-  // Requires a separate command 0x31 to write to the second byte of the status
-  // register. Otherwise two byte are written via 0x01.
+  /// Requires a separate command 0x31 to write to the second byte of the
+  /// status register. Otherwise two byte are written via 0x01.
   bool write_status_register_split : 1;
 
-  // True when the status register is a single byte. This implies the Quad
-  // Enable bit is in the first byte and the Read Status Register 2 command
-  // (0x35) is unsupported.
+  /// True when the status register is a single byte. This implies the Quad
+  /// Enable bit is in the first byte and the Read Status Register 2 command
+  /// (0x35) is unsupported.
   bool single_status_byte : 1;
 
-  // Fram does not need/support erase and has much simpler WRITE operation
+  /// Fram does not need/support erase and has much simpler WRITE operation
   bool is_fram : 1;
 
 } SPIFlash_Device_t;
