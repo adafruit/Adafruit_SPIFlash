@@ -66,11 +66,18 @@ enum {
   SFLASH_PAGE_SIZE = 256,
 };
 
+/// Abstract interface to the bus (SPI, QSPI or the MCU's own flash) used to
+/// talk to the flash chip
 class Adafruit_FlashTransport {
 public:
+  /// Initialize the transport
   virtual void begin(void) = 0;
+
+  /// Deinitialize the transport
   virtual void end(void) = 0;
 
+  /// Check whether the transport can use quad data lines
+  /// @return true if quad mode is supported
   virtual bool supportQuadMode(void) = 0;
 
   /// Set clock speed in hertz
@@ -122,15 +129,18 @@ public:
   virtual bool writeMemory(uint32_t addr, uint8_t const *data,
                            uint32_t len) = 0;
 
+  /// Set the number of address bytes sent with each command
+  /// @param addr_len number of address bytes, e.g. 3 or 4
   void setAddressLength(uint8_t addr_len) { _addr_len = addr_len; }
+
+  /// Set the command used for memory reads
+  /// @param cmd_read read command, e.g. SFLASH_CMD_READ or
+  ///                 SFLASH_CMD_FAST_READ
   void setReadCommand(uint8_t cmd_read) { _cmd_read = cmd_read; }
 
 protected:
-  // Number of bytes for address
-  uint8_t _addr_len;
-
-  // Command use for read operation
-  uint8_t _cmd_read;
+  uint8_t _addr_len; ///< Number of bytes for address
+  uint8_t _cmd_read; ///< Command used for read operation
 };
 
 #include "qspi/Adafruit_FlashTransport_QSPI.h"

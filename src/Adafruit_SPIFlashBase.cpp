@@ -82,7 +82,8 @@ bool Adafruit_SPIFlashBase::begin(SPIFlash_Device_t const *flash_devs,
   _flash_dev = ((Adafruit_FlashTransport_RP2040 *)_trans)->getFlashDevice();
 #endif
 
-  return true;
+  // NULL if the flash could not be identified (e.g. no FAT partition on ESP32)
+  return _flash_dev != NULL;
 }
 
 #else
