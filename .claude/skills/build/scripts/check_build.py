@@ -105,9 +105,9 @@ def fs_window(build_dir):
         text = (Path(build_dir) / 'memmap_default.ld').read_text()
     except OSError:
         return None
-    flash = re.search(r'FLASH\(rx\)\s*:\s*ORIGIN\s*=\s*(0x[0-9a-fA-F]+),\s*LENGTH\s*=\s*(\d+|0x[0-9a-fA-F]+)', text)
-    start = re.search(r'_FS_start\s*=\s*(\d+|0x[0-9a-fA-F]+)\s*\)', text)
-    end = re.search(r'_FS_end\s*=\s*(\d+|0x[0-9a-fA-F]+)\s*\)', text)
+    flash = re.search(r'FLASH\(rx\)\s*:\s*ORIGIN\s*=\s*(0x[0-9a-fA-F]+),\s*LENGTH\s*=\s*(0x[0-9a-fA-F]+|\d+)', text)
+    start = re.search(r'_FS_start\s*=\s*(0x[0-9a-fA-F]+|\d+)\s*\)', text)
+    end = re.search(r'_FS_end\s*=\s*(0x[0-9a-fA-F]+|\d+)\s*\)', text)
     if not (flash and start and end):
         return None
     return int(flash.group(1), 0) + int(flash.group(2), 0), int(start.group(1), 0), int(end.group(1), 0)

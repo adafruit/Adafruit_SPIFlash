@@ -132,6 +132,10 @@ class FsWindow(unittest.TestCase):
         self.write()
         self.assertEqual(self.check(), ({'storage': {'fsStart': 0xff000, 'fsEnd': 0x1ff000}}, ''))
 
+    def test_hex_values_parsed_whole(self):
+        self.write(ld=self.LD.replace('1044480', '0xff000').replace('269479936', '0x100ff000'))
+        self.assertEqual(cb.fs_window(self.dir), (0x100ff000, 0x100ff000, 270528512))
+
     def test_board_without_fs_adds_nothing(self):
         self.assertEqual(cb.record_check('metro_m4_express', {'loadSpans': []}, self.dir, {}), ({}, ''))
 
