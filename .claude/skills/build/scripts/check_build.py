@@ -73,7 +73,8 @@ CONTRACT_TESTS = {'build': '.claude/test/test_build.py', 'hil': '.claude/test/te
                   'hil_remote': '.claude/test/test_hil_remote.py'}
 SMOKE_BOARDS = ('raspberry_pi_pico', 'metro_m4_express')   # one per image kind
 NOTHING = ('.claude/', '.github/', '.codespell', '.codespellrc', 'tools/', '.agents', '.gitignore',
-           '.pre-commit-config.yaml', '.PVS-Studio', 'library.properties', 'platformio.ini', 'LICENSE')
+           '.pre-commit-config.yaml', '.coderabbit.yaml', '.PVS-Studio', 'library.properties', 'platformio.ini',
+           'LICENSE')
 EXTRA_DEPENDENCIES = ()
 CONTRACT_FILES = ('.claude/skills/build/scripts/check_build.py', '.claude/skills/hil-contract/scripts/hil_test.py',
                   '.claude/skills/hil-contract/scripts/hil_remote.py',

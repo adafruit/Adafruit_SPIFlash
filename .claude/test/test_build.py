@@ -83,6 +83,7 @@ class Selection(unittest.TestCase):
                  'test/hil/ci.json': ('hil', None),
                  '.claude/skills/build/scripts/check_build.py': ('tests', 'build'),
                  'README.md': ('nothing', None), 'platformio.ini': ('nothing', None),
+                 '.coderabbit.yaml': ('nothing', None),
                  'weird/file': ('uncovered', None)}
         for path, want in cases.items():
             self.assertEqual(E.classify(path)[:2], want, path)
