@@ -77,7 +77,7 @@ class Selection(unittest.TestCase):
                  'src/esp32/Adafruit_FlashTransport_ESP32.cpp': ('family', 'esp32'),
                  'src/qspi/Adafruit_FlashTransport_QSPI.h': ('shared', None),
                  'src/spi/Adafruit_FlashTransport_SPI.cpp': ('shared', None),
-                 'src/Adafruit_SPIFlashBase.cpp': ('shared', None),
+                 'src/Adafruit_SPIFlashBase.cpp': ('shared', None), 'library.properties': ('shared', None),
                  'examples/flash_info/flash_info.ino': ('example', 'examples/flash_info'),
                  'test/hil/spiflash_region/spiflash_region.ino': ('hil_sketch', 'test/hil/spiflash_region'),
                  'test/hil/ci.json': ('hil', None),
