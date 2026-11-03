@@ -64,6 +64,9 @@ class Tables(unittest.TestCase):
         for sketch in cb.HIL_SKETCHES['device']:
             self.assertTrue((ROOT / sketch / f'{Path(sketch).name}.ino').is_file(), sketch)
 
+    def test_every_example_builds_on_some_board(self):
+        self.assertEqual(E.unbuildable_examples(), [])
+
     def test_contract_files_exist(self):
         for f in cb.CONTRACT_FILES:
             self.assertTrue((ROOT / f).is_file(), f)

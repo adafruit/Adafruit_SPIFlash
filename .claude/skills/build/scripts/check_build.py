@@ -84,8 +84,6 @@ XIP_BASE = 0x10000000
 
 def classify_source(path):
     """The library's own source rules (arduino_build.classify falls through to the common ones on None)."""
-    if path == 'library.properties':
-        return 'shared', None, 'name= and depends= decide which libraries a build may use'
     for prefix, family in TRANSPORT_FAMILY.items():
         if path.startswith(prefix):
             return 'family', family, f'{family} flash transport'

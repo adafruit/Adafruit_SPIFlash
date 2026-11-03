@@ -30,8 +30,9 @@ ci.lan has no arduino-cli and no checkout of this library: firmware is built on 
 `hil_remote.py`. On a dev PC without `test/hil/local.json`, ask the user for one; an agent that cannot ask returns
 each requested board not-run naming the missing file.
 
-A roster entry is the `arduino` skill's (`name`, the board's lock name and tinyusb farm name; `uid`, the DUT's USB
-serial; `usb_port`; `flasher`; `debug`) plus this library's `arduino` section:
+A roster entry is the `arduino` skill's (`name`, the board's name in agentrc's board registry and its lock; `uid`, the
+DUT's USB serial; `usb_port`; `probe`, its debug probe's serial, whose registry entry supplies the flasher, or a dev
+PC's unregistered board's own `flasher`; `debug`) plus this library's `arduino` section:
 
 - `tests`: `["spiflash_region"]`.
 - `vid_pid`: the DUT's VID:PID under this FQBN, commissioned (Metro M4 `239a:8020`, Pico `2e8a:000a`).
@@ -105,8 +106,9 @@ On the dev PC with the board: `python3 $H/hil_test.py run [-b BOARD]... test/hil
 
 As the `arduino` skill's Locks: the board lock `/tmp/tinyusb-hil-locks/<name>.lock` and the pending kind
 `arduino-hil` are shared with tinyusb, tinyuf2 and Adafruit TinyUSB Arduino. `hil_test.py run` and `commission` lock
-each board themselves; a manual session holds it under `arduino-hil session <id>`. Cleanup state is
-`spiflash_restore` flashed, the region read back erased, every child proven ended, and the hold released.
+each board themselves; a manual session holds it under a reason unique to its attempt, `arduino-hil session
+<attempt dir> <token>`. Cleanup state is `spiflash_restore` flashed, the region read back erased, every child proven
+ended, and the hold released.
 
 ## Results
 

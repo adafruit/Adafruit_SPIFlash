@@ -24,9 +24,9 @@ python3 $B --board raspberry_pi_pico --shared --record build/hil/raspberry_pi_pi
 The last stdout line is JSON: `pass`; `firstError`, and `error` on exit 2 naming the cause or remedy; `boards[]` (one
 row per board and sketch: `status` `ok`, `failed` or `error`, `log`, `artifacts`, `platform`, `foreignHeaders`,
 `libraries`, `removed`); `tests[]`; `paths[]` (each changed path's `rule` and `reason`); `uncovered`; `dependencies`;
-`nothingToBuild`; `warnings`; `input` (HEAD, dirty); `record` when one was written. Exit 0 pass, 1 a build, test or
-record check failed, 2 usage or a missing prerequisite, 3 an uncovered path; 2 outranks 1, and 1 outranks 3. Each
-build's log is `<buildDir>/check_build.log`.
+`nothingToBuild`; `warnings`; `input` (HEAD, dirty); `narrowed`; `record` when one was written. Exit 0 pass, 1 a build,
+test or record check failed, 2 usage or a missing prerequisite, 3 an uncovered path; 2 outranks 1, and 1 outranks 3.
+Each build's log is `<buildDir>/check_build.log`.
 
 `--select-only` prints the selection and stops before any compile. With `--hil-config <the host's roster>` it adds
 `hil.{boards,full,uncovered}`: the roster boards the change puts under the HIL battery, and each family the change
@@ -41,10 +41,10 @@ pass with no build or test run is "nothing to build": say so in `notes`. Exit 3 
 
 ## Judgment
 
-- **Selection is the script's**, first match per path; `paths[].reason` says why. A flash transport builds its
-  family's representatives (`TRANSPORT_FAMILY`, `REPRESENTATIVES`), any other `src/` file every family's; an example
-  builds where ci-arduino's filters allow; a HIL sketch builds on the rig boards and selects the battery on every
-  roster board; anything unmatched is uncovered.
+- **Selection is the script's**, first match per path; `paths[].reason` says why. A flash transport builds its family's
+  representatives (`TRANSPORT_FAMILY`, `REPRESENTATIVES`), any other `src/` file and `library.properties` every
+  family's; an example builds where ci-arduino's filters allow; a HIL sketch builds on the rig boards and selects the
+  battery on every roster board; anything unmatched is uncovered.
 - **Boards** (`BOARDS`): CI's matrix with ci-arduino's FQBNs, plus the rig boards named as in tinyusb's HIL farm, each
   on its core's default USB stack so `Serial` is the DUT's own USB CDC. `raspberry_pi_pico` uses
   `flash=2097152_1048576`: the RP2040 transport's window is the core's FS region, and CI's `flash=8388608_0` has
