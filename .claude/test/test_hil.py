@@ -90,9 +90,9 @@ class Protocol(unittest.TestCase):
         self.addCleanup(self.tmp.cleanup)
         self.board = {'arduino': {'storage': dict(STORAGE)}}
 
-    def run_test(self, fn, dut):
+    def run_test(self, fn, dut, timeout=5):
         with mock.patch.object(ht, 'open_console', return_value=('/dev/ttyACM0', dut)):
-            return fn({'dir': '/x'}, 'abcd1234', time.monotonic() + 5, None, self.tmp.name, self.board)
+            return fn({'dir': '/x'}, 'abcd1234', time.monotonic() + timeout, None, self.tmp.name, self.board)
 
     def test_region_passes_and_leaves_the_region_erased(self):
         dut = FakeDut()
@@ -108,9 +108,11 @@ class Protocol(unittest.TestCase):
         self.assertIn('jedec', detail)
 
     def test_region_fails_when_the_pattern_is_not_written(self):
-        ok, detail = self.run_test(ht.test_region, FakeDut(broken={'run'}))
+        dut = FakeDut(broken={'run'})
+        ok, detail = self.run_test(ht.test_region, dut)
         self.assertFalse(ok)
         self.assertIn('RUN', detail)
+        self.assertEqual([op for op, *_ in dut.writes], ['erase'])   # a failed RUN is erased after too
 
     def test_region_fails_when_a_request_is_not_refused(self):
         dut = FakeDut()
@@ -118,6 +120,17 @@ class Protocol(unittest.TestCase):
         ok, detail = self.run_test(ht.test_region, dut)
         self.assertFalse(ok)
         self.assertIn('want REJECT', detail)
+        self.assertEqual(dut.flash[2093056:], b'\xff' * 4096)   # the RUN it did not refuse is erased again
+        self.assertEqual(dut.writes[-1], ('erase', 2093056, 4096))
+
+    def test_region_erases_after_a_reply_timeout(self):
+        dut = FakeDut()
+        reply = dut.reply
+        dut.reply = lambda line: 'HIL_RESULT stale' if line.startswith('RUN abcd1234x0 ') else reply(line)
+        with self.assertRaisesRegex(TimeoutError, 'no reply'):
+            self.run_test(ht.test_region, dut, timeout=0.5)
+        self.assertEqual(dut.flash[2093056:], b'\xff' * 4096)
+        self.assertEqual([op for op, *_ in dut.writes], ['run', 'erase'])
 
     def test_region_fails_when_an_overlong_line_runs_its_tail(self):
         dut = FakeDut()

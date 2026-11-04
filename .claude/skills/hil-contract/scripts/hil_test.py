@@ -49,6 +49,7 @@ REMOTE_ROSTER = 'test/hil/ci.json'
 HIL = '.claude/skills/hil-contract/scripts/hil_test.py'
 SECTOR = 4096
 STORAGE_KEYS = ('transport', 'jedec', 'window', 'offset', 'length')
+CLEANUP_WAIT = 10   # seconds for the ERASE after a failure, whose test deadline may be spent
 
 E = None   # agentrc's arduino_hil, bound to this profile by engine()
 
@@ -143,6 +144,16 @@ def ask_op(console, cmd, nonce, off, length):
     return state, got
 
 
+def erase_after_failure(console, nonce, off, length):
+    """Best-effort ERASE of a region a failed battery may have left programmed, so spiflash_restore finds it erased;
+    its own failure is left to that restore."""
+    console.deadline = time.monotonic() + CLEANUP_WAIT
+    try:
+        ask_op(console, 'ERASE', nonce, off, length)
+    except Exception:
+        pass
+
+
 def test_region(dev, nonce, deadline, tracker, run_dir, board):
     """spiflash_region on the roster's region: INFO matches the roster; RUN erases, writes the nonce's pattern and
     reads it back; CHECK sees that pattern; malformed, misaligned, empty and out-of-window requests are refused with
@@ -152,10 +163,12 @@ def test_region(dev, nonce, deadline, tracker, run_dir, board):
     tty, port = open_console(dev, deadline)
     log, steps = [], []
     console = Console(port, deadline, log)
+    programmed = False   # a RUN may have written the region and no ERASE has been checked since
     try:
         why = info_problem(console, nonce + 'i', st)
         if why:
             return False, f'{tty}: {why}'
+        programmed = True
         state, got = ask_op(console, 'RUN', nonce + 'r', off, length)
         want_crc = f'{pattern_crc(nonce + "r", length):08x}'
         if state != 'PASS' or got.get('crc') != want_crc:
@@ -181,9 +194,12 @@ def test_region(dev, nonce, deadline, tracker, run_dir, board):
         if erase != 'PASS' or state != 'PASS' or got.get('erased') != '1':
             return False, f'{tty}: ERASE {egot["reply"]}, then CHECK {got["reply"]} (want PASS off={off} ' \
                           f'len={length} erased=1)'
+        programmed = False
         steps.append('erased')
         return True, f'{tty}: [{off:#x}, +{length:#x}) {", ".join(steps)}'
     finally:
+        if programmed:
+            erase_after_failure(console, nonce + 'z', off, length)
         port.close()
         (Path(run_dir) / f'spiflash-{nonce}.log').write_text('\n'.join(log) + '\n')
 
