@@ -86,8 +86,8 @@ python3 .claude/skills/build/scripts/check_build.py --board <board> --shared --r
   --hil-config <roster>
 ```
 
-The harness admits a record only as the `arduino` skill's The HIL build record says. A manual flash or GDB session
-also takes an experimental record (`--experimental`).
+The harness admits a record only as the `arduino` skill's "The HIL build record" entry says. A manual flash or GDB
+session also takes an experimental record (`--experimental`).
 
 ## Execution
 
