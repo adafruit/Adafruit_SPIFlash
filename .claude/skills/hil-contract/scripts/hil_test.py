@@ -11,17 +11,18 @@
   hil_test.py console -b BOARD --under-hold REASON [--seconds S] [--baud N] [--reset] [--staged M] ROSTER
   hil_test.py check -b BOARD --build-record R --under-hold REASON [--test T] [--staged M] ROSTER
   hil_test.py report RUN_DIR [-b BOARD]...
-  hil_test.py lock (hold|release|status) ...        the pinned agentrc hil_lock.py
+  hil_test.py lock (hold|release|status) ...        agentrc's hil_lock.py
 
 flash, restore, gdb and check take --bundle DIR, a record bundle `hil_remote.py session stage` staged,
 --build-record then inside it. restore --release passes only when the hold was released too.
 
 The last stdout line of every command but lock is JSON. Exits: 0 pass, 1 a board failed or did not run (cleaned up
-or untouched), 2 refused before any hardware access, 4 a cleanup did not finish (board held).
+or untouched), 2 refused before any hardware access, 3 a session command (--under-hold) whose hold the lock record
+shows no live holder of, 4 a cleanup did not finish (board held).
 
 This file is the library's HIL profile for agentrc's arduino_hil.py (the `arduino` skill): its tests over the HIL
 sketches' serial protocol (test/hil/spiflash_region/spiflash_region.ino) and its roster checks; the mechanics are
-there, loaded from the agentrc commit test/hil/agentrc.json pins.
+there, loaded from the agentrc agentrc_pin.py selects.
 """
 
 import json
@@ -221,7 +222,7 @@ def main(argv=None):
     try:
         eng = engine()
     except agentrc_pin.PinError as e:
-        print(json.dumps({'pass': False, 'error': str(e)}), flush=True)
+        print(json.dumps({'pass': False, 'error': str(e), 'remedy': e.remedy}), flush=True)
         return 2
     return eng.main(argv)
 

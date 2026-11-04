@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """The HIL profile: roster checks, the host side of the HIL sketches' serial protocol against a simulated DUT, and
-the profile bound to agentrc's arduino_hil.py at the pin. The simulation proves the host's parsing and verdicts only;
+the profile bound to agentrc's arduino_hil.py. The simulation proves the host's parsing and verdicts only;
 what the firmware does is a farm run's evidence."""
 import json
 import sys

@@ -12,11 +12,13 @@ runs this test. Scripts, all in `scripts/`, each with its usage in its docstring
 
 - `hil_test.py`: the harness on the host with the boards (this library's profile and tests).
 - `hil_remote.py`: drives the harness on ci.lan from the dev PC that built the firmware.
-- `agentrc_pin.py`: the agentrc commit both load their shared scripts from.
+- `agentrc_pin.py`: which agentrc both load their shared scripts from: the installed one
+  (`${AGENTRC_DIR:-$HOME/.claude}`) on a dev PC, never fetched; in CI the commit `test/hil/agentrc.json` pins; on the
+  rig, the copy `hil_remote.py` staged.
 
 ```bash
 H=.claude/skills/hil-contract/scripts
-python3 $H/agentrc_pin.py fetch            # once per pin: test/hil/agentrc.json into ~/.cache/adafruit-spiflash/
+python3 $H/agentrc_pin.py check            # the agentrc a run would load, validated; its root
 ```
 
 ## Hosts/rosters

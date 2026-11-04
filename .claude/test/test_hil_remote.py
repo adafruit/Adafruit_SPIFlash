@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
-"""hil_remote.py: the wrapper hands this library's HIL profile to agentrc's arduino_remote.py at the pin and turns a
-missing pin into exit 2. The staging and the rig transport are agentrc's tests; a real run is a farm run's evidence."""
+"""hil_remote.py: the wrapper hands this library's HIL profile to agentrc's arduino_remote.py (the agentrc
+agentrc_pin.py selects) and turns an unavailable agentrc into exit 2, naming why and the remedy. The staging and the
+rig transport are agentrc's tests; a real run is a farm run's evidence."""
 import contextlib
 import io
 import sys
@@ -23,12 +24,12 @@ class Wrapper(unittest.TestCase):
             self.assertEqual(hil_remote.main(['wait', 'x']), 7)
         remote.run.assert_called_once_with(hil_test, ['wait', 'x'])
 
-    def test_missing_pin_is_exit_2(self):
+    def test_an_unavailable_agentrc_is_exit_2_naming_why_and_the_remedy(self):
         err = io.StringIO()
-        with mock.patch.object(hil_test, 'engine', side_effect=agentrc_pin.PinError('no pin')), \
+        with mock.patch.object(hil_test, 'engine', side_effect=agentrc_pin.PinError('agentrc gone', 'install it')), \
                 contextlib.redirect_stderr(err):
             self.assertEqual(hil_remote.main(['wait', 'x']), 2)
-        self.assertIn('no pin', err.getvalue())
+        self.assertEqual(err.getvalue(), 'error: agentrc gone (install it)\n')
 
     def test_remote_names_are_this_librarys(self):
         self.assertTrue((ROOT / hil_test.HIL).is_file())

@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """The build contract's profile: the board table against CI's matrix, source classification and selection through
-agentrc's arduino_build.py at the pin, the roster VID:PID adapter and the RP2040 FS-window record check. arduino-cli
+agentrc's arduino_build.py, the roster VID:PID adapter and the RP2040 FS-window record check. arduino-cli
 is not run; a real build is evidence only from a run of the script itself."""
 import json
 import re
