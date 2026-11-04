@@ -24,3 +24,14 @@ repos:
         examples/SdFat_format/ff.c|
         examples/SdFat_format/ff.h
       )
+
+- repo: local
+  hooks:
+  - id: agent-contract-tests
+    name: agent contract tests
+    # the installed agentrc on a dev PC; in CI the pinned one, fetched first
+    entry: python3 .claude/skills/hil-contract/scripts/agentrc_pin.py test
+    language: python
+    additional_dependencies: [pyserial==3.5]
+    pass_filenames: false
+    files: ^(\.claude/|test/hil/)
