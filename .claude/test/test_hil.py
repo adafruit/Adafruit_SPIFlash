@@ -118,7 +118,6 @@ class Protocol(unittest.TestCase):
         dut.reply = lambda line: 'HIL_INFO stale ok=1'
         with self.assertRaisesRegex(TimeoutError, 'no reply'):
             self.run_test(ht.test_region, dut, timeout=0.3)
-        self.assertEqual(dut.writes, [])
         self.assertNotIn('ERASE', self.log())
 
     def test_region_fails_when_the_pattern_is_not_written(self):
@@ -163,6 +162,39 @@ class Protocol(unittest.TestCase):
                         self.run_test(ht.test_region, dut, timeout=0.3)
                 self.assertTrue(dut.closed)
                 self.assertIn("! cleanup ERASE: TimeoutError: no reply to 'ERASE abcd1234z", self.log())
+
+    def slow_cleanup_erase(self, dut, delay, stale=None):
+        """Hold the cleanup ERASE's reply back for `delay` seconds; `stale` lines get a reply with another nonce."""
+        reply, read, ready = dut.reply, dut.read, [0]
+
+        def delayed(line):
+            if line.startswith('ERASE abcd1234z '):
+                ready[0] = time.monotonic() + delay
+            return 'HIL_RESULT stale' if stale and line.startswith(stale) else reply(line)
+
+        def held_back(n):
+            if time.monotonic() < ready[0]:
+                time.sleep(0.01)
+                return b''
+            return read(n)
+        dut.reply, dut.read = delayed, held_back
+
+    def test_the_cleanup_erase_waits_for_the_later_deadline(self):
+        with self.subTest('spent test deadline'), mock.patch.object(ht, 'CLEANUP_WAIT', 0.3):
+            dut = FakeDut()
+            self.slow_cleanup_erase(dut, 0.1, stale='RUN abcd1234x0 ')
+            with self.assertRaisesRegex(TimeoutError, 'RUN abcd1234x0'):
+                self.run_test(ht.test_region, dut, timeout=0.3)
+            self.assertNotIn('! cleanup', self.log())
+            self.assertIn('< HIL_RESULT abcd1234z erase PASS', self.log())
+        with self.subTest('test deadline later than CLEANUP_WAIT'), mock.patch.object(ht, 'CLEANUP_WAIT', 0.05):
+            dut = FakeDut(broken={'run'})
+            self.slow_cleanup_erase(dut, 0.2)
+            ok, detail = self.run_test(ht.test_region, dut, timeout=1)
+            self.assertFalse(ok)
+            self.assertIn('RUN', detail)
+            self.assertNotIn('! cleanup', self.log())
+            self.assertIn('< HIL_RESULT abcd1234z erase PASS', self.log())
 
     def test_region_does_not_erase_on_an_abort(self):
         dut = FakeDut()

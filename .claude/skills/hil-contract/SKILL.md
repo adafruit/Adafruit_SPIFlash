@@ -121,8 +121,23 @@ new run id, per the `hil` Caller rules.
 ## Recovery
 
 Adafruit TinyUSB Arduino's Recovery, run in this library's attempt dir with its roster and records. A board left
-with the region in an unknown state is not data loss: the region is disposable; its next `spiflash_region` erases
-it.
+with the region in an unknown state is not data loss: the region is disposable.
+
+`spiflash_restore` cannot erase, so a region left programmed (a battery aborted after `RUN`, or its cleanup `ERASE`
+failed) fails step 3's restore with `erased=0`. Under the same hold R, after that restore has checked the failed
+run's receipts, erase it with `spiflash_region`'s battery, which ends in `ERASE` and a `CHECK` of `erased=1`, then
+rerun step 3; a failed `check` keeps the hold, reported:
+
+```bash
+python3 $H/hil_test.py flash -b <board> --build-record build/hil/<board>.build.json --sketch spiflash_region \
+  --under-hold R <roster>
+python3 $H/hil_test.py check -b <board> --build-record build/hil/<board>.build.json --test spiflash_region \
+  --under-hold R <roster>
+```
+
+On ci.lan add `--staged manifest.json` to both, as to `restore`. A session whose `close` failed on `erased=0` runs
+the same as `session exec <id> flash|check --bundle bundles/restore --build-record build/hil/<board>.build.json ...`,
+then `session close <id>` again.
 
 ## Limits
 
