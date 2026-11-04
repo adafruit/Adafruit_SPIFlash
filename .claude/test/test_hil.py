@@ -28,12 +28,13 @@ class FakeDut:
         self.out, self.writes, self.broken = b'', [], broken or set()
         self.write_timeout = None
         self.overlong_runs = False   # the framing bug: an overlong line's tail ran as a command
+        self.closed = False
 
     def reset_input_buffer(self):
         pass
 
     def close(self):
-        pass
+        self.closed = True
 
     @property
     def in_waiting(self):
@@ -102,10 +103,23 @@ class Protocol(unittest.TestCase):
         self.assertEqual(dut.flash[2093056:], b'\xff' * 4096)
         self.assertEqual([op for op, *_ in dut.writes], ['run', 'erase'])
 
+    def log(self):
+        return (Path(self.tmp.name) / 'spiflash-abcd1234.log').read_text()
+
     def test_region_fails_on_a_wrong_jedec(self):
-        ok, detail = self.run_test(ht.test_region, FakeDut(jedec='ef4015'))
+        dut = FakeDut(jedec='ef4015')
+        ok, detail = self.run_test(ht.test_region, dut)
         self.assertFalse(ok)
         self.assertIn('jedec', detail)
+        self.assertEqual(dut.writes, [])   # no RUN yet: nothing to erase
+
+    def test_region_does_not_erase_after_an_info_timeout(self):
+        dut = FakeDut()
+        dut.reply = lambda line: 'HIL_INFO stale ok=1'
+        with self.assertRaisesRegex(TimeoutError, 'no reply'):
+            self.run_test(ht.test_region, dut, timeout=0.3)
+        self.assertEqual(dut.writes, [])
+        self.assertNotIn('ERASE', self.log())
 
     def test_region_fails_when_the_pattern_is_not_written(self):
         dut = FakeDut(broken={'run'})
@@ -131,6 +145,53 @@ class Protocol(unittest.TestCase):
             self.run_test(ht.test_region, dut, timeout=0.5)
         self.assertEqual(dut.flash[2093056:], b'\xff' * 4096)
         self.assertEqual([op for op, *_ in dut.writes], ['run', 'erase'])
+
+    def test_a_failed_cleanup_erase_keeps_the_original_failure(self):
+        for name, broken, stale in (('failing return', {'run'}, ('ERASE abcd1234z ',)),
+                                    ('timeout', set(), ('RUN abcd1234x0 ', 'ERASE abcd1234z '))):
+            dut = FakeDut(broken=broken)
+            reply = dut.reply
+            dut.reply = lambda line, reply=reply, stale=stale: \
+                'HIL_RESULT stale' if line.startswith(stale) else reply(line)
+            with self.subTest(name), mock.patch.object(ht, 'CLEANUP_WAIT', 0.2):
+                if broken:
+                    ok, detail = self.run_test(ht.test_region, dut, timeout=0.5)
+                    self.assertFalse(ok)
+                    self.assertIn('RUN', detail)
+                else:
+                    with self.assertRaisesRegex(TimeoutError, 'RUN abcd1234x0'):
+                        self.run_test(ht.test_region, dut, timeout=0.3)
+                self.assertTrue(dut.closed)
+                self.assertIn("! cleanup ERASE: TimeoutError: no reply to 'ERASE abcd1234z", self.log())
+
+    def test_region_does_not_erase_on_an_abort(self):
+        dut = FakeDut()
+        reply = dut.reply
+
+        def interrupted(line):
+            if line.startswith('RUN abcd1234x0 '):
+                raise KeyboardInterrupt
+            return reply(line)
+        dut.reply = interrupted
+        with self.assertRaises(KeyboardInterrupt):
+            self.run_test(ht.test_region, dut)
+        self.assertEqual([op for op, *_ in dut.writes], ['run'])   # the engine holds the board: no cleanup ERASE
+        self.assertTrue(dut.closed)
+        self.assertIn('> RUN abcd1234r', self.log())
+
+    def test_an_abort_during_the_cleanup_still_closes_and_logs(self):
+        dut = FakeDut(broken={'run'})
+        reply = dut.reply
+
+        def interrupted(line):
+            if line.startswith('ERASE abcd1234z '):
+                raise KeyboardInterrupt
+            return reply(line)
+        dut.reply = interrupted
+        with self.assertRaises(KeyboardInterrupt):
+            self.run_test(ht.test_region, dut)
+        self.assertTrue(dut.closed)
+        self.assertIn('> RUN abcd1234r', self.log())
 
     def test_region_fails_when_an_overlong_line_runs_its_tail(self):
         dut = FakeDut()

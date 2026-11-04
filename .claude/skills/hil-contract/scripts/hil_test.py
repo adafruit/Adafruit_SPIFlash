@@ -49,7 +49,7 @@ REMOTE_ROSTER = 'test/hil/ci.json'
 HIL = '.claude/skills/hil-contract/scripts/hil_test.py'
 SECTOR = 4096
 STORAGE_KEYS = ('transport', 'jedec', 'window', 'offset', 'length')
-CLEANUP_WAIT = 10   # seconds for the ERASE after a failure, whose test deadline may be spent
+CLEANUP_WAIT = 10   # minimum seconds for the ERASE after a failure, whose test deadline may be spent
 
 E = None   # agentrc's arduino_hil, bound to this profile by engine()
 
@@ -147,11 +147,11 @@ def ask_op(console, cmd, nonce, off, length):
 def erase_after_failure(console, nonce, off, length):
     """Best-effort ERASE of a region a failed battery may have left programmed, so spiflash_restore finds it erased;
     its own failure is left to that restore."""
-    console.deadline = time.monotonic() + CLEANUP_WAIT
+    console.deadline = max(console.deadline, time.monotonic() + CLEANUP_WAIT)
     try:
         ask_op(console, 'ERASE', nonce, off, length)
-    except Exception:
-        pass
+    except Exception as e:
+        console.log.append(f'! cleanup ERASE: {type(e).__name__}: {e}')
 
 
 def test_region(dev, nonce, deadline, tracker, run_dir, board):
@@ -197,11 +197,17 @@ def test_region(dev, nonce, deadline, tracker, run_dir, board):
         programmed = False
         steps.append('erased')
         return True, f'{tty}: [{off:#x}, +{length:#x}) {", ".join(steps)}'
+    except BaseException as e:
+        if not isinstance(e, Exception):   # an abort: the engine keeps the board held, its state unknown
+            programmed = False
+        raise
     finally:
-        if programmed:
-            erase_after_failure(console, nonce + 'z', off, length)
-        port.close()
-        (Path(run_dir) / f'spiflash-{nonce}.log').write_text('\n'.join(log) + '\n')
+        try:
+            if programmed:
+                erase_after_failure(console, nonce + 'z', off, length)
+        finally:
+            port.close()
+            (Path(run_dir) / f'spiflash-{nonce}.log').write_text('\n'.join(log) + '\n')
 
 
 def test_restore(dev, nonce, deadline, tracker, run_dir, board):
