@@ -130,7 +130,8 @@ public:
                            uint32_t len) = 0;
 
   /// Set the number of address bytes sent with each command
-  /// @param addr_len number of address bytes, e.g. 3 or 4
+  /// @param addr_len number of address bytes: 2, 3 or 4 (begin() picks 2 for
+  ///                 devices of 64KB or less, e.g. small FRAM)
   void setAddressLength(uint8_t addr_len) { _addr_len = addr_len; }
 
   /// Set the command used for memory reads

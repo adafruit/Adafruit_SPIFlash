@@ -29,12 +29,15 @@
 #include "SPI.h"
 #include "flash_devices.h"
 
+/// Flash transport for the first FAT data partition of the ESP32's own flash,
+/// accessed through the ESP-IDF partition API
 class Adafruit_FlashTransport_ESP32 : public Adafruit_FlashTransport {
 private:
   esp_partition_t const *_partition;
   SPIFlash_Device_t _flash_device;
 
 public:
+  /// Create a transport for the FAT partition, found at begin()
   Adafruit_FlashTransport_ESP32(void);
 
   virtual void begin(void);
@@ -52,8 +55,10 @@ public:
   virtual bool readMemory(uint32_t addr, uint8_t *data, uint32_t len);
   virtual bool writeMemory(uint32_t addr, uint8_t const *data, uint32_t len);
 
-  // Flash device is already detected and configured, get the pointer without
-  // go through initial sequence
+  /// Get the flash device already detected and configured by the IDF, so
+  /// begin() can skip the detection sequence
+  /// @return device with the partition size and the flash JEDEC ID, NULL if
+  ///         there is no FAT partition or the ID could not be read
   SPIFlash_Device_t *getFlashDevice(void);
 };
 

@@ -71,14 +71,17 @@ public:
   Adafruit_SPIFlash(Adafruit_FlashTransport *transport, bool useCache = true);
   ~Adafruit_SPIFlash() {}
 
-  /// Initialize the flash, then allocate the sector cache if enabled
-  /// @param flash_devs list of possible flash devices, NULL for the built-in
-  ///                   list (ignored on ESP32 and RP2040)
+  /// Initialize the flash, then allocate the sector cache. No cache is
+  /// allocated for FRAM, on AVR, when useCache is false or when the flash was
+  /// not identified.
+  /// @param flash_devs extra devices to check before the built-in list, NULL
+  ///                   for none (ignored on ESP32 and RP2040)
   /// @param count      number of entries in flash_devs
   /// @return true if the flash device was identified
   bool begin(SPIFlash_Device_t const *flash_devs = NULL, size_t count = 1);
 
-  /// Deinitialize the flash and free the sector cache
+  /// Deinitialize the flash and free the sector cache without syncing it:
+  /// call syncDevice() first or writes still held in the cache are lost
   void end(void);
 
   /// Check whether writes go through the sector cache
@@ -166,7 +169,7 @@ public:
 
 protected:
   bool _cache_en;              ///< Sector cache requested
-  Adafruit_FlashCache *_cache; ///< Sector cache, NULL until begin()
+  Adafruit_FlashCache *_cache; ///< Sector cache, NULL if none (see begin())
 };
 
 #endif /* ADAFRUIT_SPIFLASH_H_ */

@@ -46,8 +46,8 @@ public:
   ~Adafruit_SPIFlashBase() {}
 
   /// Initialize the transport and identify the flash chip
-  /// @param flash_devs list of possible flash devices, NULL for the built-in
-  ///                   list (ignored on ESP32 and RP2040)
+  /// @param flash_devs extra devices to check before the built-in list, NULL
+  ///                   for none (ignored on ESP32 and RP2040)
   /// @param count      number of entries in flash_devs
   /// @return true if the flash device was identified
   bool begin(SPIFlash_Device_t const *flash_devs = NULL, size_t count = 1);
@@ -111,14 +111,18 @@ public:
   /// @return number of bytes read, 0 on failure
   uint32_t readBuffer(uint32_t address, uint8_t *buffer, uint32_t len);
 
-  /// Write data to flash, which must already be erased
+  /// Write data to flash. NOR flash must already be erased, FRAM needs no
+  /// erase.
   /// @param address flash address to write to
   /// @param buffer  data to write
   /// @param len     number of bytes to write
   /// @return number of bytes written
   uint32_t writeBuffer(uint32_t address, uint8_t const *buffer, uint32_t len);
 
-  /// Erase a 256 byte page
+  /// Erase a 256 byte page with SFLASH_CMD_ERASE_PAGE (0x81). This command
+  /// is device-specific: many NOR parts (e.g. W25Q, GD25Q) lack it or use 0x81
+  /// for something else, and the ESP32, RP2040 and nRF52840 QSPI transports
+  /// reject it. Use eraseSector() for the 4KB erase.
   /// @param pageNumber page to erase
   /// @return true if success
   bool erasePage(uint32_t pageNumber);
@@ -133,7 +137,9 @@ public:
   /// @return true if success
   bool eraseBlock(uint32_t blockNumber);
 
-  /// Erase the whole chip
+  /// Erase the whole chip on external flash, or the accessible region only
+  /// (the FAT partition on ESP32, the configured region on RP2040); no-op on
+  /// FRAM
   /// @return true if success
   bool eraseChip(void);
 

@@ -28,6 +28,7 @@
 #include "Arduino.h"
 #include "SPI.h"
 
+/// Flash transport over a standard SPI bus
 class Adafruit_FlashTransport_SPI : public Adafruit_FlashTransport {
 private:
   SPIClass *_spi;
@@ -38,7 +39,14 @@ private:
   uint32_t _clock_rd;
 
 public:
+  /// Create a transport on an SPI bus
+  /// @param ss           chip select pin
+  /// @param spiinterface SPI bus the flash is connected to
   Adafruit_FlashTransport_SPI(uint8_t ss, SPIClass *spiinterface);
+
+  /// Create a transport on an SPI bus
+  /// @param ss           chip select pin
+  /// @param spiinterface SPI bus the flash is connected to
   Adafruit_FlashTransport_SPI(uint8_t ss, SPIClass &spiinterface);
 
   virtual void begin(void);
