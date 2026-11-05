@@ -82,7 +82,8 @@ bool Adafruit_SPIFlashBase::begin(SPIFlash_Device_t const *flash_devs,
   _flash_dev = ((Adafruit_FlashTransport_RP2040 *)_trans)->getFlashDevice();
 #endif
 
-  return true;
+  // NULL if the flash could not be identified (e.g. no FAT partition on ESP32)
+  return _flash_dev != NULL;
 }
 
 #else
@@ -357,6 +358,12 @@ bool Adafruit_SPIFlashBase::erasePage(uint32_t pageNumber) {
   bool const ret = _trans->eraseCommand(SFLASH_CMD_ERASE_PAGE,
                                         pageNumber * SFLASH_PAGE_SIZE);
 
+  // Clear the write enable latch left by a failed erase; WRDI is ignored if
+  // the erase is in fact running
+  if (!ret) {
+    writeDisable();
+  }
+
   _indicator_off();
 
   return ret;
@@ -383,6 +390,10 @@ bool Adafruit_SPIFlashBase::eraseSector(uint32_t sectorNumber) {
   bool const ret = _trans->eraseCommand(SFLASH_CMD_ERASE_SECTOR,
                                         sectorNumber * SFLASH_SECTOR_SIZE);
 
+  if (!ret) {
+    writeDisable();
+  }
+
   _indicator_off();
 
   return ret;
@@ -407,6 +418,10 @@ bool Adafruit_SPIFlashBase::eraseBlock(uint32_t blockNumber) {
   bool const ret = _trans->eraseCommand(SFLASH_CMD_ERASE_BLOCK,
                                         blockNumber * SFLASH_BLOCK_SIZE);
 
+  if (!ret) {
+    writeDisable();
+  }
+
   _indicator_off();
 
   return ret;
@@ -429,6 +444,10 @@ bool Adafruit_SPIFlashBase::eraseChip(void) {
   writeEnable();
 
   bool const ret = _trans->runCommand(SFLASH_CMD_ERASE_CHIP);
+
+  if (!ret) {
+    writeDisable();
+  }
 
   _indicator_off();
 
@@ -500,6 +519,7 @@ uint32_t Adafruit_SPIFlashBase::writeBuffer(uint32_t address,
       uint32_t const toWrite = min(remain, leftOnPage);
 
       if (!_trans->writeMemory(address, buffer, toWrite)) {
+        writeDisable();
         break;
       }
 

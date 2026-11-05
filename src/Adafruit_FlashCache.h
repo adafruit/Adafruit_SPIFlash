@@ -31,17 +31,42 @@
 // forward declaration
 class Adafruit_SPIFlashBase;
 
+/// Single 4KB sector cache used to turn small block writes into whole sector
+/// erase + program cycles on the flash
 class Adafruit_FlashCache {
 private:
   uint8_t _buf[4096] __attribute__((aligned(4))); // must be sector size
   uint32_t _addr;
 
 public:
+  /// Create an empty cache
   Adafruit_FlashCache(void);
 
+  /// Erase and program the cached sector to flash, if any is cached. The
+  /// cache is emptied on success; on failure the sector stays cached so a
+  /// later sync can retry it.
+  /// @param fl flash device the cache belongs to
+  /// @return true if nothing was cached or eraseSector() and writeBuffer()
+  ///         reported success (the sector is not read back), false otherwise
   bool sync(Adafruit_SPIFlashBase *fl);
+
+  /// Write data through the cache, flushing the cached sector to flash
+  /// whenever the write moves on to a different sector
+  /// @param fl  flash device the cache belongs to
+  /// @param dst flash address to write to
+  /// @param src data to write
+  /// @param len number of bytes to write
+  /// @return true if success, false if flushing the cached sector or reading
+  ///         the next one from flash failed
   bool write(Adafruit_SPIFlashBase *fl, uint32_t dst, void const *src,
              uint32_t len);
+
+  /// Read data, taking any bytes held in the cache in preference to flash
+  /// @param fl    flash device the cache belongs to
+  /// @param addr  flash address to read from
+  /// @param dst   buffer to hold the data
+  /// @param count number of bytes to read
+  /// @return true if success, false if a flash read failed
   bool read(Adafruit_SPIFlashBase *fl, uint32_t addr, uint8_t *dst,
             uint32_t count);
 };

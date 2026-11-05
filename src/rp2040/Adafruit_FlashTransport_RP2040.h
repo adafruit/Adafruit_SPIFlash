@@ -29,33 +29,45 @@
 #include "SPI.h"
 #include "flash_devices.h"
 
+/// Flash transport for a region of the RP2040's own flash, accessed through
+/// the Pico SDK flash API
 class Adafruit_FlashTransport_RP2040 : public Adafruit_FlashTransport {
 protected:
-  uint32_t _start_addr;
-  uint32_t _size;
-  SPIFlash_Device_t _flash_dev;
+  uint32_t _start_addr;         ///< Region offset from the start of flash
+  uint32_t _size;               ///< Region size in bytes
+  SPIFlash_Device_t _flash_dev; ///< Flash device describing the region
 
-  // check if relative addr is valid
+  /// Check whether an access ending at a region-relative offset stays within
+  /// the region; the caller's addr + len is not checked for wrap
+  /// @param addr exclusive end offset of the access
+  /// @return true if valid
   bool check_addr(uint32_t addr) { return addr <= _size; }
 
-  // Flag (set via constructor) indicates whether other core must pause when
-  // writing or erasing flash. Default state is true, pause other core. VERY
-  // rare that this needs changed, REQUIRES SPECIAL LINKER CONFIG to locate
-  // ALL functions of other core entirely in RAM, else hard crash and flash
-  // filesystem corruption. PicoDVI is a rare use case.
+  /// Flag (set via constructor) indicates whether other core must pause when
+  /// writing or erasing flash. Default state is true, pause other core. VERY
+  /// rare that this needs changed, REQUIRES SPECIAL LINKER CONFIG to locate
+  /// ALL functions of other core entirely in RAM, else hard crash and flash
+  /// filesystem corruption. PicoDVI is a rare use case.
   bool _idle_other_core_on_write;
 
 public:
+  /// Start of the CircuitPython partition: 1 MB, 1.5 MB on Pico W
   static const uint32_t CPY_START_ADDR;
+  /// Size of the CircuitPython partition, from CPY_START_ADDR to the end of
+  /// flash
   static const uint32_t CPY_SIZE;
 
-  // Generic constructor with address and size. If start_address and size are 0,
-  // value that matches filesystem setting in 'Tools->Flash Size' menu selection
-  // will be used.
-  //
-  // To be compatible with CircuitPython partition scheme (start_address = 1
-  // MB, size = total flash - 1 MB) use
-  //   Adafruit_FlashTransport_RP2040(CPY_START_ADDR, CPY_SIZE)
+  /// Generic constructor with address and size. If start_address and size are
+  /// 0, value that matches filesystem setting in 'Tools->Flash Size' menu
+  /// selection will be used.
+  ///
+  /// To be compatible with CircuitPython partition scheme (start_address =
+  /// CPY_START_ADDR, size = CPY_SIZE) use
+  ///   Adafruit_FlashTransport_RP2040(CPY_START_ADDR, CPY_SIZE)
+  /// @param start_addr region offset from the start of flash, 0 for the menu
+  ///                   filesystem start
+  /// @param size       region size in bytes, 0 for the menu filesystem size
+  /// @param idle       pause the other core while writing or erasing flash
   Adafruit_FlashTransport_RP2040(uint32_t start_addr = 0, uint32_t size = 0,
                                  bool idle = true);
 
@@ -74,15 +86,20 @@ public:
   virtual bool readMemory(uint32_t addr, uint8_t *data, uint32_t len);
   virtual bool writeMemory(uint32_t addr, uint8_t const *data, uint32_t len);
 
-  // Flash device is already detected and configured, get the pointer without
-  // go through initial sequence
+  /// Get the flash device already detected and configured, so begin() can
+  /// skip the detection sequence
+  /// @return device with the region size and the JEDEC ID read at begin()
   SPIFlash_Device_t *getFlashDevice(void);
 };
 
+/// RP2040 flash transport for the CircuitPython partition (CPY_START_ADDR,
+/// CPY_SIZE)
 class Adafruit_FlashTransport_RP2040_CPY
     : public Adafruit_FlashTransport_RP2040 {
 
 public:
+  /// Create a transport for the CircuitPython partition
+  /// @param idle pause the other core while writing or erasing flash
   Adafruit_FlashTransport_RP2040_CPY(bool idle = true)
       : Adafruit_FlashTransport_RP2040(CPY_START_ADDR, CPY_SIZE, idle) {}
 };

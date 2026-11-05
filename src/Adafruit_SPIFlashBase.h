@@ -31,61 +31,152 @@
 // for debugging
 #define SPIFLASH_DEBUG 0
 
-// An easy to use interface for working with Flash memory.
-//
-// If you are managing allocation of the Flash space yourself, this is the
-// class to use as it take very little RAM.
+/// An easy to use interface for working with Flash memory.
+///
+/// If you are managing allocation of the Flash space yourself, this is the
+/// class to use as it take very little RAM.
 class Adafruit_SPIFlashBase {
 public:
+  /// Create a flash device with no transport
   Adafruit_SPIFlashBase();
+
+  /// Create a flash device on a transport
+  /// @param transport bus used to talk to the flash
   Adafruit_SPIFlashBase(Adafruit_FlashTransport *transport);
   ~Adafruit_SPIFlashBase() {}
 
+  /// Initialize the transport and identify the flash chip
+  /// @param flash_devs extra devices to check before the built-in list, NULL
+  ///                   for none (ignored on ESP32 and RP2040)
+  /// @param count      number of entries in flash_devs
+  /// @return true if the JEDEC ID matched a known device; on ESP32 if a FAT
+  ///         partition was found and its chip ID obtained; on RP2040 whenever
+  ///         a transport is set
   bool begin(SPIFlash_Device_t const *flash_devs = NULL, size_t count = 1);
+
+  /// Deinitialize the transport and forget the flash device
   void end(void);
 
+  /// Set a pin that is driven while the flash is being accessed, e.g. an LED
+  /// @param pin      pin number, -1 to disable
+  /// @param state_on pin level when active
   void setIndicator(int pin, bool state_on = true);
 
+  /// Get the number of pages in the flash
+  /// @return number of pages, 0 if no flash device
   uint32_t numPages(void);
+
+  /// Get the flash page size
+  /// @return page size in bytes
   uint16_t pageSize(void);
 
+  /// Get the flash size
+  /// @return size in bytes, 0 if no flash device
   uint32_t size(void);
 
+  /// Read the first status register
+  /// @return status register 1 value
   uint8_t readStatus(void);
-  uint8_t readStatus2(void);
-  void waitUntilReady(void);
-  bool writeEnable(void);
-  bool writeDisable(void);
-  bool isReady(void); // both WIP and WREN are clear
 
+  /// Read the second status register
+  /// @return status register 2 value
+  uint8_t readStatus2(void);
+
+  /// Block until both the write-in-progress bit and the write enable latch
+  /// are clear in status register 1 (returns at once for FRAM). The latch
+  /// stays set after writeEnable() until a program, erase or status register
+  /// write completes or writeDisable() is called, so on transports that read
+  /// the real status register, calling this after writeEnable() with none of
+  /// those following blocks forever.
+  void waitUntilReady(void);
+
+  /// Set the write enable latch
+  /// @return true if the command was sent
+  bool writeEnable(void);
+
+  /// Clear the write enable latch
+  /// @return true if the command was sent
+  bool writeDisable(void);
+
+  /// Check whether the flash is idle (both WIP and WREN are clear)
+  /// @return true if ready
+  bool isReady(void);
+
+  /// Get the JEDEC ID of the flash
+  /// @return manufacturer ID, memory type and capacity as 0xMMTTCC, or
+  ///         0xFFFFFF if no flash device
   uint32_t getJEDECID(void);
 
+  /// Read data from flash
+  /// @param address flash address to read from
+  /// @param buffer  buffer to hold the data
+  /// @param len     number of bytes to read
+  /// @return number of bytes read, 0 on failure
   uint32_t readBuffer(uint32_t address, uint8_t *buffer, uint32_t len);
+
+  /// Write data to flash. NOR flash must already be erased, FRAM needs no
+  /// erase.
+  /// @param address flash address to write to
+  /// @param buffer  data to write
+  /// @param len     number of bytes to write
+  /// @return number of bytes written
   uint32_t writeBuffer(uint32_t address, uint8_t const *buffer, uint32_t len);
 
+  /// Erase a 256 byte page with SFLASH_CMD_ERASE_PAGE (0x81). This command
+  /// is device-specific: many NOR parts (e.g. W25Q, GD25Q) lack it or use 0x81
+  /// for something else, and the ESP32, RP2040 and nRF52840 QSPI transports
+  /// reject it. Use eraseSector() for the 4KB erase.
+  /// @param pageNumber page to erase
+  /// @return true if success
   bool erasePage(uint32_t pageNumber);
+
+  /// Erase a 4KB sector
+  /// @param sectorNumber sector to erase
+  /// @return true if success
   bool eraseSector(uint32_t sectorNumber);
+
+  /// Erase a 64KB block
+  /// @param blockNumber block to erase
+  /// @return true if success
   bool eraseBlock(uint32_t blockNumber);
+
+  /// Erase the whole chip on external flash, or the accessible region only
+  /// (the FAT partition on ESP32, the configured region on RP2040); no-op on
+  /// FRAM
+  /// @return true if success
   bool eraseChip(void);
 
   // Helper
+  /// Read one byte from flash
+  /// @param addr flash address to read from
+  /// @return byte read, 0xff on failure
   uint8_t read8(uint32_t addr);
+
+  /// Read a 16-bit value from flash
+  /// @param addr flash address to read from
+  /// @return value read, 0xffff on failure
   uint16_t read16(uint32_t addr);
+
+  /// Read a 32-bit value from flash
+  /// @param addr flash address to read from
+  /// @return value read, 0xffffffff on failure
   uint32_t read32(uint32_t addr);
 
 protected:
-  Adafruit_FlashTransport *_trans;
-  SPIFlash_Device_t const *_flash_dev;
+  Adafruit_FlashTransport *_trans;     ///< Bus used to talk to the flash
+  SPIFlash_Device_t const *_flash_dev; ///< Identified flash device, or NULL
 
-  int _ind_pin;
-  bool _ind_active;
+  int _ind_pin;     ///< Activity indicator pin, -1 if none
+  bool _ind_active; ///< Activity indicator pin level when active
 
+  /// Drive the activity indicator pin to its active level, if set
   void _indicator_on(void) {
     if (_ind_pin >= 0) {
       digitalWrite(_ind_pin, _ind_active ? HIGH : LOW);
     }
   }
 
+  /// Drive the activity indicator pin to its inactive level, if set
   void _indicator_off(void) {
     if (_ind_pin >= 0) {
       digitalWrite(_ind_pin, _ind_active ? LOW : HIGH);

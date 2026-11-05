@@ -55,12 +55,15 @@ bool Adafruit_FlashCache::sync(Adafruit_SPIFlashBase *fl) {
     return true;
   }
 
-  fl->eraseSector(_addr / SFLASH_SECTOR_SIZE);
-  fl->writeBuffer(_addr, _buf, SFLASH_SECTOR_SIZE);
+  bool const ok =
+      fl->eraseSector(_addr / SFLASH_SECTOR_SIZE) &&
+      fl->writeBuffer(_addr, _buf, SFLASH_SECTOR_SIZE) == SFLASH_SECTOR_SIZE;
 
-  _addr = INVALID_ADDR;
+  if (ok) {
+    _addr = INVALID_ADDR;
+  }
 
-  return true;
+  return ok;
 }
 
 bool Adafruit_FlashCache::write(Adafruit_SPIFlashBase *fl, uint32_t address,
@@ -79,11 +82,16 @@ bool Adafruit_FlashCache::write(Adafruit_SPIFlashBase *fl, uint32_t address,
     // Flash sector changes, flush old and update new cache
     if (sector_addr != _addr) {
       SPICACHE_LOG(sector_addr);
-      this->sync(fl);
-      _addr = sector_addr;
+      if (!this->sync(fl)) {
+        return false;
+      }
 
       // read a whole page from flash
-      fl->readBuffer(sector_addr, _buf, SFLASH_SECTOR_SIZE);
+      if (fl->readBuffer(sector_addr, _buf, SFLASH_SECTOR_SIZE) !=
+          SFLASH_SECTOR_SIZE) {
+        return false;
+      }
+      _addr = sector_addr;
     }
 
     memcpy(_buf + offset, src8, wr_bytes);
@@ -115,8 +123,9 @@ bool Adafruit_FlashCache::read(Adafruit_SPIFlashBase *fl, uint32_t address,
                               (int32_t)(count - dst_off));
 
     // start to cached
-    if (dst_off) {
-      fl->readBuffer(address, buffer, dst_off);
+    if (dst_off &&
+        fl->readBuffer(address, buffer, dst_off) != (uint32_t)dst_off) {
+      return false;
     }
 
     // cached
@@ -124,11 +133,12 @@ bool Adafruit_FlashCache::read(Adafruit_SPIFlashBase *fl, uint32_t address,
 
     // cached to end
     uint32_t copied = (uint32_t)(dst_off + cache_bytes);
-    if (copied < count) {
-      fl->readBuffer(address + copied, buffer + copied, count - copied);
+    if (copied < count && fl->readBuffer(address + copied, buffer + copied,
+                                         count - copied) != count - copied) {
+      return false;
     }
-  } else {
-    fl->readBuffer(address, buffer, count);
+  } else if (fl->readBuffer(address, buffer, count) != count) {
+    return false;
   }
 
   return true;

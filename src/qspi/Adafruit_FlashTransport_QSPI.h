@@ -25,14 +25,24 @@
 #ifndef ADAFRUIT_FLASHTRANSPORT_QSPI_H_
 #define ADAFRUIT_FLASHTRANSPORT_QSPI_H_
 
+/// Flash transport over the QSPI peripheral of the SAMD51 or nRF52840
 class Adafruit_FlashTransport_QSPI : public Adafruit_FlashTransport {
 private:
   int8_t _sck, _cs;
   int8_t _io0, _io1, _io2, _io3;
 
 public:
+  /// Create a QSPI transport on the given pins
+  /// @param pinSCK clock pin
+  /// @param pinCS  chip select pin
+  /// @param pinIO0 data pin 0
+  /// @param pinIO1 data pin 1
+  /// @param pinIO2 data pin 2
+  /// @param pinIO3 data pin 3
   Adafruit_FlashTransport_QSPI(int8_t pinSCK, int8_t pinCS, int8_t pinIO0,
                                int8_t pinIO1, int8_t pinIO2, int8_t pinIO3);
+
+  /// Create a QSPI transport on the board's PIN_QSPI_* pins
   Adafruit_FlashTransport_QSPI(void);
 
   virtual void begin(void);
