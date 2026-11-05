@@ -1,0 +1,19 @@
+var searchData=
+[
+  ['sectorcount',['sectorCount',['../class_adafruit___s_p_i_flash.html#a864247f27ec07ef807b3b75bccfe4f41',1,'Adafruit_SPIFlash']]],
+  ['setaddresslength',['setAddressLength',['../class_adafruit___flash_transport.html#afc560774f452c0ed0a36b9cf3581e975',1,'Adafruit_FlashTransport']]],
+  ['setclockspeed',['setClockSpeed',['../class_adafruit___flash_transport.html#a30274ecc344eda78868d5a9bed285686',1,'Adafruit_FlashTransport']]],
+  ['setindicator',['setIndicator',['../class_adafruit___s_p_i_flash_base.html#a3deda2b26c581e514a9b5a448ce7a539',1,'Adafruit_SPIFlashBase']]],
+  ['setreadcommand',['setReadCommand',['../class_adafruit___flash_transport.html#a554f202aaedbf52b47d8f4ee7f8426c5',1,'Adafruit_FlashTransport']]],
+  ['single_5fstatus_5fbyte',['single_status_byte',['../struct_s_p_i_flash___device__t.html#a5d8d30d29f4f870419ddfd5cb7127180',1,'SPIFlash_Device_t']]],
+  ['size',['size',['../class_adafruit___s_p_i_flash_base.html#afd2ea9911fa4f880300724c1c3a3c248',1,'Adafruit_SPIFlashBase']]],
+  ['spiflash_5fdevice_5ft',['SPIFlash_Device_t',['../struct_s_p_i_flash___device__t.html',1,'']]],
+  ['start_5fup_5ftime_5fus',['start_up_time_us',['../struct_s_p_i_flash___device__t.html#a3d08f0532f8d265a1cc5b6cf39aad6ce',1,'SPIFlash_Device_t']]],
+  ['supportquadmode',['supportQuadMode',['../class_adafruit___flash_transport.html#ab122eb4cca2e7e9a65ed5e72e5c65978',1,'Adafruit_FlashTransport']]],
+  ['supports_5ffast_5fread',['supports_fast_read',['../struct_s_p_i_flash___device__t.html#a4899a3e316953204d0534d4be8b21896',1,'SPIFlash_Device_t']]],
+  ['supports_5fqspi',['supports_qspi',['../struct_s_p_i_flash___device__t.html#ad55047e36ebfe4405fea976ba10703c8',1,'SPIFlash_Device_t']]],
+  ['supports_5fqspi_5fwrites',['supports_qspi_writes',['../struct_s_p_i_flash___device__t.html#a93971c45da003ed8ecd36be673143d54',1,'SPIFlash_Device_t']]],
+  ['sync',['sync',['../class_adafruit___flash_cache.html#a4cdfad9e02e12ef4dd9f67053c5201be',1,'Adafruit_FlashCache']]],
+  ['syncblocks',['syncBlocks',['../class_adafruit___s_p_i_flash.html#ad8e737d3556d4bc67a5b4ac9d1f7ca00',1,'Adafruit_SPIFlash']]],
+  ['syncdevice',['syncDevice',['../class_adafruit___s_p_i_flash.html#a3aea5c1033348302953c43cb728101bb',1,'Adafruit_SPIFlash']]]
+];
