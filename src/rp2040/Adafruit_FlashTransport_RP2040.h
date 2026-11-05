@@ -37,8 +37,9 @@ protected:
   uint32_t _size;               ///< Region size in bytes
   SPIFlash_Device_t _flash_dev; ///< Flash device describing the region
 
-  /// Check whether a region-relative address is within the region
-  /// @param addr address relative to the region start
+  /// Check whether an access ending at a region-relative offset stays within
+  /// the region; the caller's addr + len is not checked for wrap
+  /// @param addr exclusive end offset of the access
   /// @return true if valid
   bool check_addr(uint32_t addr) { return addr <= _size; }
 

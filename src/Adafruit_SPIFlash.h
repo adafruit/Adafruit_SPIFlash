@@ -72,12 +72,12 @@ public:
   ~Adafruit_SPIFlash() {}
 
   /// Initialize the flash, then allocate the sector cache. No cache is
-  /// allocated for FRAM, on AVR, when useCache is false or when the flash was
-  /// not identified.
+  /// allocated for FRAM, on AVR, when useCache is false or when this returns
+  /// false.
   /// @param flash_devs extra devices to check before the built-in list, NULL
   ///                   for none (ignored on ESP32 and RP2040)
   /// @param count      number of entries in flash_devs
-  /// @return true if the flash device was identified
+  /// @return same as Adafruit_SPIFlashBase::begin()
   bool begin(SPIFlash_Device_t const *flash_devs = NULL, size_t count = 1);
 
   /// Deinitialize the flash and free the sector cache without syncing it:
@@ -98,8 +98,9 @@ public:
   virtual uint32_t sectorCount();
 
   /// Write any cached data to flash
-  /// @return true if success, false if erasing or programming the cached
-  ///         sector failed (it stays cached so a later call can retry)
+  /// @return true if nothing was cached or erasing and programming the cached
+  ///         sector reported success, false otherwise (the sector stays cached
+  ///         so a later call can retry)
   virtual bool syncDevice();
 
   /// Read a 512 byte sector

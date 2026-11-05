@@ -49,7 +49,9 @@ public:
   /// @param flash_devs extra devices to check before the built-in list, NULL
   ///                   for none (ignored on ESP32 and RP2040)
   /// @param count      number of entries in flash_devs
-  /// @return true if the flash device was identified
+  /// @return true if the JEDEC ID matched a known device; on ESP32 if a FAT
+  ///         partition was found and its chip ID obtained; on RP2040 whenever
+  ///         a transport is set
   bool begin(SPIFlash_Device_t const *flash_devs = NULL, size_t count = 1);
 
   /// Deinitialize the transport and forget the flash device

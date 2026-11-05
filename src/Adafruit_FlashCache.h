@@ -46,8 +46,8 @@ public:
   /// cache is emptied on success; on failure the sector stays cached so a
   /// later sync can retry it.
   /// @param fl flash device the cache belongs to
-  /// @return true if nothing was cached or the sector was erased and fully
-  ///         programmed, false otherwise
+  /// @return true if nothing was cached or eraseSector() and writeBuffer()
+  ///         reported success (the sector is not read back), false otherwise
   bool sync(Adafruit_SPIFlashBase *fl);
 
   /// Write data through the cache, flushing the cached sector to flash
