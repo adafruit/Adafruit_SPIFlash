@@ -42,9 +42,11 @@ public:
   /// Create an empty cache
   Adafruit_FlashCache(void);
 
-  /// Erase and program the cached sector to flash, if any is cached
+  /// Erase and program the cached sector to flash, if any is cached. The
+  /// cache is emptied even if this fails, dropping the cached data.
   /// @param fl flash device the cache belongs to
-  /// @return true (always succeeds)
+  /// @return true if nothing was cached or the sector was erased and fully
+  ///         programmed, false otherwise
   bool sync(Adafruit_SPIFlashBase *fl);
 
   /// Write data through the cache, flushing the cached sector to flash
@@ -53,7 +55,8 @@ public:
   /// @param dst flash address to write to
   /// @param src data to write
   /// @param len number of bytes to write
-  /// @return true (always succeeds)
+  /// @return true if success, false if flushing the cached sector or reading
+  ///         the next one from flash failed
   bool write(Adafruit_SPIFlashBase *fl, uint32_t dst, void const *src,
              uint32_t len);
 
@@ -62,7 +65,7 @@ public:
   /// @param addr  flash address to read from
   /// @param dst   buffer to hold the data
   /// @param count number of bytes to read
-  /// @return true (always succeeds)
+  /// @return true if success, false if a flash read failed
   bool read(Adafruit_SPIFlashBase *fl, uint32_t addr, uint8_t *dst,
             uint32_t count);
 };

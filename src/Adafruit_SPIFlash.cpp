@@ -128,7 +128,7 @@ bool Adafruit_SPIFlash::writeSector(uint32_t block, const uint8_t *src) {
                          LOGICAL_BLOCK_SIZE);
   } else {
     return this->writeBuffer(block * LOGICAL_BLOCK_SIZE, src,
-                             LOGICAL_BLOCK_SIZE) > 0;
+                             LOGICAL_BLOCK_SIZE) == LOGICAL_BLOCK_SIZE;
   }
 }
 
@@ -152,6 +152,7 @@ bool Adafruit_SPIFlash::writeSectors(uint32_t block, const uint8_t *src,
                          LOGICAL_BLOCK_SIZE * nb);
   } else {
     return this->writeBuffer(block * LOGICAL_BLOCK_SIZE, src,
-                             LOGICAL_BLOCK_SIZE * nb) > 0;
+                             LOGICAL_BLOCK_SIZE * nb) ==
+           LOGICAL_BLOCK_SIZE * nb;
   }
 }
