@@ -59,9 +59,6 @@ SPIFlash_Device_t *Adafruit_FlashTransport_ESP32::getFlashDevice(void) {
     return NULL;
   }
 
-  // Limit to partition size
-  _flash_device.total_size = _partition->size;
-
 #if ESP_IDF_VERSION >= ESP_IDF_VERSION_VAL(6, 0, 0)
   // IDF v6 made esp_flash_t opaque, read the JEDEC ID through the API
   uint32_t jedec_id = 0;
@@ -72,6 +69,9 @@ SPIFlash_Device_t *Adafruit_FlashTransport_ESP32::getFlashDevice(void) {
   // Chip ID detected and cached by the IDF when the flash was initialised
   uint32_t const jedec_id = _partition->flash_chip->chip_id;
 #endif
+
+  // Limit to partition size
+  _flash_device.total_size = _partition->size;
   _flash_device.manufacturer_id = (jedec_id >> 16);
   _flash_device.memory_type = (jedec_id >> 8) & 0xff;
   _flash_device.capacity = jedec_id & 0xff;
