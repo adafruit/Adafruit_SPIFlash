@@ -60,8 +60,8 @@ public:
   /// 0, value that matches filesystem setting in 'Tools->Flash Size' menu
   /// selection will be used.
   ///
-  /// To be compatible with CircuitPython partition scheme (start_address = 1
-  /// MB, size = total flash - 1 MB) use
+  /// To be compatible with CircuitPython partition scheme (start_address =
+  /// CPY_START_ADDR, size = CPY_SIZE) use
   ///   Adafruit_FlashTransport_RP2040(CPY_START_ADDR, CPY_SIZE)
   /// @param start_addr region offset from the start of flash, 0 for the menu
   ///                   filesystem start

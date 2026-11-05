@@ -43,7 +43,8 @@ public:
   Adafruit_FlashCache(void);
 
   /// Erase and program the cached sector to flash, if any is cached. The
-  /// cache is emptied even if this fails, dropping the cached data.
+  /// cache is emptied on success; on failure the sector stays cached so a
+  /// later sync can retry it.
   /// @param fl flash device the cache belongs to
   /// @return true if nothing was cached or the sector was erased and fully
   ///         programmed, false otherwise

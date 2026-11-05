@@ -59,7 +59,9 @@ bool Adafruit_FlashCache::sync(Adafruit_SPIFlashBase *fl) {
       fl->eraseSector(_addr / SFLASH_SECTOR_SIZE) &&
       fl->writeBuffer(_addr, _buf, SFLASH_SECTOR_SIZE) == SFLASH_SECTOR_SIZE;
 
-  _addr = INVALID_ADDR;
+  if (ok) {
+    _addr = INVALID_ADDR;
+  }
 
   return ok;
 }

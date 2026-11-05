@@ -99,7 +99,7 @@ public:
 
   /// Write any cached data to flash
   /// @return true if success, false if erasing or programming the cached
-  ///         sector failed (its data is dropped from the cache either way)
+  ///         sector failed (it stays cached so a later call can retry)
   virtual bool syncDevice();
 
   /// Read a 512 byte sector
