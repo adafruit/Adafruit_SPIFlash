@@ -80,7 +80,11 @@ public:
   /// @return status register 2 value
   uint8_t readStatus2(void);
 
-  /// Block until no write or erase is in progress
+  /// Block until both the write-in-progress bit and the write enable latch
+  /// are clear in status register 1 (returns at once for FRAM). The latch
+  /// stays set after writeEnable() until a program or erase completes or
+  /// writeDisable() is called, so calling this after writeEnable() with no
+  /// program or erase following blocks forever.
   void waitUntilReady(void);
 
   /// Set the write enable latch
