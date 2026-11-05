@@ -82,9 +82,10 @@ public:
 
   /// Block until both the write-in-progress bit and the write enable latch
   /// are clear in status register 1 (returns at once for FRAM). The latch
-  /// stays set after writeEnable() until a program or erase completes or
-  /// writeDisable() is called, so calling this after writeEnable() with no
-  /// program or erase following blocks forever.
+  /// stays set after writeEnable() until a program, erase or status register
+  /// write completes or writeDisable() is called, so on transports that read
+  /// the real status register, calling this after writeEnable() with none of
+  /// those following blocks forever.
   void waitUntilReady(void);
 
   /// Set the write enable latch
