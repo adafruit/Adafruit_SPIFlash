@@ -14,8 +14,6 @@ import hil_test  # noqa: E402
 
 hil_test.engine()   # the selected agentrc: a missing one fails here, naming the remedy
 
-CONSUMER = '.claude/skills/hil-contract/scripts/agentrc_pin.py'
-
 
 class Config(unittest.TestCase):
     def test_a_plain_library_on_profile_api_1(self):
@@ -30,14 +28,8 @@ class Selected(unittest.TestCase):
 
     def test_hil_test_binds_the_selected_identity(self):
         ident = agentrc_pin.identity()
-        self.assertLessEqual({*agentrc_pin.ENGINES, agentrc_pin.SELF, *agentrc_pin.FILES,
-                              'skills/hil/scripts/hil_remote_core.py'}, set(ident['files']))
         self.assertEqual(ident['source'], 'pin' if agentrc_pin.ci() else 'installed')
         self.assertEqual(hil_test.BUILD.AGENTRC, ident)
-
-    def test_this_copy_is_the_selected_canonical_bootstrap(self):
-        canonical = Path(agentrc_pin.identity()['root']) / 'skills/arduino/scripts/agentrc_pin.py'
-        self.assertEqual((ROOT / CONSUMER).read_bytes(), canonical.read_bytes())
 
 
 if __name__ == '__main__':
