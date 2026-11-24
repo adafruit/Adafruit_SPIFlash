@@ -33,8 +33,8 @@ ci.lan has no arduino-cli and no checkout of this library: firmware is built on 
 each requested board not-run naming the missing file.
 
 A roster entry is the `arduino` skill's (`name`, the board's name in agentrc's board registry and its lock; `uid`, the
-DUT's USB serial; `usb_port`; `probe`, its debug probe's serial, whose registry entry supplies the flasher, or a dev
-PC's unregistered board's own `flasher`; `debug`) plus this library's `arduino` section:
+DUT's USB serial; `usb_port`; `probe`, its debug probe's serial, whose registry entry supplies the flasher and the
+`debug` route, or a dev PC's unregistered board's own `flasher` and `debug`) plus this library's `arduino` section:
 
 - `tests`: `["spiflash_region"]`.
 - `vid_pid`: the DUT's VID:PID under this FQBN, commissioned (Metro M4 `239a:8020`, Pico `2e8a:000a`).
